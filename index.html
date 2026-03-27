@@ -102,8 +102,8 @@
     <div id="tracker" class="content-section">
         <div id="adminEntry" class="entry-card" style="display:none;">
             <h3>➕ Add Match Result</h3>
-            <label>Match Number:</label>
-            <select id="matchSelect" style="padding:8px; margin-bottom:15px; border-radius:5px;"></select>
+            <label>Select Available Match:</label>
+            <select id="matchSelect" style="padding:8px; margin-bottom:15px; border-radius:5px; font-weight:bold;"></select>
             <table>
                 <thead><tr><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
                 <tbody>
@@ -164,9 +164,6 @@
     let paidHistory = [];
     let isAdmin = false;
 
-    const sel = document.getElementById('matchSelect');
-    for(let i=1; i<=74; i++) { sel.options[sel.options.length] = new Option("Match "+i, i); }
-
     function openTab(e, n) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -181,31 +178,41 @@
             document.getElementById('adminText').innerText = "🔓 Volunteer Mode";
             document.getElementById('adminEntry').style.display = "block";
             document.getElementById('settleBtn').disabled = false;
+            updateMatchDropdown(); // Initialize dropdown on login
         }
     }
 
-    // --- REAL TIME DUPLICATE HIGHLIGHTING ---
+    // --- REFRESH DROPDOWN (DISABLED USED MATCHES) ---
+    function updateMatchDropdown() {
+        const sel = document.getElementById('matchSelect');
+        sel.innerHTML = "";
+        for (let i = 1; i <= 74; i++) {
+            const key = "match_" + i;
+            // Only add to dropdown if match does not exist in our winnersList
+            if (!winnersList[key]) {
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.text = "Match " + i;
+                sel.add(opt);
+            }
+        }
+        if (sel.options.length === 0) {
+            sel.innerHTML = "<option>All 74 Matches Completed</option>";
+            document.getElementById('saveBtn').disabled = true;
+        }
+    }
+
     function checkRealTimeDup() {
-        const inputs = [
-            document.getElementById('p1'),
-            document.getElementById('p2'),
-            document.getElementById('p3'),
-            document.getElementById('p4'),
-            document.getElementById('p5')
-        ];
-        
+        const inputs = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4'), document.getElementById('p5')];
         const names = inputs.map(i => i.value.trim().toUpperCase());
         const errorText = document.getElementById('realTimeError');
         const saveBtn = document.getElementById('saveBtn');
         let duplicateFound = false;
 
-        // Reset highlights
         inputs.forEach(i => i.classList.remove('input-error'));
-
         names.forEach((name, idx) => {
             if (name !== "" && names.indexOf(name) !== idx) {
                 duplicateFound = true;
-                // Highlight both boxes that have the same name
                 inputs[idx].classList.add('input-error');
                 inputs[names.indexOf(name)].classList.add('input-error');
             }
@@ -223,6 +230,8 @@
     function saveCurrentMatch() {
         if(!isAdmin) return;
         const matchNum = document.getElementById('matchSelect').value;
+        if (!matchNum || matchNum.includes("Completed")) return;
+
         const pValues = [
             document.getElementById('p1').value.trim(),
             document.getElementById('p2').value.trim(),
@@ -234,7 +243,7 @@
         db.ref('leagueRecords/match_' + matchNum).set({ winners: pValues }).then(() => {
             alert("Match " + matchNum + " Saved Successfully!");
             pValues.forEach((v, i) => document.getElementById('p' + (i+1)).value = "");
-            fetchAllData();
+            fetchAllData(); // This will refresh the dropdown too
         });
     }
 
@@ -245,6 +254,7 @@
             db.ref('leagueRecords').once('value').then(snap => {
                 winnersList = snap.val() || {};
                 renderTables();
+                if(isAdmin) updateMatchDropdown(); // Keep dropdown fresh
             });
         });
     }
