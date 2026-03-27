@@ -35,6 +35,7 @@
         .btn-fetch { background: var(--secondary); margin-bottom: 15px; width: 100%; justify-content: center; }
         .btn-save { background: var(--success); width: 100%; justify-content: center; margin-top: 10px; }
         .btn-settle { background: var(--success); width: 100%; margin-top: 10px; }
+        .error-msg { color: var(--danger); font-weight: bold; font-size: 0.9em; display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -114,6 +115,7 @@
                     </tr>
                 </tbody>
             </table>
+            <div id="dupWarning" class="error-msg">❌ Error: A player cannot hold more than one position in a match.</div>
             <button class="btn btn-save" onclick="saveCurrentMatch()">💾 Save Match</button>
         </div>
 
@@ -129,7 +131,6 @@
     <div id="summary" class="content-section">
         <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:#fff;">
             <h3>💳 Current Pending Balances</h3>
-            <p style="font-size:0.8em; color:#666;">(Total Winnings - Already Paid)</p>
             <table id="pendingTable">
                 <thead><tr><th>Name</th><th>Total Won</th><th>Already Paid</th><th>Pending Due</th><th>Settle?</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
@@ -138,7 +139,7 @@
         </div>
         <h3 style="margin-top:30px;">📚 Permanent Payout History</h3>
         <table id="paidTable">
-            <thead><tr><th>Date</th><th>Name</th><th>Amount Settled</th></tr></thead>
+            <thead><tr><th>Date</th><th>Name</th><th>Amount</th></tr></thead>
             <tbody id="paidHistoryBody"></tbody>
         </table>
     </div>
@@ -185,15 +186,29 @@
     function saveCurrentMatch() {
         if(!isAdmin) return;
         const matchNum = document.getElementById('matchSelect').value;
-        const winners = [
+        const pValues = [
             document.getElementById('p1').value.trim(),
             document.getElementById('p2').value.trim(),
             document.getElementById('p3').value.trim(),
             document.getElementById('p4').value.trim(),
             document.getElementById('p5').value.trim()
         ];
-        db.ref('leagueRecords/match_' + matchNum).set({ winners }).then(() => {
-            alert("Match " + matchNum + " Saved!");
+
+        // --- DUPLICATE CHECK LOGIC ---
+        const filledNames = pValues.filter(name => name !== "");
+        const uniqueNames = new Set(filledNames);
+        
+        if (filledNames.length !== uniqueNames.size) {
+            document.getElementById('dupWarning').style.display = 'block';
+            return; // STOP SAVE
+        } else {
+            document.getElementById('dupWarning').style.display = 'none';
+        }
+
+        db.ref('leagueRecords/match_' + matchNum).set({ winners: pValues }).then(() => {
+            alert("Match " + matchNum + " Saved Successfully!");
+            // Clear inputs for next entry
+            pValues.forEach((v, i) => document.getElementById('p' + (i+1)).value = "");
             fetchAllData();
         });
     }
@@ -202,7 +217,6 @@
         db.ref('leagueMaster').once('value').then(snap => {
             const mData = snap.val() || {};
             paidHistory = mData.paidHistory || [];
-            
             db.ref('leagueRecords').once('value').then(snap => {
                 winnersList = snap.val() || {};
                 renderTables();
@@ -219,45 +233,31 @@
         const playerStats = {};
         const playerPaidTotal = {};
 
-        // 1. Calculate History & Total Winnings
         Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
             const winners = winnersList[key].winners;
             hBody.innerHTML += `<tr><td><b>M${key.split('_')[1]}</b></td><td>${winners[0]}</td><td>${winners[1]}</td><td>${winners[2]}</td><td>${winners[3]}</td><td>${winners[4]}</td></tr>`;
-            
             winners.forEach((p, idx) => {
                 if(p) {
-                    if(!playerStats[p]) playerStats[p] = { count: 0, totalWon: 0 };
-                    playerStats[p].count++;
+                    if(!playerStats[p]) playerStats[p] = { totalWon: 0 };
                     playerStats[p].totalWon += PRIZES[idx];
                 }
             });
         });
 
-        // 2. Calculate Total Already Paid from History
         paidHistory.forEach(h => {
             if(!playerPaidTotal[h.name]) playerPaidTotal[h.name] = 0;
             playerPaidTotal[h.name] += h.amount;
         });
 
-        // 3. Render Payouts Table (Pending = TotalWon - AlreadyPaid)
         Object.keys(playerStats).sort().forEach(p => {
             const won = playerStats[p].totalWon;
             const alreadyPaid = playerPaidTotal[p] || 0;
             const pending = won - alreadyPaid;
-
-            // Only show in pending table if they have won something OR still have a balance
             if (won > 0) {
-                sBody.innerHTML += `<tr>
-                    <td><b>${p}</b></td>
-                    <td>₹${won}</td>
-                    <td style="color:var(--success)">₹${alreadyPaid}</td>
-                    <td style="font-weight:bold; color:${pending > 0 ? 'var(--danger)' : 'var(--success)'}">₹${pending}</td>
-                    <td>${pending > 0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${pending}">` : '✅'}</td>
-                </tr>`;
+                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td style="color:var(--success)">₹${alreadyPaid}</td><td style="font-weight:bold; color:${pending > 0 ? 'var(--danger)' : 'var(--success)'}">₹${pending}</td><td>${pending > 0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${pending}">` : '✅'}</td></tr>`;
             }
         });
 
-        // 4. Render Paid History Table
         paidHistory.slice().reverse().forEach(h => {
             pBody.innerHTML += `<tr><td>${h.date}</td><td>${h.name}</td><td>₹${h.amount}</td></tr>`;
         });
@@ -275,7 +275,7 @@
             paidHistory.push({ date: now, name: c.dataset.name, amount: parseInt(c.dataset.amount) });
         });
         db.ref('leagueMaster').update({ paidHistory }).then(() => {
-            alert("Payouts Settled and Pending Balances Updated!");
+            alert("Payouts Settled!");
             fetchAllData();
         });
     }
