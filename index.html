@@ -30,12 +30,13 @@
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9rem; }
         th { background: var(--primary); color: white; padding: 10px; }
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
-        .manual-input { width: 90%; border: 1px solid #ced4da; text-align: center; padding: 8px; border-radius: 4px; }
+        .manual-input { width: 90%; border: 1px solid #ced4da; text-align: center; padding: 8px; border-radius: 4px; outline: none; }
+        .input-error { border: 2px solid var(--danger) !important; background-color: #ffeef0; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; display: inline-flex; align-items: center; gap: 8px; }
         .btn-fetch { background: var(--secondary); margin-bottom: 15px; width: 100%; justify-content: center; }
         .btn-save { background: var(--success); width: 100%; justify-content: center; margin-top: 10px; }
-        .btn-settle { background: var(--success); width: 100%; margin-top: 10px; }
-        .error-msg { color: var(--danger); font-weight: bold; font-size: 0.9em; display: none; margin-top: 10px; }
+        .btn-save:disabled { background: #ccc; cursor: not-allowed; }
+        .error-text { color: var(--danger); font-weight: bold; font-size: 0.85em; display: none; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -107,16 +108,16 @@
                 <thead><tr><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
                 <tbody>
                     <tr>
-                        <td><input type="text" id="p1" list="playerNames" class="manual-input"></td>
-                        <td><input type="text" id="p2" list="playerNames" class="manual-input"></td>
-                        <td><input type="text" id="p3" list="playerNames" class="manual-input"></td>
-                        <td><input type="text" id="p4" list="playerNames" class="manual-input"></td>
-                        <td><input type="text" id="p5" list="playerNames" class="manual-input"></td>
+                        <td><input type="text" id="p1" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
+                        <td><input type="text" id="p2" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
+                        <td><input type="text" id="p3" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
+                        <td><input type="text" id="p4" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
+                        <td><input type="text" id="p5" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
                     </tr>
                 </tbody>
             </table>
-            <div id="dupWarning" class="error-msg">❌ Error: A player cannot hold more than one position in a match.</div>
-            <button class="btn btn-save" onclick="saveCurrentMatch()">💾 Save Match</button>
+            <div id="realTimeError" class="error-text">⚠️ Duplicate entry detected! One person cannot hold multiple ranks.</div>
+            <button id="saveBtn" class="btn btn-save" onclick="saveCurrentMatch()">💾 Save Match</button>
         </div>
 
         <button class="btn btn-fetch" onclick="fetchAllData()">🔄 Fetch All Records</button>
@@ -183,6 +184,42 @@
         }
     }
 
+    // --- REAL TIME DUPLICATE HIGHLIGHTING ---
+    function checkRealTimeDup() {
+        const inputs = [
+            document.getElementById('p1'),
+            document.getElementById('p2'),
+            document.getElementById('p3'),
+            document.getElementById('p4'),
+            document.getElementById('p5')
+        ];
+        
+        const names = inputs.map(i => i.value.trim().toUpperCase());
+        const errorText = document.getElementById('realTimeError');
+        const saveBtn = document.getElementById('saveBtn');
+        let duplicateFound = false;
+
+        // Reset highlights
+        inputs.forEach(i => i.classList.remove('input-error'));
+
+        names.forEach((name, idx) => {
+            if (name !== "" && names.indexOf(name) !== idx) {
+                duplicateFound = true;
+                // Highlight both boxes that have the same name
+                inputs[idx].classList.add('input-error');
+                inputs[names.indexOf(name)].classList.add('input-error');
+            }
+        });
+
+        if (duplicateFound) {
+            errorText.style.display = "block";
+            saveBtn.disabled = true;
+        } else {
+            errorText.style.display = "none";
+            saveBtn.disabled = false;
+        }
+    }
+
     function saveCurrentMatch() {
         if(!isAdmin) return;
         const matchNum = document.getElementById('matchSelect').value;
@@ -194,20 +231,8 @@
             document.getElementById('p5').value.trim()
         ];
 
-        // --- DUPLICATE CHECK LOGIC ---
-        const filledNames = pValues.filter(name => name !== "");
-        const uniqueNames = new Set(filledNames);
-        
-        if (filledNames.length !== uniqueNames.size) {
-            document.getElementById('dupWarning').style.display = 'block';
-            return; // STOP SAVE
-        } else {
-            document.getElementById('dupWarning').style.display = 'none';
-        }
-
         db.ref('leagueRecords/match_' + matchNum).set({ winners: pValues }).then(() => {
             alert("Match " + matchNum + " Saved Successfully!");
-            // Clear inputs for next entry
             pValues.forEach((v, i) => document.getElementById('p' + (i+1)).value = "");
             fetchAllData();
         });
