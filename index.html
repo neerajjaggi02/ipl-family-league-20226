@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPL 2026 League Master - Cloud Edition</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root { --primary: #1a3a5f; --secondary: #2b6cb0; --success: #28a745; --danger: #dc3545; --bg: #f4f7f9; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; margin: 0; padding: 10px; }
+        .container { max-width: 1100px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; border-top: 8px solid var(--primary); }
+        
+        /* Header & Setup */
+        .setup-bar { background: #1a3a5f; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .setup-bar select { padding: 8px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
+        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; background: #4a5568; }
+
+        /* Navigation */
+        .tabs { display: flex; background: #e9ecef; border-bottom: 2px solid #dee2e6; position: sticky; top: 0; z-index: 100; }
+        .tab-btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #495057; transition: 0.3s; background: none; }
+        .tab-btn.active { color: var(--primary); background: white; border-bottom: 4px solid var(--primary); }
+
+        .content-section { padding: 25px; display: none; }
+        .content-section.active { display: block; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9rem; }
+        th { background: var(--primary); color: white; padding: 10px; }
+        td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
+        .manual-input { width: 90%; border: 1px solid #ced4da; text-align: center; padding: 6px; border-radius: 4px; }
+        .duplicate-error { background-color: #f8d7da !important; border: 2px solid var(--danger); }
+
+        /* Stats Widgets */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .stat-card { padding: 20px; border-radius: 8px; color: white; text-align: center; }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-settle { background: var(--success); width: 100%; margin-top: 10px; font-size: 1.1em; justify-content: center; }
+        .btn-revert { background: var(--danger); padding: 4px 8px; font-size: 0.7em; }
+        .btn-excel { background: #1d6f42; margin-top: 20px; }
+
+        @media print { .tabs, .setup-bar, .btn-settle, .btn-revert, .btn-excel { display: none; } .content-section { display: block !important; } }
+    </style>
+</head>
+<body>
+
+<datalist id="playerNames">
+    <option value="Aju"> <option value="Anil"> <option value="Anju"> <option value="Ankita">
+    <option value="Ashu"> <option value="Atul"> <option value="Chintu"> <option value="Devansh">
+    <option value="Dharak"> <option value="Dhwanish"> <option value="Divya"> <option value="Dolly">
+    <option value="Khusboo"> <option value="Neeraj"> <option value="Nirvi"> <option value="Sonu">
+    <option value="Suksham"> <option value="Sweety">
+</datalist>
+
+<div class="setup-bar">
+    <div>🌐 CLOUD: <span id="cloudStatus" class="status-pill">CONNECTING...</span></div>
+    <div>
+        Members: 
+        <select id="memberCount" onchange="pushToCloud()">
+            <option value="15">15 Members (₹22,200)</option>
+            <option value="12">12 Members (₹17,760)</option>
+            <option value="10">10 Members (₹14,800)</option>
+        </select>
+    </div>
+</div>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 Handbook</button>
+        <button class="tab-btn" onclick="openTab(event, 'tracker')">🏏 Tracker</button>
+        <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Finance</button>
+    </div>
+
+    <div id="rules" class="content-section active">
+        <h2 style="text-align:center;">IPL 2026 PRIVATE LEAGUE HANDBOOK</h2>
+        <p><b>Rules:</b> 74 Matches | ₹20 Entry | ₹1,480 Advance. | 10% Season Reserve.</p>
+        <div style="background:#e7f3ff; padding:15px; border-radius:8px; border-left:5px solid var(--secondary);">
+            Payout: 1st: ₹100 | 2nd: ₹70 | 3rd: ₹50 | 4th: ₹25 | 5th: ₹25
+        </div>
+        <p>Constraint: One user cannot win two positions in a single match.</p>
+    </div>
+
+    <div id="tracker" class="content-section">
+        <h3>Daily Match Winners</h3>
+        <table>
+            <thead><tr><th>Match</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
+            <tbody id="matchGrid"></tbody>
+        </table>
+    </div>
+
+    <div id="summary" class="content-section">
+        <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:#fff;">
+            <h3>💳 Pending Payouts</h3>
+            <table id="pendingTable">
+                <thead><tr><th>Name</th><th>Wins</th><th>Total</th><th>Pay?</th></tr></thead>
+                <tbody id="summaryBody"></tbody>
+            </table>
+            <button class="btn btn-settle" onclick="processSettlement()">✅ Confirm Payouts</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" style="background:#1a3a5f;">Collected: <h2 id="statCollected">₹0</h2></div>
+            <div class="stat-card" style="background:#6f42c1;">Reserve: <h2 id="statReserve">₹0</h2></div>
+            <div class="stat-card" style="background:#28a745;">Paid: <h2 id="statPaid">₹0</h2></div>
+            <div class="stat-card" style="background:#fd7e14;">Balance: <h2 id="statBalance">₹0</h2></div>
+        </div>
+
+        <button class="btn btn-excel" onclick="exportToExcel()">📊 Export to Excel</button>
+
+        <h3 style="margin-top:40px;">📚 Paid History</h3>
+        <table id="historyTable" style="background:#f8f9fa;">
+            <thead><tr><th>Date</th><th>Name</th><th>Paid</th><th>Action</th></tr></thead>
+            <tbody id="historyBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // --- PASTE YOUR FIREBASE CONFIG HERE ---
+    const firebaseConfig = {
+  apiKey: "AIzaSyCX2R1cJ1O6KWEqP-WQVrSOcRiUnh7L4OE",
+  authDomain: "ipl-2026-family-league.firebaseapp.com",
+  projectId: "ipl-2026-family-league",
+  storageBucket: "ipl-2026-family-league.firebasestorage.app",
+  messagingSenderId: "79118001977",
+  appId: "1:79118001977:web:a849b1c79fa6468b11eae8",
+  measurementId: "G-B8ZMKK43NW"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const PRIZES = [100, 70, 50, 25, 25];
+    let history = [];
+
+    // Build Tracker Grid
+    const grid = document.getElementById('matchGrid');
+    for (let i = 1; i <= 15; i++) {
+        grid.innerHTML += `<tr id="row-${i}">
+            <td style="font-weight:bold; background:#f8f9fa;">M${i}</td>
+            ${[0,1,2,3,4].map(r => `<td><input type="text" list="playerNames" class="manual-input m-${i}" data-rank="${r}" oninput="validateRow(${i})"></td>`).join('')}
+        </tr>`;
+    }
+
+    function openTab(evt, name) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(name).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // CLOUD SYNC: Push to Firebase
+    function pushToCloud() {
+        const inputs = document.querySelectorAll('.manual-input');
+        const winners = Array.from(inputs).map(i => i.value);
+        db.ref('leagueMaster').set({
+            winners: winners,
+            members: document.getElementById('memberCount').value,
+            history: history
+        });
+    }
+
+    // CLOUD LISTEN: Real-time Updates
+    db.ref('leagueMaster').on('value', (snap) => {
+        const data = snap.val();
+        if(!data) return;
+        
+        document.getElementById('cloudStatus').innerText = "LIVE ✅";
+        document.getElementById('cloudStatus').style.background = "#28a745";
+        document.getElementById('memberCount').value = data.members;
+        history = data.history || [];
+        
+        const ins = document.querySelectorAll('.manual-input');
+        data.winners.forEach((v, i) => { if(ins[i]) ins[i].value = v; });
+        
+        syncInternal(data.members);
+    });
+
+    function validateRow(m) {
+        const ins = document.querySelectorAll(`.m-${m}`);
+        const names = Array.from(ins).map(i => i.value.trim().toUpperCase()).filter(n => n !== "");
+        const dup = new Set(names).size !== names.length;
+        document.getElementById(`row-${m}`).className = dup ? 'duplicate-error' : '';
+        if(!dup) pushToCloud();
+    }
+
+    function syncInternal(members) {
+        const stats = {};
+        document.querySelectorAll('.manual-input').forEach(input => {
+            const name = input.value.trim();
+            if(name) {
+                if(!stats[name]) stats[name] = { count: 0, total: 0 };
+                stats[name].count++;
+                stats[name].total += PRIZES[parseInt(input.dataset.rank)];
+            }
+        });
+
+        const body = document.getElementById('summaryBody');
+        body.innerHTML = '';
+        Object.keys(stats).sort().forEach(n => {
+            body.innerHTML += `<tr><td><b>${n}</b></td><td>${stats[n].count}</td><td>₹${stats[n].total}</td><td><input type="checkbox" class="pay-check" data-name="${n}" data-amount="${stats[n].total}"></td></tr>`;
+        });
+
+        const pool = members * 1480;
+        const res = pool * 0.10;
+        const paid = history.reduce((s, i) => s + i.amount, 0);
+        document.getElementById('statCollected').innerText = `₹${pool.toLocaleString()}`;
+        document.getElementById('statReserve').innerText = `₹${res.toLocaleString()}`;
+        document.getElementById('statPaid').innerText = `₹${paid.toLocaleString()}`;
+        document.getElementById('statBalance').innerText = `₹${(pool - res - paid).toLocaleString()}`;
+
+        const hBody = document.getElementById('historyBody');
+        hBody.innerHTML = '';
+        history.slice().reverse().forEach((item, idx) => {
+            const realIdx = history.length - 1 - idx;
+            hBody.innerHTML += `<tr><td>${item.date}</td><td>${item.name}</td><td>₹${item.amount}</td><td><button class="btn btn-revert" onclick="revertHistory(${realIdx})">🗑️</button></td></tr>`;
+        });
+    }
+
+    function processSettlement() {
+        const checks = document.querySelectorAll('.pay-check:checked');
+        if(checks.length === 0) return alert("Select someone to pay.");
+        const now = new Date().toLocaleDateString();
+        checks.forEach(c => {
+            history.push({ date: now, name: c.dataset.name, amount: parseInt(c.dataset.amount) });
+            document.querySelectorAll('.manual-input').forEach(i => { if(i.value === c.dataset.name) i.value = ''; });
+        });
+        pushToCloud();
+    }
+
+    function revertHistory(idx) {
+        if(confirm("Revert this payout?")) {
+            history.splice(idx, 1);
+            pushToCloud();
+        }
+    }
+
+    function exportToExcel() {
+        let csv = "IPL 2026 LEAGUE EXPORT\n\nSECTION 1: WINNERS\nMatch,1st,2nd,3rd,4th,5th\n";
+        for (let i = 1; i <= 15; i++) {
+            const row = Array.from(document.querySelectorAll(`.m-${i}`)).map(input => input.value || "-");
+            csv += `M${i},${row.join(",")}\n`;
+        }
+        csv += "\nSECTION 2: HISTORY\nDate,Name,Paid\n";
+        history.forEach(h => { csv += `${h.date},${h.name},₹${h.amount}\n`; });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = "IPL_League_Data.csv";
+        a.click();
+    }
+</script>
+</body>
+</html>
