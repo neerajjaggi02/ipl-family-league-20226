@@ -106,6 +106,9 @@
     </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyCX2R1cJ1O6KWEqP-WQVrSOcRiUnh7L4OE",
@@ -117,42 +120,70 @@
         appId: "1:79118001977:web:a849b1c79fa6468b11eae8"
     };
 
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+
     const PRIZES = [100, 70, 50, 25, 25];
     let history = [];
 
+    // --- TRACKER GRID GENERATION ---
     const grid = document.getElementById('matchGrid');
     for (let i = 1; i <= 15; i++) {
-        grid.innerHTML += `<tr id="row-${i}"><td>M${i}</td>${[0,1,2,3,4].map(r => `<td><input type="text" list="playerNames" class="manual-input m-${i}" data-rank="${r}" oninput="validateRow(${i})"></td>`).join('')}</tr>`;
+        grid.innerHTML += `<tr id="row-${i}">
+            <td style="font-weight:bold; background:#f8f9fa;">M${i}</td>
+            ${[0,1,2,3,4].map(r => `<td><input type="text" list="playerNames" class="manual-input m-${i}" data-rank="${r}" oninput="validateRow(${i})"></td>`).join('')}
+        </tr>`;
     }
 
-    function openTab(e, n) {
+    function openTab(evt, name) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(n).classList.add('active');
-        e.currentTarget.classList.add('active');
+        document.getElementById(name).classList.add('active');
+        evt.currentTarget.classList.add('active');
     }
 
+    // --- CLOUD SYNC ---
     function pushToCloud() {
         const winners = Array.from(document.querySelectorAll('.manual-input')).map(i => i.value);
-        db.ref('leagueMaster').set({ winners, members: document.getElementById('memberCount').value, history });
+        db.ref('leagueMaster').set({
+            winners: winners,
+            members: document.getElementById('memberCount').value,
+            history: history
+        }).then(() => {
+            console.log("Data pushed successfully");
+        }).catch((error) => {
+            console.error("Data push failed:", error);
+        });
     }
 
+    // --- REAL-TIME LISTEN ---
     db.ref('leagueMaster').on('value', (snap) => {
         const data = snap.val();
+        // Update Status UI
+        const status = document.getElementById('cloudStatus');
+        status.innerText = "LIVE ✅";
+        status.style.background = "#28a745";
+
         if(!data) return;
-        document.getElementById('cloudStatus').innerText = "LIVE ✅";
-        document.getElementById('cloudStatus').style.background = "#28a745";
-        document.getElementById('memberCount').value = data.members;
+        
+        document.getElementById('memberCount').value = data.members || "15";
         history = data.history || [];
+        
         const ins = document.querySelectorAll('.manual-input');
-        data.winners.forEach((v, i) => { if(ins[i]) ins[i].value = v; });
-        syncInternal(data.members);
+        if (data.winners) {
+            data.winners.forEach((v, i) => { if(ins[i]) ins[i].value = v; });
+        }
+        
+        syncInternal(data.members || "15");
+    }, (error) => {
+        console.error("Connection error:", error);
+        document.getElementById('cloudStatus').innerText = "ERROR ❌";
     });
 
     function validateRow(m) {
-        const names = Array.from(document.querySelectorAll(`.m-${m}`)).map(i => i.value.trim().toUpperCase()).filter(n => n !== "");
+        const ins = document.querySelectorAll(`.m-${m}`);
+        const names = Array.from(ins).map(i => i.value.trim().toUpperCase()).filter(n => n !== "");
         const dup = new Set(names).size !== names.length;
         document.getElementById(`row-${m}`).className = dup ? 'duplicate-error' : '';
         if(!dup) pushToCloud();
@@ -168,11 +199,13 @@
                 stats[name].total += PRIZES[parseInt(input.dataset.rank)];
             }
         });
+
         const body = document.getElementById('summaryBody');
         body.innerHTML = '';
         Object.keys(stats).sort().forEach(n => {
             body.innerHTML += `<tr><td><b>${n}</b></td><td>${stats[n].count}</td><td>₹${stats[n].total}</td><td><input type="checkbox" class="pay-check" data-name="${n}" data-amount="${stats[n].total}"></td></tr>`;
         });
+
         const pool = members * 1480;
         const res = pool * 0.10;
         const paid = history.reduce((s, i) => s + i.amount, 0);
@@ -180,6 +213,7 @@
         document.getElementById('statReserve').innerText = `₹${res.toLocaleString()}`;
         document.getElementById('statPaid').innerText = `₹${paid.toLocaleString()}`;
         document.getElementById('statBalance').innerText = `₹${(pool - res - paid).toLocaleString()}`;
+
         const hBody = document.getElementById('historyBody');
         hBody.innerHTML = '';
         history.slice().reverse().forEach((item, idx) => {
@@ -200,20 +234,10 @@
     }
 
     function revertHistory(idx) {
-        if(confirm("Revert payout?")) { history.splice(idx, 1); pushToCloud(); }
-    }
-
-    function exportToExcel() {
-        let csv = "Match,1st,2nd,3rd,4th,5th\n";
-        for (let i = 1; i <= 15; i++) {
-            const row = Array.from(document.querySelectorAll(`.m-${i}`)).map(input => input.value || "-");
-            csv += `M${i},${row.join(",")}\n`;
+        if(confirm("Revert this payout?")) {
+            history.splice(idx, 1);
+            pushToCloud();
         }
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = "IPL_League_Data.csv";
-        a.click();
     }
 </script>
 </body>
