@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPL 2026 Private League - Live Cloud</title>
+    <title>IPL 2026 Private League - Official</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -25,7 +25,7 @@
         .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
         .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
 
-        /* Tracker Styling */
+        /* Tracker & Table Styling */
         .entry-card { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid var(--secondary); margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9rem; }
         th { background: var(--primary); color: white; padding: 10px; }
@@ -33,8 +33,8 @@
         .manual-input { width: 90%; border: 1px solid #ced4da; text-align: center; padding: 8px; border-radius: 4px; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; display: inline-flex; align-items: center; gap: 8px; }
         .btn-fetch { background: var(--secondary); margin-bottom: 15px; width: 100%; justify-content: center; }
-        .btn-save { background: var(--success); width: 100%; justify-content: center; margin-top: 10px; font-size: 1.1em; }
-        .history-row:hover { background: #f1f5f9; }
+        .btn-save { background: var(--success); width: 100%; justify-content: center; margin-top: 10px; }
+        .btn-settle { background: var(--success); width: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -56,87 +56,57 @@
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 Handbook</button>
         <button class="tab-btn" onclick="openTab(event, 'tracker')">🏏 Tracker</button>
-        <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Finance</button>
+        <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Payouts</button>
     </div>
 
     <div id="rules" class="content-section handbook active">
         <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE: OFFICIAL HANDBOOK</h1>
-        
         <h2>1. LEAGUE OVERVIEW & STRUCTURE</h2>
         <p>This private league is conducted on the <b>My11Circle</b> app. It consists of all <b>74 matches</b> of the IPL 2026 season. This document serves as the official agreement for all participating members.</p>
         <ul>
-            <li>Total Matches: 74</li>
-            <li>Entry Fee per Match: ₹20</li>
-            <li>Platform: My11Circle</li>
+            <li>Total Matches: 74 | Entry Fee per Match: ₹20 | Platform: My11Circle</li>
             <li>Total Advance Deposit: ₹1,480 per member</li>
         </ul>
-
         <h2>2. FINANCIAL MODELS (BASED ON MEMBER COUNT)</h2>
-        <p>The following tables outline the prize distribution based on the number of confirmed players. 10% of the total pool is reserved for the Season Leaderboard, and 90% is distributed across daily matches.</p>
-
         <div class="scenario-box">
             <h3>Scenario 1: 15 Members (Total Pool: ₹22,200)</h3>
-            <table>
-                <tr><th>Category</th><th>Amount</th></tr>
-                <tr><td>Leaderboard Reserve (10%)</td><td>₹2,220</td></tr>
-                <tr><td>Daily Match Budget (Total)</td><td>₹19,980</td></tr>
-                <tr style="font-weight:bold;"><td>Per Match Prize Pool</td><td>₹270</td></tr>
-            </table>
-            <p><b>Daily Top 5 Payout (15 Members):</b><br>1st: ₹100 | 2. 2nd: ₹70 | 3. 3rd: ₹50 | 4. 4th: ₹25 | 5. 5th: ₹25</p>
+            <p>1st: ₹100 | 2. 2nd: ₹70 | 3. 3rd: ₹50 | 4. 4th: ₹25 | 5. 5th: ₹25</p>
         </div>
-
         <div class="scenario-box">
             <h3>Scenario 2: 12 Members (Total Pool: ₹17,760)</h3>
-            <table>
-                <tr><th>Category</th><th>Amount</th></tr>
-                <tr><td>Leaderboard Reserve (10%)</td><td>₹1,776</td></tr>
-                <tr><td>Daily Match Budget (Total)</td><td>₹15,984</td></tr>
-                <tr style="font-weight:bold;"><td>Per Match Prize Pool</td><td>₹216</td></tr>
-            </table>
-            <p><b>Daily Top 5 Payout (12 Members):</b><br>1st: ₹80 | 2. 2nd: ₹55 | 3. 3rd: ₹40 | 4. 4th: ₹21 | 5. 5th: ₹20</p>
+            <p>1st: ₹80 | 2. 2nd: ₹55 | 3. 3rd: ₹40 | 4. 4th: ₹21 | 5. 5th: ₹20</p>
         </div>
-
         <div class="scenario-box">
             <h3>Scenario 3: 10 Members (Total Pool: ₹14,800)</h3>
-            <table>
-                <tr><th>Category</th><th>Amount</th></tr>
-                <tr><td>Leaderboard Reserve (10%)</td><td>₹1,480</td></tr>
-                <tr><td>Daily Match Budget (Total)</td><td>₹13,320</td></tr>
-                <tr style="font-weight:bold;"><td>Per Match Prize Pool</td><td>₹180</td></tr>
-            </table>
-            <p><b>Daily Top 5 Payout (10 Members):</b><br>1st: ₹65 | 2. 2nd: ₹45 | 3. 3rd: ₹35 | 4. 4th: ₹20 | 5. 5th: ₹15</p>
+            <p>1st: ₹65 | 2. 2nd: ₹45 | 3. 3rd: ₹35 | 4. 4th: ₹20 | 5. 5th: ₹15</p>
         </div>
-
         <h2>3. SEASON LEADERBOARD PRIZES (TOP 3)</h2>
-        <p><i>Note: These prizes are only awarded if the app generates an overall season leaderboard.</i></p>
         <table>
             <thead><tr><th>Rank</th><th>15 Members</th><th>12 Members</th><th>10 Members</th></tr></thead>
             <tbody>
-                <tr><td><b>Champion (1st)</b></td><td>₹1,110</td><td>₹888</td><td>₹740</td></tr>
-                <tr><td><b>Runner-up (2nd)</b></td><td>₹666</td><td>₹533</td><td>₹444</td></tr>
-                <tr><td><b>3rd Place</b></td><td>₹444</td><td>₹355</td><td>₹296</td></tr>
+                <tr><td>Champion (1st)</td><td>₹1,110</td><td>₹888</td><td>₹740</td></tr>
+                <tr><td>Runner-up (2nd)</td><td>₹666</td><td>₹533</td><td>₹444</td></tr>
+                <tr><td>3rd Place</td><td>₹444</td><td>₹355</td><td>₹296</td></tr>
             </tbody>
         </table>
-
         <h2>4. OPERATIONAL RULES & CONTINGENCIES</h2>
         <ul>
-            <li><b>Advance Payment:</b> Every member must pay their full advance (₹1,480) before Match 1 starts. No "pay-as-you-go" allowed.</li>
-            <li><b>Volunteer Role:</b> A designated volunteer will manage the accounts. They will take screenshots of the Top 5 rankings after every match to ensure transparency.</li>
-            <li><b>App Contingency:</b> If My11Circle does not generate a season-long leaderboard, the 10% Reserve Fund will be merged into the Daily Prize Pool, increasing the daily winnings for all 74 matches.</li>
-            <li><b>Disputes:</b> The rankings shown on the My11Circle app at the time of "Match Completed" status will be final.</li>
+            <li><b>Advance Payment:</b> Full advance (₹1,480) before Match 1. No "pay-as-you-go".</li>
+            <li><b>Volunteer Role:</b> Volunteer manages accounts and takes rankings screenshots for transparency.</li>
+            <li><b>Disputes:</b> My11Circle rankings at "Match Completed" status are final.</li>
         </ul>
     </div>
 
     <div id="tracker" class="content-section">
         <div id="adminEntry" class="entry-card" style="display:none;">
-            <h3>➕ Enter New Match Result</h3>
-            <label>Select Match:</label>
-            <select id="matchSelect" style="padding:8px; border-radius:5px; margin-bottom:15px;"></select>
+            <h3>➕ Add Match Result</h3>
+            <label>Match Number:</label>
+            <select id="matchSelect" style="padding:8px; margin-bottom:15px; border-radius:5px;"></select>
             <table>
                 <thead><tr><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
                 <tbody>
                     <tr>
-                        <td><input type="text" id="p1" list="playerNames" class="manual-input" placeholder="Winner"></td>
+                        <td><input type="text" id="p1" list="playerNames" class="manual-input"></td>
                         <td><input type="text" id="p2" list="playerNames" class="manual-input"></td>
                         <td><input type="text" id="p3" list="playerNames" class="manual-input"></td>
                         <td><input type="text" id="p4" list="playerNames" class="manual-input"></td>
@@ -144,27 +114,32 @@
                     </tr>
                 </tbody>
             </table>
-            <button class="btn btn-save" onclick="saveCurrentMatch()">💾 Save & Push to Cloud</button>
+            <button class="btn btn-save" onclick="saveCurrentMatch()">💾 Save Match</button>
         </div>
 
-        <button class="btn btn-fetch" onclick="fetchAllData()">🔄 Fetch Records from Database</button>
+        <button class="btn btn-fetch" onclick="fetchAllData()">🔄 Fetch All Records</button>
         
-        <h3 style="margin-top:20px; border-bottom:1px solid #ddd;">🏏 Match History</h3>
+        <h3>🏏 Match History</h3>
         <table id="historyTable">
             <thead><tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
-            <tbody id="historyBody">
-                <tr><td colspan="6" style="padding:40px; color:#666;">Waiting for data... Click "Fetch" above.</td></tr>
-            </tbody>
+            <tbody id="historyBody"></tbody>
         </table>
     </div>
 
     <div id="summary" class="content-section">
-        <h3>💰 Individual Stats</h3>
-        <table id="statsTable">
-            <thead><tr><th>Name</th><th>Total Wins</th><th>Earnings</th></tr></thead>
-            <tbody id="summaryBody"></tbody>
+        <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:#fff;">
+            <h3>💳 Pending Payouts</h3>
+            <table id="pendingTable">
+                <thead><tr><th>Name</th><th>Wins</th><th>Total</th><th>Settle?</th></tr></thead>
+                <tbody id="summaryBody"></tbody>
+            </table>
+            <button class="btn btn-settle" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Payouts (Admin Only)</button>
+        </div>
+        <h3 style="margin-top:20px;">📚 Paid History</h3>
+        <table id="paidTable">
+            <thead><tr><th>Date</th><th>Name</th><th>Amount</th></tr></thead>
+            <tbody id="paidHistoryBody"></tbody>
         </table>
-        <p style="font-size:0.8em; color:#666;">(History is calculated from all saved matches in the database)</p>
     </div>
 </div>
 
@@ -182,9 +157,10 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const PRIZES = [100, 70, 50, 25, 25];
+    let winnersList = {};
+    let paidHistory = [];
     let isAdmin = false;
 
-    // Fill the Match Dropdown (1-74)
     const sel = document.getElementById('matchSelect');
     for(let i=1; i<=74; i++) { sel.options[sel.options.length] = new Option("Match "+i, i); }
 
@@ -201,7 +177,7 @@
             isAdmin = true;
             document.getElementById('adminText').innerText = "🔓 Volunteer Mode";
             document.getElementById('adminEntry').style.display = "block";
-            alert("Editing Unlocked.");
+            document.getElementById('settleBtn').disabled = false;
         }
     }
 
@@ -215,72 +191,74 @@
             document.getElementById('p4').value.trim(),
             document.getElementById('p5').value.trim()
         ];
-        
-        if(winners[0] === "") return alert("Please enter at least the 1st place winner.");
-
-        db.ref('leagueRecords/match_' + matchNum).set({ winners: winners }).then(() => {
-            alert("Match " + matchNum + " successfully saved!");
-            // Clear inputs
-            document.getElementById('p1').value = ''; document.getElementById('p2').value = '';
-            document.getElementById('p3').value = ''; document.getElementById('p4').value = '';
-            document.getElementById('p5').value = '';
-            fetchAllData(); // Refresh table
+        db.ref('leagueRecords/match_' + matchNum).set({ winners }).then(() => {
+            alert("Match " + matchNum + " Saved!");
+            fetchAllData();
         });
     }
 
     function fetchAllData() {
-        db.ref('leagueRecords').once('value').then((snap) => {
-            document.getElementById('cloudStatus').innerText = "LIVE ✅";
-            document.getElementById('cloudStatus').style.background = "#28a745";
+        db.ref('leagueMaster').once('value').then(snap => {
+            const mData = snap.val() || {};
+            paidHistory = mData.paidHistory || [];
             
-            const data = snap.val();
-            const tbody = document.getElementById('historyBody');
-            const statsBody = document.getElementById('summaryBody');
-            tbody.innerHTML = '';
-            statsBody.innerHTML = '';
-            
-            if(!data) {
-                tbody.innerHTML = '<tr><td colspan="6">No records in cloud database yet.</td></tr>';
-                return;
-            }
-
-            const totalStats = {};
-
-            // Sort matches numerically and build table
-            Object.keys(data).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
-                const matchId = key.split('_')[1];
-                const winners = data[key].winners;
-                
-                tbody.innerHTML += `<tr class="history-row">
-                    <td><b>M${matchId}</b></td>
-                    <td>${winners[0] || '-'}</td>
-                    <td>${winners[1] || '-'}</td>
-                    <td>${winners[2] || '-'}</td>
-                    <td>${winners[3] || '-'}</td>
-                    <td>${winners[4] || '-'}</td>
-                </tr>`;
-
-                winners.forEach((name, rank) => {
-                    if(name && name !== "-") {
-                        if(!totalStats[name]) totalStats[name] = { count: 0, money: 0 };
-                        totalStats[name].count++;
-                        totalStats[name].money += PRIZES[rank];
-                    }
-                });
-            });
-
-            // Fill Finance/Stats Tab
-            Object.keys(totalStats).sort().forEach(player => {
-                statsBody.innerHTML += `<tr>
-                    <td><b>${player}</b></td>
-                    <td>${totalStats[player].count}</td>
-                    <td>₹${totalStats[player].money}</td>
-                </tr>`;
+            db.ref('leagueRecords').once('value').then(snap => {
+                winnersList = snap.val() || {};
+                renderTables();
             });
         });
     }
 
-    // Auto-fetch on startup
+    function renderTables() {
+        const hBody = document.getElementById('historyBody');
+        const sBody = document.getElementById('summaryBody');
+        const pBody = document.getElementById('paidHistoryBody');
+        hBody.innerHTML = ''; sBody.innerHTML = ''; pBody.innerHTML = '';
+
+        const playerStats = {};
+
+        // History Table
+        Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
+            const winners = winnersList[key].winners;
+            hBody.innerHTML += `<tr><td><b>M${key.split('_')[1]}</b></td><td>${winners[0]}</td><td>${winners[1]}</td><td>${winners[2]}</td><td>${winners[3]}</td><td>${winners[4]}</td></tr>`;
+            
+            winners.forEach((p, idx) => {
+                if(p) {
+                    if(!playerStats[p]) playerStats[p] = { count: 0, total: 0 };
+                    playerStats[p].count++;
+                    playerStats[p].total += PRIZES[idx];
+                }
+            });
+        });
+
+        // Pending Payouts Table
+        Object.keys(playerStats).sort().forEach(p => {
+            sBody.innerHTML += `<tr><td>${p}</td><td>${playerStats[p].count}</td><td>₹${playerStats[p].total}</td><td><input type="checkbox" class="pay-check" data-name="${p}" data-amount="${playerStats[p].total}"></td></tr>`;
+        });
+
+        // Paid History Table
+        paidHistory.slice().reverse().forEach(h => {
+            pBody.innerHTML += `<tr><td>${h.date}</td><td>${h.name}</td><td>₹${h.amount}</td></tr>`;
+        });
+
+        document.getElementById('cloudStatus').innerText = "LIVE ✅";
+        document.getElementById('cloudStatus').style.background = "#28a745";
+    }
+
+    function processSettlement() {
+        if(!isAdmin) return;
+        const checks = document.querySelectorAll('.pay-check:checked');
+        if(checks.length === 0) return;
+        const now = new Date().toLocaleDateString();
+        checks.forEach(c => {
+            paidHistory.push({ date: now, name: c.dataset.name, amount: parseInt(c.dataset.amount) });
+        });
+        db.ref('leagueMaster').update({ paidHistory }).then(() => {
+            alert("Payouts Confirmed!");
+            fetchAllData();
+        });
+    }
+
     window.onload = fetchAllData;
 </script>
 </body>
