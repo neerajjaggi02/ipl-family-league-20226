@@ -3,35 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPL 2026 Private League - Live Fetch</title>
+    <title>IPL 2026 Private League - Live Cloud</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <style>
         :root { --primary: #1a3a5f; --secondary: #2b6cb0; --success: #28a745; --danger: #dc3545; --bg: #f4f7f9; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
-        .container { max-width: 1100px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 8px solid var(--primary); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; margin: 0; padding: 10px; }
+        .container { max-width: 1100px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; border-top: 8px solid var(--primary); }
         .setup-bar { background: #1a3a5f; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
         .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; background: #4a5568; }
         .tabs { display: flex; background: #e9ecef; border-bottom: 2px solid #dee2e6; position: sticky; top: 0; z-index: 100; }
-        .tab-btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; }
-        .tab-btn.active { background: white; border-bottom: 4px solid var(--primary); color: var(--primary); }
+        .tab-btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #495057; transition: 0.3s; background: none; }
+        .tab-btn.active { color: var(--primary); background: white; border-bottom: 4px solid var(--primary); }
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        th { background: var(--primary); color: white; padding: 10px; font-size: 0.8em; }
+        
+        /* Handbook Styling - EXACT TEXT PRESERVED */
+        .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
+        .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
+
+        /* Tracker Styling */
+        .entry-card { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid var(--secondary); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9rem; }
+        th { background: var(--primary); color: white; padding: 10px; }
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
-        .manual-input { width: 95%; border: 1px solid #ced4da; text-align: center; padding: 6px; border-radius: 4px; font-size: 0.9em; }
-        .manual-input:disabled { background: #f0f2f5; color: #333; cursor: default; border: 1px solid transparent; }
-        .duplicate-error { background-color: #f8d7da !important; border: 2px solid var(--danger); }
-        .stat-card { padding: 20px; border-radius: 8px; color: white; text-align: center; flex: 1; }
+        .manual-input { width: 90%; border: 1px solid #ced4da; text-align: center; padding: 8px; border-radius: 4px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-fetch { background: var(--secondary); margin-bottom: 15px; width: 100%; justify-content: center; }
+        .btn-save { background: var(--success); width: 100%; justify-content: center; margin-top: 10px; font-size: 1.1em; }
+        .history-row:hover { background: #f1f5f9; }
     </style>
 </head>
 <body>
 
 <datalist id="playerNames">
-    <option value="Aju"><option value="Anil"><option value="Anju"><option value="Ankita"><option value="Ashu"><option value="Atul"><option value="Chintu"><option value="Devansh"><option value="Dharak"><option value="Dhwanish"><option value="Divya"><option value="Dolly"><option value="Khusboo"><option value="Neeraj"><option value="Nirvi"><option value="Sonu"><option value="Suksham"><option value="Sweety">
+    <option value="Aju"> <option value="Anil"> <option value="Anju"> <option value="Ankita">
+    <option value="Ashu"> <option value="Atul"> <option value="Chintu"> <option value="Devansh">
+    <option value="Dharak"> <option value="Dhwanish"> <option value="Divya"> <option value="Dolly">
+    <option value="Khusboo"> <option value="Neeraj"> <option value="Nirvi"> <option value="Sonu">
+    <option value="Suksham"> <option value="Sweety">
 </datalist>
 
 <div class="setup-bar">
@@ -42,38 +55,116 @@
 <div class="container">
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 Handbook</button>
-        <button class="tab-btn" onclick="openTab(event, 'tracker')">🏏 Live Tracker</button>
+        <button class="tab-btn" onclick="openTab(event, 'tracker')">🏏 Tracker</button>
         <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Finance</button>
     </div>
 
-    <div id="rules" class="content-section active">
-        <h2 style="text-align:center; color:var(--primary);">🏆 IPL 2026 OFFICIAL HANDBOOK</h2>
-        <p><b>Matches:</b> 74 | <b>Entry:</b> ₹20 | <b>Advance:</b> ₹1,480 | <b>Platform:</b> My11Circle</p>
-        <p><b>Payout (15 Members):</b> 1st: ₹100 | 2nd: ₹70 | 3rd: ₹50 | 4th: ₹25 | 5th: ₹25</p>
-        <p style="background:#fff3cd; padding:10px; border-radius:5px; font-size:0.9em;">Volunteer: Neeraj | PIN required for data entry.</p>
+    <div id="rules" class="content-section handbook active">
+        <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE: OFFICIAL HANDBOOK</h1>
+        
+        <h2>1. LEAGUE OVERVIEW & STRUCTURE</h2>
+        <p>This private league is conducted on the <b>My11Circle</b> app. It consists of all <b>74 matches</b> of the IPL 2026 season. This document serves as the official agreement for all participating members.</p>
+        <ul>
+            <li>Total Matches: 74</li>
+            <li>Entry Fee per Match: ₹20</li>
+            <li>Platform: My11Circle</li>
+            <li>Total Advance Deposit: ₹1,480 per member</li>
+        </ul>
+
+        <h2>2. FINANCIAL MODELS (BASED ON MEMBER COUNT)</h2>
+        <p>The following tables outline the prize distribution based on the number of confirmed players. 10% of the total pool is reserved for the Season Leaderboard, and 90% is distributed across daily matches.</p>
+
+        <div class="scenario-box">
+            <h3>Scenario 1: 15 Members (Total Pool: ₹22,200)</h3>
+            <table>
+                <tr><th>Category</th><th>Amount</th></tr>
+                <tr><td>Leaderboard Reserve (10%)</td><td>₹2,220</td></tr>
+                <tr><td>Daily Match Budget (Total)</td><td>₹19,980</td></tr>
+                <tr style="font-weight:bold;"><td>Per Match Prize Pool</td><td>₹270</td></tr>
+            </table>
+            <p><b>Daily Top 5 Payout (15 Members):</b><br>1st: ₹100 | 2. 2nd: ₹70 | 3. 3rd: ₹50 | 4. 4th: ₹25 | 5. 5th: ₹25</p>
+        </div>
+
+        <div class="scenario-box">
+            <h3>Scenario 2: 12 Members (Total Pool: ₹17,760)</h3>
+            <table>
+                <tr><th>Category</th><th>Amount</th></tr>
+                <tr><td>Leaderboard Reserve (10%)</td><td>₹1,776</td></tr>
+                <tr><td>Daily Match Budget (Total)</td><td>₹15,984</td></tr>
+                <tr style="font-weight:bold;"><td>Per Match Prize Pool</td><td>₹216</td></tr>
+            </table>
+            <p><b>Daily Top 5 Payout (12 Members):</b><br>1st: ₹80 | 2. 2nd: ₹55 | 3. 3rd: ₹40 | 4. 4th: ₹21 | 5. 5th: ₹20</p>
+        </div>
+
+        <div class="scenario-box">
+            <h3>Scenario 3: 10 Members (Total Pool: ₹14,800)</h3>
+            <table>
+                <tr><th>Category</th><th>Amount</th></tr>
+                <tr><td>Leaderboard Reserve (10%)</td><td>₹1,480</td></tr>
+                <tr><td>Daily Match Budget (Total)</td><td>₹13,320</td></tr>
+                <tr style="font-weight:bold;"><td>Per Match Prize Pool</td><td>₹180</td></tr>
+            </table>
+            <p><b>Daily Top 5 Payout (10 Members):</b><br>1st: ₹65 | 2. 2nd: ₹45 | 3. 3rd: ₹35 | 4. 4th: ₹20 | 5. 5th: ₹15</p>
+        </div>
+
+        <h2>3. SEASON LEADERBOARD PRIZES (TOP 3)</h2>
+        <p><i>Note: These prizes are only awarded if the app generates an overall season leaderboard.</i></p>
+        <table>
+            <thead><tr><th>Rank</th><th>15 Members</th><th>12 Members</th><th>10 Members</th></tr></thead>
+            <tbody>
+                <tr><td><b>Champion (1st)</b></td><td>₹1,110</td><td>₹888</td><td>₹740</td></tr>
+                <tr><td><b>Runner-up (2nd)</b></td><td>₹666</td><td>₹533</td><td>₹444</td></tr>
+                <tr><td><b>3rd Place</b></td><td>₹444</td><td>₹355</td><td>₹296</td></tr>
+            </tbody>
+        </table>
+
+        <h2>4. OPERATIONAL RULES & CONTINGENCIES</h2>
+        <ul>
+            <li><b>Advance Payment:</b> Every member must pay their full advance (₹1,480) before Match 1 starts. No "pay-as-you-go" allowed.</li>
+            <li><b>Volunteer Role:</b> A designated volunteer will manage the accounts. They will take screenshots of the Top 5 rankings after every match to ensure transparency.</li>
+            <li><b>App Contingency:</b> If My11Circle does not generate a season-long leaderboard, the 10% Reserve Fund will be merged into the Daily Prize Pool, increasing the daily winnings for all 74 matches.</li>
+            <li><b>Disputes:</b> The rankings shown on the My11Circle app at the time of "Match Completed" status will be final.</li>
+        </ul>
     </div>
 
     <div id="tracker" class="content-section">
-        <h3>🏏 Live Match Winners</h3>
-        <p id="fetchInfo" style="font-size:0.8em; color:var(--success);">✨ Syncing live with Cloud Database...</p>
-        <table>
-            <thead><tr><th>Match</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
-            <tbody id="matchGrid"></tbody>
+        <div id="adminEntry" class="entry-card" style="display:none;">
+            <h3>➕ Enter New Match Result</h3>
+            <label>Select Match:</label>
+            <select id="matchSelect" style="padding:8px; border-radius:5px; margin-bottom:15px;"></select>
+            <table>
+                <thead><tr><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" id="p1" list="playerNames" class="manual-input" placeholder="Winner"></td>
+                        <td><input type="text" id="p2" list="playerNames" class="manual-input"></td>
+                        <td><input type="text" id="p3" list="playerNames" class="manual-input"></td>
+                        <td><input type="text" id="p4" list="playerNames" class="manual-input"></td>
+                        <td><input type="text" id="p5" list="playerNames" class="manual-input"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn btn-save" onclick="saveCurrentMatch()">💾 Save & Push to Cloud</button>
+        </div>
+
+        <button class="btn btn-fetch" onclick="fetchAllData()">🔄 Fetch Records from Database</button>
+        
+        <h3 style="margin-top:20px; border-bottom:1px solid #ddd;">🏏 Match History</h3>
+        <table id="historyTable">
+            <thead><tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
+            <tbody id="historyBody">
+                <tr><td colspan="6" style="padding:40px; color:#666;">Waiting for data... Click "Fetch" above.</td></tr>
+            </tbody>
         </table>
     </div>
 
     <div id="summary" class="content-section">
-        <h3>💳 Pending Payouts</h3>
-        <table id="pendingTable">
-            <thead><tr><th>Name</th><th>Wins</th><th>Total</th><th>Pay?</th></tr></thead>
+        <h3>💰 Individual Stats</h3>
+        <table id="statsTable">
+            <thead><tr><th>Name</th><th>Total Wins</th><th>Earnings</th></tr></thead>
             <tbody id="summaryBody"></tbody>
         </table>
-        <button class="btn" id="settleBtn" style="background:var(--success); color:white; width:100%; padding:12px; border:none; border-radius:5px;" onclick="processSettlement()" disabled>✅ Confirm Payouts (Admin Only)</button>
-        
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <div class="stat-card" style="background:#1a3a5f;">Pool: <h2 id="statCollected">₹0</h2></div>
-            <div class="stat-card" style="background:#28a745;">Paid: <h2 id="statPaid">₹0</h2></div>
-        </div>
+        <p style="font-size:0.8em; color:#666;">(History is calculated from all saved matches in the database)</p>
     </div>
 </div>
 
@@ -91,17 +182,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const PRIZES = [100, 70, 50, 25, 25];
-    let history = [];
     let isAdmin = false;
 
-    // Generate Tracker Grid (Matches 1 to 74)
-    const grid = document.getElementById('matchGrid');
-    for (let i = 1; i <= 74; i++) {
-        grid.innerHTML += `<tr id="row-${i}">
-            <td style="font-weight:bold; background:#f8f9fa;">M${i}</td>
-            ${[0,1,2,3,4].map(r => `<td><input type="text" list="playerNames" class="manual-input m-${i}" data-rank="${r}" oninput="validateRow(${i})" disabled></td>`).join('')}
-        </tr>`;
-    }
+    // Fill the Match Dropdown (1-74)
+    const sel = document.getElementById('matchSelect');
+    for(let i=1; i<=74; i++) { sel.options[sel.options.length] = new Option("Match "+i, i); }
 
     function openTab(e, n) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -111,87 +196,92 @@
     }
 
     function adminLogin() {
-        const pin = prompt("Enter Volunteer PIN:");
+        const pin = prompt("Volunteer PIN:");
         if(pin === "1234") {
             isAdmin = true;
             document.getElementById('adminText').innerText = "🔓 Volunteer Mode";
-            document.getElementById('settleBtn').disabled = false;
-            document.querySelectorAll('.manual-input').forEach(i => i.disabled = false);
-            alert("Unlocked! You can now edit the tracker.");
-        } else { alert("Incorrect PIN."); }
-    }
-
-    // --- FETCH & LISTEN LOGIC ---
-    db.ref('leagueMaster').on('value', (snap) => {
-        const data = snap.val();
-        // Update Connection Status
-        const status = document.getElementById('cloudStatus');
-        status.innerText = "LIVE ✅";
-        status.style.background = "#28a745";
-
-        if(!data) return;
-        
-        history = data.history || [];
-        const ins = document.querySelectorAll('.manual-input');
-        
-        // Populate inputs with fetched data
-        if(data.winners) {
-            data.winners.forEach((val, index) => {
-                if(ins[index]) {
-                    ins[index].value = val;
-                }
-            });
+            document.getElementById('adminEntry').style.display = "block";
+            alert("Editing Unlocked.");
         }
-        syncInternal();
-    });
+    }
 
-    function pushToCloud() {
+    function saveCurrentMatch() {
         if(!isAdmin) return;
-        const winners = Array.from(document.querySelectorAll('.manual-input')).map(i => i.value);
-        db.ref('leagueMaster').set({ winners, history });
+        const matchNum = document.getElementById('matchSelect').value;
+        const winners = [
+            document.getElementById('p1').value.trim(),
+            document.getElementById('p2').value.trim(),
+            document.getElementById('p3').value.trim(),
+            document.getElementById('p4').value.trim(),
+            document.getElementById('p5').value.trim()
+        ];
+        
+        if(winners[0] === "") return alert("Please enter at least the 1st place winner.");
+
+        db.ref('leagueRecords/match_' + matchNum).set({ winners: winners }).then(() => {
+            alert("Match " + matchNum + " successfully saved!");
+            // Clear inputs
+            document.getElementById('p1').value = ''; document.getElementById('p2').value = '';
+            document.getElementById('p3').value = ''; document.getElementById('p4').value = '';
+            document.getElementById('p5').value = '';
+            fetchAllData(); // Refresh table
+        });
     }
 
-    function validateRow(m) {
-        const ins = document.querySelectorAll(`.m-${m}`);
-        const names = Array.from(ins).map(i => i.value.trim().toUpperCase()).filter(n => n !== "");
-        const dup = new Set(names).size !== names.length;
-        document.getElementById(`row-${m}`).className = dup ? 'duplicate-error' : '';
-        if(!dup) pushToCloud();
-    }
-
-    function syncInternal() {
-        const stats = {};
-        document.querySelectorAll('.manual-input').forEach(input => {
-            const name = input.value.trim();
-            if(name) {
-                if(!stats[name]) stats[name] = { count: 0, total: 0 };
-                stats[name].count++;
-                stats[name].total += PRIZES[parseInt(input.dataset.rank)];
+    function fetchAllData() {
+        db.ref('leagueRecords').once('value').then((snap) => {
+            document.getElementById('cloudStatus').innerText = "LIVE ✅";
+            document.getElementById('cloudStatus').style.background = "#28a745";
+            
+            const data = snap.val();
+            const tbody = document.getElementById('historyBody');
+            const statsBody = document.getElementById('summaryBody');
+            tbody.innerHTML = '';
+            statsBody.innerHTML = '';
+            
+            if(!data) {
+                tbody.innerHTML = '<tr><td colspan="6">No records in cloud database yet.</td></tr>';
+                return;
             }
-        });
 
-        const body = document.getElementById('summaryBody');
-        body.innerHTML = '';
-        Object.keys(stats).sort().forEach(n => {
-            body.innerHTML += `<tr><td><b>${n}</b></td><td>${stats[n].count}</td><td>₹${stats[n].total}</td><td><input type="checkbox" class="pay-check" data-name="${n}" data-amount="${stats[n].total}"></td></tr>`;
-        });
+            const totalStats = {};
 
-        const pool = 15 * 1480;
-        const paid = history.reduce((s, i) => s + i.amount, 0);
-        document.getElementById('statCollected').innerText = `₹${pool.toLocaleString()}`;
-        document.getElementById('statPaid').innerText = `₹${paid.toLocaleString()}`;
+            // Sort matches numerically and build table
+            Object.keys(data).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
+                const matchId = key.split('_')[1];
+                const winners = data[key].winners;
+                
+                tbody.innerHTML += `<tr class="history-row">
+                    <td><b>M${matchId}</b></td>
+                    <td>${winners[0] || '-'}</td>
+                    <td>${winners[1] || '-'}</td>
+                    <td>${winners[2] || '-'}</td>
+                    <td>${winners[3] || '-'}</td>
+                    <td>${winners[4] || '-'}</td>
+                </tr>`;
+
+                winners.forEach((name, rank) => {
+                    if(name && name !== "-") {
+                        if(!totalStats[name]) totalStats[name] = { count: 0, money: 0 };
+                        totalStats[name].count++;
+                        totalStats[name].money += PRIZES[rank];
+                    }
+                });
+            });
+
+            // Fill Finance/Stats Tab
+            Object.keys(totalStats).sort().forEach(player => {
+                statsBody.innerHTML += `<tr>
+                    <td><b>${player}</b></td>
+                    <td>${totalStats[player].count}</td>
+                    <td>₹${totalStats[player].money}</td>
+                </tr>`;
+            });
+        });
     }
 
-    function processSettlement() {
-        const checks = document.querySelectorAll('.pay-check:checked');
-        if(checks.length === 0) return;
-        const now = new Date().toLocaleDateString();
-        checks.forEach(c => {
-            history.push({ date: now, name: c.dataset.name, amount: parseInt(c.dataset.amount) });
-            document.querySelectorAll('.manual-input').forEach(i => { if(i.value === c.dataset.name) i.value = ''; });
-        });
-        pushToCloud();
-    }
+    // Auto-fetch on startup
+    window.onload = fetchAllData;
 </script>
 </body>
 </html>
