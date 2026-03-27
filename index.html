@@ -128,16 +128,17 @@
 
     <div id="summary" class="content-section">
         <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:#fff;">
-            <h3>💳 Pending Payouts</h3>
+            <h3>💳 Current Pending Balances</h3>
+            <p style="font-size:0.8em; color:#666;">(Total Winnings - Already Paid)</p>
             <table id="pendingTable">
-                <thead><tr><th>Name</th><th>Wins</th><th>Total</th><th>Settle?</th></tr></thead>
+                <thead><tr><th>Name</th><th>Total Won</th><th>Already Paid</th><th>Pending Due</th><th>Settle?</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
             </table>
             <button class="btn btn-settle" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Payouts (Admin Only)</button>
         </div>
-        <h3 style="margin-top:20px;">📚 Paid History</h3>
+        <h3 style="margin-top:30px;">📚 Permanent Payout History</h3>
         <table id="paidTable">
-            <thead><tr><th>Date</th><th>Name</th><th>Amount</th></tr></thead>
+            <thead><tr><th>Date</th><th>Name</th><th>Amount Settled</th></tr></thead>
             <tbody id="paidHistoryBody"></tbody>
         </table>
     </div>
@@ -216,27 +217,47 @@
         hBody.innerHTML = ''; sBody.innerHTML = ''; pBody.innerHTML = '';
 
         const playerStats = {};
+        const playerPaidTotal = {};
 
-        // History Table
+        // 1. Calculate History & Total Winnings
         Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
             const winners = winnersList[key].winners;
             hBody.innerHTML += `<tr><td><b>M${key.split('_')[1]}</b></td><td>${winners[0]}</td><td>${winners[1]}</td><td>${winners[2]}</td><td>${winners[3]}</td><td>${winners[4]}</td></tr>`;
             
             winners.forEach((p, idx) => {
                 if(p) {
-                    if(!playerStats[p]) playerStats[p] = { count: 0, total: 0 };
+                    if(!playerStats[p]) playerStats[p] = { count: 0, totalWon: 0 };
                     playerStats[p].count++;
-                    playerStats[p].total += PRIZES[idx];
+                    playerStats[p].totalWon += PRIZES[idx];
                 }
             });
         });
 
-        // Pending Payouts Table
-        Object.keys(playerStats).sort().forEach(p => {
-            sBody.innerHTML += `<tr><td>${p}</td><td>${playerStats[p].count}</td><td>₹${playerStats[p].total}</td><td><input type="checkbox" class="pay-check" data-name="${p}" data-amount="${playerStats[p].total}"></td></tr>`;
+        // 2. Calculate Total Already Paid from History
+        paidHistory.forEach(h => {
+            if(!playerPaidTotal[h.name]) playerPaidTotal[h.name] = 0;
+            playerPaidTotal[h.name] += h.amount;
         });
 
-        // Paid History Table
+        // 3. Render Payouts Table (Pending = TotalWon - AlreadyPaid)
+        Object.keys(playerStats).sort().forEach(p => {
+            const won = playerStats[p].totalWon;
+            const alreadyPaid = playerPaidTotal[p] || 0;
+            const pending = won - alreadyPaid;
+
+            // Only show in pending table if they have won something OR still have a balance
+            if (won > 0) {
+                sBody.innerHTML += `<tr>
+                    <td><b>${p}</b></td>
+                    <td>₹${won}</td>
+                    <td style="color:var(--success)">₹${alreadyPaid}</td>
+                    <td style="font-weight:bold; color:${pending > 0 ? 'var(--danger)' : 'var(--success)'}">₹${pending}</td>
+                    <td>${pending > 0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${pending}">` : '✅'}</td>
+                </tr>`;
+            }
+        });
+
+        // 4. Render Paid History Table
         paidHistory.slice().reverse().forEach(h => {
             pBody.innerHTML += `<tr><td>${h.date}</td><td>${h.name}</td><td>₹${h.amount}</td></tr>`;
         });
@@ -248,13 +269,13 @@
     function processSettlement() {
         if(!isAdmin) return;
         const checks = document.querySelectorAll('.pay-check:checked');
-        if(checks.length === 0) return;
+        if(checks.length === 0) return alert("Select someone to pay.");
         const now = new Date().toLocaleDateString();
         checks.forEach(c => {
             paidHistory.push({ date: now, name: c.dataset.name, amount: parseInt(c.dataset.amount) });
         });
         db.ref('leagueMaster').update({ paidHistory }).then(() => {
-            alert("Payouts Confirmed!");
+            alert("Payouts Settled and Pending Balances Updated!");
             fetchAllData();
         });
     }
