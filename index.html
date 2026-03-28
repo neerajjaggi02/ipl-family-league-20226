@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPL 2026 Private League - Official</title>
+    <title>IPL 2026 Private League - Official (14 Members)</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -20,7 +20,7 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        /* Handbook Styling - EXACT TEXT PRESERVED */
+        /* Handbook Styling */
         .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
         .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
@@ -44,7 +44,7 @@
 <datalist id="playerNames">
     <option value="Aju"> <option value="Anil"> <option value="Anju"> <option value="Ankita">
     <option value="Ashu"> <option value="Atul"> <option value="Chintu"> <option value="Devansh">
-    <option value="Dharak"> <option value="Dhwanish"> <option value="Divya"> <option value="Dolly">
+     <option value="Divya"> <option value="Dolly">
     <option value="Khusboo"> <option value="Neeraj"> <option value="Nirvi"> <option value="Sonu">
     <option value="Suksham"> <option value="Sweety">
 </datalist>
@@ -64,38 +64,29 @@
     <div id="rules" class="content-section handbook active">
         <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE: OFFICIAL HANDBOOK</h1>
         <h2>1. LEAGUE OVERVIEW & STRUCTURE</h2>
-        <p>This private league is conducted on the <b>My11Circle</b> app. It consists of all <b>74 matches</b> of the IPL 2026 season. This document serves as the official agreement for all participating members.</p>
+        <p>This private league is conducted on the <b>My11Circle</b> app. It consists of all <b>74 matches</b> of the IPL 2026 season.</p>
         <ul>
-            <li>Total Matches: 74 | Entry Fee per Match: ₹20 | Platform: My11Circle</li>
+            <li>Total Matches: 74</li>
+            <li>Confirmed Members: 14</li>
+            <li>Entry Fee per Match: ₹20</li>
             <li>Total Advance Deposit: ₹1,480 per member</li>
         </ul>
-        <h2>2. FINANCIAL MODELS (BASED ON MEMBER COUNT)</h2>
+        <h2>2. FINANCIAL MODEL (100% DAILY PAYOUT)</h2>
         <div class="scenario-box">
-            <h3>Scenario 1: 15 Members (Total Pool: ₹22,200)</h3>
-            <p>1st: ₹100 | 2. 2nd: ₹70 | 3. 3rd: ₹50 | 4. 4th: ₹25 | 5. 5th: ₹25</p>
+            <h3>Final League Setup: 14 Members</h3>
+            <p><b>Total Pool:</b> ₹20,720 (14 Members × ₹1,480)</p>
+            <p><b>Leaderboard Reserve:</b> ₹0 (Moved to Daily Budget)</p>
+            <p><b>Per Match Prize Pool:</b> ₹280</p>
+            <hr>
+            <p><b>Daily Top 5 Payout:</b></p>
+            <p>1st: <b>₹110</b> | 2nd: <b>₹75</b> | 3rd: <b>₹50</b> | 4th: <b>₹25</b> | 5th: <b>₹20</b></p>
         </div>
-        <div class="scenario-box">
-            <h3>Scenario 2: 12 Members (Total Pool: ₹17,760)</h3>
-            <p>1st: ₹80 | 2. 2nd: ₹55 | 3. 3rd: ₹40 | 4. 4th: ₹21 | 5. 5th: ₹20</p>
-        </div>
-        <div class="scenario-box">
-            <h3>Scenario 3: 10 Members (Total Pool: ₹14,800)</h3>
-            <p>1st: ₹65 | 2. 2nd: ₹45 | 3. 3rd: ₹35 | 4. 4th: ₹20 | 5. 5th: ₹15</p>
-        </div>
-        <h2>3. SEASON LEADERBOARD PRIZES (TOP 3)</h2>
-        <table>
-            <thead><tr><th>Rank</th><th>15 Members</th><th>12 Members</th><th>10 Members</th></tr></thead>
-            <tbody>
-                <tr><td>Champion (1st)</td><td>₹1,110</td><td>₹888</td><td>₹740</td></tr>
-                <tr><td>Runner-up (2nd)</td><td>₹666</td><td>₹533</td><td>₹444</td></tr>
-                <tr><td>3rd Place</td><td>₹444</td><td>₹355</td><td>₹296</td></tr>
-            </tbody>
-        </table>
-        <h2>4. OPERATIONAL RULES & CONTINGENCIES</h2>
+        <h2>3. OPERATIONAL RULES</h2>
         <ul>
-            <li><b>Advance Payment:</b> Full advance (₹1,480) before Match 1. No "pay-as-you-go".</li>
-            <li><b>Volunteer Role:</b> Volunteer manages accounts and takes rankings screenshots for transparency.</li>
-            <li><b>Disputes:</b> My11Circle rankings at "Match Completed" status are final.</li>
+            <li><b>No Season Leaderboard:</b> All funds are distributed daily. No end-of-season bulk prizes.</li>
+            <li><b>Advance Payment:</b> Full advance (₹1,480) required before Match 1.</li>
+            <li><b>Volunteer Role:</b> Neeraj (Volunteer) manages accounts and rankings screenshots.</li>
+            <li><b>Disputes:</b> My11Circle app rankings at "Match Completed" status are final.</li>
         </ul>
     </div>
 
@@ -105,7 +96,7 @@
             <label>Select Available Match:</label>
             <select id="matchSelect" style="padding:8px; margin-bottom:15px; border-radius:5px; font-weight:bold;"></select>
             <table>
-                <thead><tr><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
+                <thead><tr><th>1st (₹110)</th><th>2nd (₹75)</th><th>3rd (₹50)</th><th>4th (₹25)</th><th>5th (₹20)</th></tr></thead>
                 <tbody>
                     <tr>
                         <td><input type="text" id="p1" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
@@ -159,7 +150,10 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const PRIZES = [100, 70, 50, 25, 25];
+    
+    // NEW PAYOUT SCALE FOR ₹280 POOL
+    const PRIZES = [110, 75, 50, 25, 20]; 
+    
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
@@ -173,32 +167,26 @@
 
     function adminLogin() {
         const pin = prompt("Volunteer PIN:");
-        if(pin === "1234") {
+        if(pin === "2026") {
             isAdmin = true;
             document.getElementById('adminText').innerText = "🔓 Volunteer Mode";
             document.getElementById('adminEntry').style.display = "block";
             document.getElementById('settleBtn').disabled = false;
-            updateMatchDropdown(); // Initialize dropdown on login
+            updateMatchDropdown();
         }
     }
 
-    // --- REFRESH DROPDOWN (DISABLED USED MATCHES) ---
     function updateMatchDropdown() {
         const sel = document.getElementById('matchSelect');
         sel.innerHTML = "";
         for (let i = 1; i <= 74; i++) {
             const key = "match_" + i;
-            // Only add to dropdown if match does not exist in our winnersList
             if (!winnersList[key]) {
                 const opt = document.createElement("option");
                 opt.value = i;
                 opt.text = "Match " + i;
                 sel.add(opt);
             }
-        }
-        if (sel.options.length === 0) {
-            sel.innerHTML = "<option>All 74 Matches Completed</option>";
-            document.getElementById('saveBtn').disabled = true;
         }
     }
 
@@ -230,8 +218,6 @@
     function saveCurrentMatch() {
         if(!isAdmin) return;
         const matchNum = document.getElementById('matchSelect').value;
-        if (!matchNum || matchNum.includes("Completed")) return;
-
         const pValues = [
             document.getElementById('p1').value.trim(),
             document.getElementById('p2').value.trim(),
@@ -243,7 +229,7 @@
         db.ref('leagueRecords/match_' + matchNum).set({ winners: pValues }).then(() => {
             alert("Match " + matchNum + " Saved Successfully!");
             pValues.forEach((v, i) => document.getElementById('p' + (i+1)).value = "");
-            fetchAllData(); // This will refresh the dropdown too
+            fetchAllData();
         });
     }
 
@@ -254,7 +240,7 @@
             db.ref('leagueRecords').once('value').then(snap => {
                 winnersList = snap.val() || {};
                 renderTables();
-                if(isAdmin) updateMatchDropdown(); // Keep dropdown fresh
+                if(isAdmin) updateMatchDropdown();
             });
         });
     }
