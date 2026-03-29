@@ -10,28 +10,32 @@
 
     <style>
         :root { --primary: #1a3a5f; --secondary: #2b6cb0; --success: #28a745; --danger: #dc3545; --bg: #f4f7f9; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #333; margin: 0; padding: 10px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; margin: 0; padding: 10px; }
         .container { max-width: 1100px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; border-top: 8px solid var(--primary); }
         .setup-bar { background: #1a3a5f; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
         .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; background: #4a5568; }
         .tabs { display: flex; background: #e9ecef; border-bottom: 2px solid #dee2e6; position: sticky; top: 0; z-index: 100; }
-        .tab-btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #495057; }
+        .tab-btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #495057; transition: 0.3s; background: none; }
         .tab-btn.active { color: var(--primary); background: white; border-bottom: 4px solid var(--primary); }
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        .entry-card { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid var(--secondary); margin-bottom: 20px; }
+        /* Financial Dashboard */
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .dash-card { padding: 15px; border-radius: 8px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .dash-card h3 { margin: 0; font-size: 0.85em; opacity: 0.9; text-transform: uppercase; }
+        .dash-card p { margin: 5px 0 0; font-size: 1.5em; font-weight: bold; }
+
+        /* Tables & UI */
+        .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
+        .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; }
         th { background: var(--primary); color: white; padding: 10px; }
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
-        
-        /* Multi-Select Dropdown Styling */
-        .multi-select { width: 100%; height: 80px; border: 1px solid #ced4da; border-radius: 4px; padding: 5px; font-size: 0.8em; }
-        .tip { font-size: 0.75em; color: #666; font-style: italic; margin-bottom: 5px; display: block; }
-        
+        .multi-select { width: 100%; height: 100px; border: 1px solid #ced4da; border-radius: 4px; padding: 5px; font-size: 0.8em; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
-        .btn-save { background: var(--success); width: 100%; margin-top: 10px; }
-        .btn-fetch { background: var(--secondary); margin-bottom: 15px; width: 100%; }
+        .error-text { color: var(--danger); font-weight: bold; font-size: 0.85em; display: none; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -48,37 +52,48 @@
         <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Payouts</button>
     </div>
 
-    <div id="rules" class="content-section active">
-        <h1>🏆 IPL 2026 OFFICIAL HANDBOOK</h1>
-        <p><b>15 Members | ₹300 Match Pool</b></p>
-        <p>1st: ₹110 | 2nd: ₹80 | 3rd: ₹50 | 4th: ₹35 | 5th: ₹25</p>
-        <p><i>*Multi-winner ties split the rank prize equally.</i></p>
+    <div id="rules" class="content-section handbook active">
+        <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE: OFFICIAL HANDBOOK</h1>
+        <h2>1. LEAGUE OVERVIEW & STRUCTURE</h2>
+        <p>This private league is conducted on the <b>My11Circle</b> app. It consists of all <b>74 matches</b> of the IPL 2026 season.</p>
+        <ul>
+            <li>Total Matches: 74 | Entry Fee per Match: ₹20 | Platform: My11Circle</li>
+            <li>Total Advance Deposit: ₹1,480 per member</li>
+        </ul>
+        <h2>2. FINANCIAL MODELS (BASED ON MEMBER COUNT)</h2>
+        <div class="scenario-box">
+            <h3>Scenario 1: 15 Members (Total Pool: ₹22,200)</h3>
+            <p>1st: ₹100 | 2. 2nd: ₹70 | 3. 3rd: ₹50 | 4. 4th: ₹25 | 5. 5th: ₹25</p>
+        </div>
+        <h2>3. OPERATIONAL RULES & CONTINGENCIES</h2>
+        <ul>
+            <li><b>Advance Payment:</b> Full advance (₹1,480) before Match 1.</li>
+            <li><b>Volunteer Role:</b> Volunteer manages accounts and rankings screenshots.</li>
+        </ul>
     </div>
 
     <div id="tracker" class="content-section">
-        <div id="adminEntry" class="entry-card" style="display:none;">
+        <div id="adminEntry" style="display:none; background:#f8f9fa; padding:20px; border-radius:10px; border:2px solid var(--secondary); margin-bottom:20px;">
             <h3>➕ Add Match Result</h3>
-            <span class="tip">Hold Ctrl (Win) or Cmd (Mac) to select multiple players for a tie.</span>
-            <label>Match:</label> <select id="matchSelect" style="padding:5px; margin-bottom:10px; font-weight:bold;"></select>
-            
+            <label>Match Number:</label>
+            <select id="matchSelect" style="padding:8px; margin-bottom:15px; border-radius:5px; font-weight:bold;"></select>
             <table>
-                <thead>
-                    <tr><th>1st (₹110)</th><th>2nd (₹80)</th><th>3rd (₹50)</th><th>4th (₹35)</th><th>5th (₹25)</th></tr>
-                </thead>
+                <thead><tr><th>1st (₹110)</th><th>2nd (₹80)</th><th>3rd (₹50)</th><th>4th (₹35)</th><th>5th (₹25)</th></tr></thead>
                 <tbody>
                     <tr>
-                        <td><select id="p1" class="multi-select" multiple></select></td>
-                        <td><select id="p2" class="multi-select" multiple></select></td>
-                        <td><select id="p3" class="multi-select" multiple></select></td>
-                        <td><select id="p4" class="multi-select" multiple></select></td>
-                        <td><select id="p5" class="multi-select" multiple></select></td>
+                        <td><select id="p1" class="multi-select" multiple onchange="validatePositions()"></select></td>
+                        <td><select id="p2" class="multi-select" multiple onchange="validatePositions()"></select></td>
+                        <td><select id="p3" class="multi-select" multiple onchange="validatePositions()"></select></td>
+                        <td><select id="p4" class="multi-select" multiple onchange="validatePositions()"></select></td>
+                        <td><select id="p5" class="multi-select" multiple onchange="validatePositions()"></select></td>
                     </tr>
                 </tbody>
             </table>
-            <button id="saveBtn" class="btn btn-save" onclick="saveCurrentMatch()">💾 Save Match</button>
+            <div id="valError" class="error-text">⚠️ Error: A player cannot be selected for more than one rank position!</div>
+            <button id="saveBtn" class="btn" style="background:var(--success); width:100%;" onclick="saveCurrentMatch()">💾 Save Match</button>
         </div>
 
-        <button class="btn btn-fetch" onclick="fetchAllData()">🔄 Fetch All Records</button>
+        <button class="btn" style="background:var(--secondary); width:100%; margin-bottom:15px;" onclick="fetchAllData()">🔄 Refresh Match Records</button>
         <table id="historyTable">
             <thead><tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
             <tbody id="historyBody"></tbody>
@@ -86,16 +101,23 @@
     </div>
 
     <div id="summary" class="content-section">
-        <div style="border:2px solid var(--success); padding:20px; border-radius:10px;">
-            <h3>💳 Pending Balances</h3>
+        <div class="dash-grid">
+            <div class="dash-card" style="background:var(--primary);"><h3>Total Pool Recieved</h3><p id="dashTotal">₹22,200</p></div>
+            <div class="dash-card" style="background:var(--success);"><h3>Total Distributed</h3><p id="dashPaid">₹0</p></div>
+            <div class="dash-card" style="background:#fd7e14;"><h3>Cash Balance</h3><p id="dashCash">₹0</p></div>
+            <div class="dash-card" style="background:var(--danger);"><h3>Pending Liability</h3><p id="dashPending">₹0</p></div>
+        </div>
+
+        <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:#fff;">
+            <h3>💳 Pending Individual Balances</h3>
             <table id="pendingTable">
-                <thead><tr><th>Name</th><th>Total Won</th><th>Already Paid</th><th>Pending</th><th>Settle?</th></tr></thead>
+                <thead><tr><th>Name</th><th>Total Won</th><th>Already Paid</th><th>Pending Due</th><th>Settle?</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
             </table>
-            <button class="btn" style="background:var(--success); color:white; width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Payouts</button>
+            <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Selection & Settle</button>
         </div>
-        <h3 style="margin-top:20px;">📚 Paid History</h3>
-        <table id="paidTable"><thead><tr><th>Date</th><th>Name</th><th>Amount</th></tr></thead><tbody id="paidHistoryBody"></tbody></table>
+        <h3 style="margin-top:30px;">📚 Permanent Payout History</h3>
+        <table id="paidTable"><thead><tr><th>Date</th><th>Name</th><th>Amount Settled</th></tr></thead><tbody id="paidHistoryBody"></tbody></table>
     </div>
 </div>
 
@@ -114,17 +136,15 @@
     const db = firebase.database();
     const PRIZES = [110, 80, 50, 35, 25];
     const ALL_PLAYERS = ["Aju", "Anil", "Anju", "Ankita", "Ashu", "Atul", "Chintu", "Devansh", "Dharak", "Dhwanish", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
-    
+    const TOTAL_POOL = 15 * 1480;
+
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
 
-    // Fill Dropdowns with Member Names
-    function initDropdowns() {
-        const selects = ['p1', 'p2', 'p3', 'p4', 'p5'];
-        selects.forEach(id => {
-            const el = document.getElementById(id);
-            el.innerHTML = ALL_PLAYERS.map(p => `<option value="${p}">${p}</option>`).join('');
+    function initMultiSelects() {
+        ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(id => {
+            document.getElementById(id).innerHTML = ALL_PLAYERS.map(p => `<option value="${p}">${p}</option>`).join('');
         });
     }
 
@@ -146,6 +166,16 @@
         }
     }
 
+    function validatePositions() {
+        const allSelected = [];
+        for(let i=1; i<=5; i++) {
+            allSelected.push(...Array.from(document.getElementById('p'+i).selectedOptions).map(o => o.value));
+        }
+        const hasDup = new Set(allSelected).size !== allSelected.length;
+        document.getElementById('valError').style.display = hasDup ? 'block' : 'none';
+        document.getElementById('saveBtn').disabled = hasDup;
+    }
+
     function updateMatchDropdown() {
         const sel = document.getElementById('matchSelect');
         sel.innerHTML = "";
@@ -159,20 +189,20 @@
 
     function saveCurrentMatch() {
         const matchNum = document.getElementById('matchSelect').value;
-        const result = [];
-        for(let r=1; r<=5; r++) {
-            const selected = Array.from(document.getElementById('p'+r).selectedOptions).map(o => o.value);
-            result.push(selected.join(', '));
+        const results = [];
+        for(let i=1; i<=5; i++) {
+            results.push(Array.from(document.getElementById('p'+i).selectedOptions).map(o => o.value).join(', '));
         }
-        db.ref('leagueRecords/match_' + matchNum).set({ winners: result }).then(() => {
+        db.ref('leagueRecords/match_' + matchNum).set({ winners: results }).then(() => {
             alert("Match Saved!");
-            fetchAllData();
+            location.reload(); 
         });
     }
 
     function fetchAllData() {
         db.ref('leagueMaster').once('value').then(snap => {
-            paidHistory = (snap.val() || {}).paidHistory || [];
+            const mData = snap.val() || {};
+            paidHistory = mData.paidHistory || [];
             db.ref('leagueRecords').once('value').then(snap => {
                 winnersList = snap.val() || {};
                 renderTables();
@@ -186,37 +216,49 @@
         const sBody = document.getElementById('summaryBody');
         const pBody = document.getElementById('paidHistoryBody');
         hBody.innerHTML = ''; sBody.innerHTML = ''; pBody.innerHTML = '';
-        
+
         const playerStats = {};
+        let totalWonInLeague = 0;
 
         Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
             const winners = winnersList[key].winners;
             hBody.innerHTML += `<tr><td>M${key.split('_')[1]}</td>${winners.map(w => `<td>${w || '-'}</td>`).join('')}</tr>`;
             
-            winners.forEach((val, idx) => {
-                if(val) {
-                    const shared = val.split(', ').filter(n => n);
-                    const splitAmount = PRIZES[idx] / shared.length;
+            winners.forEach((boxValue, idx) => {
+                if(boxValue) {
+                    const shared = boxValue.split(', ').filter(n => n);
+                    const splitPrize = PRIZES[idx] / shared.length;
                     shared.forEach(p => {
-                        playerStats[p] = (playerStats[p] || 0) + splitAmount;
+                        playerStats[p] = (playerStats[p] || 0) + splitPrize;
+                        totalWonInLeague += splitPrize;
                     });
                 }
             });
         });
 
         const playerPaidTotal = {};
-        paidHistory.forEach(h => playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount);
+        let totalDistributed = 0;
+        paidHistory.forEach(h => {
+            playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount;
+            totalDistributed += h.amount;
+        });
 
         Object.keys(playerStats).sort().forEach(p => {
             const won = Math.round(playerStats[p]);
             const paid = playerPaidTotal[p] || 0;
             const due = won - paid;
-            if(won > 0) {
-                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}">₹${due}</td><td>${due>0?`<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}">`:'✅'}</td></tr>`;
+            if (won > 0) {
+                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td style="color:var(--success)">₹${paid}</td><td style="font-weight:bold; color:${due > 0 ? 'red' : 'green'}">₹${due}</td><td>${due > 0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}">` : '✅'}</td></tr>`;
             }
         });
 
         paidHistory.slice().reverse().forEach(h => pBody.innerHTML += `<tr><td>${h.date}</td><td>${h.name}</td><td>₹${h.amount}</td></tr>`);
+
+        // Financial Dashboard Logic
+        document.getElementById('dashPaid').innerText = `₹${totalDistributed.toLocaleString()}`;
+        document.getElementById('dashCash').innerText = `₹${(TOTAL_POOL - totalDistributed).toLocaleString()}`;
+        document.getElementById('dashPending').innerText = `₹${Math.round(totalWonInLeague - totalDistributed).toLocaleString()}`;
+
         document.getElementById('cloudStatus').innerText = "LIVE ✅";
         document.getElementById('cloudStatus').style.background = "#28a745";
     }
@@ -228,7 +270,7 @@
         db.ref('leagueMaster').update({ paidHistory }).then(() => { fetchAllData(); });
     }
 
-    window.onload = () => { initDropdowns(); fetchAllData(); };
+    window.onload = () => { initMultiSelects(); fetchAllData(); };
 </script>
 </body>
 </html>
