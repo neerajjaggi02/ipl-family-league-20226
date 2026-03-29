@@ -10,41 +10,31 @@
 
     <style>
         :root { --primary: #1a3a5f; --secondary: #2b6cb0; --success: #28a745; --danger: #dc3545; --bg: #f4f7f9; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; margin: 0; padding: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #333; margin: 0; padding: 10px; }
         .container { max-width: 1100px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; border-top: 8px solid var(--primary); }
         .setup-bar { background: #1a3a5f; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
         .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; background: #4a5568; }
         .tabs { display: flex; background: #e9ecef; border-bottom: 2px solid #dee2e6; position: sticky; top: 0; z-index: 100; }
-        .tab-btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #495057; transition: 0.3s; background: none; }
+        .tab-btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #495057; }
         .tab-btn.active { color: var(--primary); background: white; border-bottom: 4px solid var(--primary); }
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
-        .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
-
         .entry-card { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid var(--secondary); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; }
         th { background: var(--primary); color: white; padding: 10px; }
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
-        .manual-input { width: 90%; border: 1px solid #ced4da; text-align: center; padding: 8px; border-radius: 4px; outline: none; }
-        .input-error { border: 2px solid var(--danger) !important; background-color: #ffeef0; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-fetch { background: var(--secondary); margin-bottom: 15px; width: 100%; justify-content: center; }
-        .btn-save { background: var(--success); width: 100%; justify-content: center; margin-top: 10px; }
-        .error-text { color: var(--danger); font-weight: bold; font-size: 0.85em; display: none; margin-top: 10px; text-align: center; }
+        
+        /* Multi-Select Dropdown Styling */
+        .multi-select { width: 100%; height: 80px; border: 1px solid #ced4da; border-radius: 4px; padding: 5px; font-size: 0.8em; }
+        .tip { font-size: 0.75em; color: #666; font-style: italic; margin-bottom: 5px; display: block; }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-save { background: var(--success); width: 100%; margin-top: 10px; }
+        .btn-fetch { background: var(--secondary); margin-bottom: 15px; width: 100%; }
     </style>
 </head>
 <body>
-
-<datalist id="playerNames">
-    <option value="Aju"> <option value="Anil"> <option value="Anju"> <option value="Ankita">
-    <option value="Ashu"> <option value="Atul"> <option value="Chintu"> <option value="Devansh">
-    <option value="Dharak"> <option value="Dhwanish"> <option value="Divya"> <option value="Dolly">
-    <option value="Khusboo"> <option value="Neeraj"> <option value="Nirvi"> <option value="Sonu">
-    <option value="Suksham"> <option value="Sweety">
-</datalist>
 
 <div class="setup-bar">
     <div>🌐 <span id="cloudStatus" class="status-pill">CONNECTING...</span></div>
@@ -58,45 +48,33 @@
         <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Payouts</button>
     </div>
 
-    <div id="rules" class="content-section handbook active">
-        <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE: OFFICIAL HANDBOOK</h1>
-        <h2>1. LEAGUE OVERVIEW & STRUCTURE</h2>
-        <p>This private league consists of all <b>74 matches</b> of the IPL 2026 season.</p>
-        <ul>
-            <li>Total Matches: 74 | Total Members: 15 | Entry: ₹20</li>
-            <li>Total Advance Deposit: ₹1,480 per member</li>
-        </ul>
-        <h2>2. FINANCIAL MODEL (100% DAILY PAYOUT)</h2>
-        <div class="scenario-box">
-            <h3>Final Setup: 15 Members</h3>
-            <p><b>Total Pool:</b> ₹22,200 | <b>Per Match:</b> ₹300</p>
-            <p><b>Payout:</b> 1st: ₹110 | 2nd: ₹80 | 3rd: ₹50 | 4th: ₹35 | 5th: ₹25</p>
-        </div>
-        <h2>3. OPERATIONAL RULES</h2>
-        <ul>
-            <li><b>Shared Positions:</b> If multiple players tie, use commas (e.g., Neeraj, Sonu). Money is split equally.</li>
-            <li><b>Duplicates:</b> A single player cannot occupy two different ranks in the same match.</li>
-        </ul>
+    <div id="rules" class="content-section active">
+        <h1>🏆 IPL 2026 OFFICIAL HANDBOOK</h1>
+        <p><b>15 Members | ₹300 Match Pool</b></p>
+        <p>1st: ₹110 | 2nd: ₹80 | 3rd: ₹50 | 4th: ₹35 | 5th: ₹25</p>
+        <p><i>*Multi-winner ties split the rank prize equally.</i></p>
     </div>
 
     <div id="tracker" class="content-section">
         <div id="adminEntry" class="entry-card" style="display:none;">
             <h3>➕ Add Match Result</h3>
-            <label>Select Match:</label>
-            <select id="matchSelect" style="padding:8px; margin-bottom:15px; border-radius:5px; font-weight:bold;"></select>
+            <span class="tip">Hold Ctrl (Win) or Cmd (Mac) to select multiple players for a tie.</span>
+            <label>Match:</label> <select id="matchSelect" style="padding:5px; margin-bottom:10px; font-weight:bold;"></select>
+            
             <table>
-                <thead><tr><th>1st (₹110)</th><th>2nd (₹80)</th><th>3rd (₹50)</th><th>4th (₹35)</th><th>5th (₹25)</th></tr></thead>
+                <thead>
+                    <tr><th>1st (₹110)</th><th>2nd (₹80)</th><th>3rd (₹50)</th><th>4th (₹35)</th><th>5th (₹25)</th></tr>
+                </thead>
                 <tbody>
                     <tr>
-                        <td><input type="text" id="p1" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
-                        <td><input type="text" id="p2" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
-                        <td><input type="text" id="p3" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
-                        <td><input type="text" id="p4" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
-                        <td><input type="text" id="p5" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
+                        <td><select id="p1" class="multi-select" multiple></select></td>
+                        <td><select id="p2" class="multi-select" multiple></select></td>
+                        <td><select id="p3" class="multi-select" multiple></select></td>
+                        <td><select id="p4" class="multi-select" multiple></select></td>
+                        <td><select id="p5" class="multi-select" multiple></select></td>
                     </tr>
                 </tbody>
             </table>
-            <div id="realTimeError" class="error-text">⚠️ Duplicate entry detected!</div>
             <button id="saveBtn" class="btn btn-save" onclick="saveCurrentMatch()">💾 Save Match</button>
         </div>
 
@@ -108,19 +86,16 @@
     </div>
 
     <div id="summary" class="content-section">
-        <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:#fff;">
-            <h3>💳 Current Pending Balances</h3>
+        <div style="border:2px solid var(--success); padding:20px; border-radius:10px;">
+            <h3>💳 Pending Balances</h3>
             <table id="pendingTable">
-                <thead><tr><th>Name</th><th>Total Won</th><th>Already Paid</th><th>Pending Due</th><th>Settle?</th></tr></thead>
+                <thead><tr><th>Name</th><th>Total Won</th><th>Already Paid</th><th>Pending</th><th>Settle?</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
             </table>
-            <button class="btn btn-settle" id="settleBtn" style="background:var(--success); color:white;" onclick="processSettlement()" disabled>✅ Confirm Payouts (Admin Only)</button>
+            <button class="btn" style="background:var(--success); color:white; width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Payouts</button>
         </div>
-        <h3 style="margin-top:30px;">📚 Permanent Payout History</h3>
-        <table id="paidTable">
-            <thead><tr><th>Date</th><th>Name</th><th>Amount</th></tr></thead>
-            <tbody id="paidHistoryBody"></tbody>
-        </table>
+        <h3 style="margin-top:20px;">📚 Paid History</h3>
+        <table id="paidTable"><thead><tr><th>Date</th><th>Name</th><th>Amount</th></tr></thead><tbody id="paidHistoryBody"></tbody></table>
     </div>
 </div>
 
@@ -138,9 +113,20 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const PRIZES = [110, 80, 50, 35, 25];
+    const ALL_PLAYERS = ["Aju", "Anil", "Anju", "Ankita", "Ashu", "Atul", "Chintu", "Devansh", "Dharak", "Dhwanish", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
+    
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
+
+    // Fill Dropdowns with Member Names
+    function initDropdowns() {
+        const selects = ['p1', 'p2', 'p3', 'p4', 'p5'];
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            el.innerHTML = ALL_PLAYERS.map(p => `<option value="${p}">${p}</option>`).join('');
+        });
+    }
 
     function openTab(e, n) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -171,30 +157,22 @@
         }
     }
 
-    function checkRealTimeDup() {
-        const inputs = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4'), document.getElementById('p5')];
-        const flatNames = inputs.map(i => i.value.trim().toUpperCase()).join(',').split(',').map(n => n.trim()).filter(n => n !== "");
-        const hasDup = new Set(flatNames).size !== flatNames.length;
-        inputs.forEach(i => i.classList.toggle('input-error', hasDup && i.value !== ""));
-        document.getElementById('realTimeError').style.display = hasDup ? "block" : "none";
-        document.getElementById('saveBtn').disabled = hasDup;
-    }
-
     function saveCurrentMatch() {
-        if(!isAdmin) return;
         const matchNum = document.getElementById('matchSelect').value;
-        const pValues = [document.getElementById('p1').value.trim(), document.getElementById('p2').value.trim(), document.getElementById('p3').value.trim(), document.getElementById('p4').value.trim(), document.getElementById('p5').value.trim()];
-        db.ref('leagueRecords/match_' + matchNum).set({ winners: pValues }).then(() => {
+        const result = [];
+        for(let r=1; r<=5; r++) {
+            const selected = Array.from(document.getElementById('p'+r).selectedOptions).map(o => o.value);
+            result.push(selected.join(', '));
+        }
+        db.ref('leagueRecords/match_' + matchNum).set({ winners: result }).then(() => {
             alert("Match Saved!");
-            pValues.forEach((v, i) => document.getElementById('p' + (i+1)).value = "");
             fetchAllData();
         });
     }
 
     function fetchAllData() {
         db.ref('leagueMaster').once('value').then(snap => {
-            const mData = snap.val() || {};
-            paidHistory = mData.paidHistory || [];
+            paidHistory = (snap.val() || {}).paidHistory || [];
             db.ref('leagueRecords').once('value').then(snap => {
                 winnersList = snap.val() || {};
                 renderTables();
@@ -208,31 +186,34 @@
         const sBody = document.getElementById('summaryBody');
         const pBody = document.getElementById('paidHistoryBody');
         hBody.innerHTML = ''; sBody.innerHTML = ''; pBody.innerHTML = '';
-
+        
         const playerStats = {};
-        const playerPaidTotal = {};
 
         Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
             const winners = winnersList[key].winners;
-            hBody.innerHTML += `<tr><td><b>M${key.split('_')[1]}</b></td><td>${winners[0]}</td><td>${winners[1]}</td><td>${winners[2]}</td><td>${winners[3]}</td><td>${winners[4]}</td></tr>`;
+            hBody.innerHTML += `<tr><td>M${key.split('_')[1]}</td>${winners.map(w => `<td>${w || '-'}</td>`).join('')}</tr>`;
+            
             winners.forEach((val, idx) => {
                 if(val) {
-                    const players = val.split(',').map(n => n.trim()).filter(n => n);
-                    players.forEach(p => {
-                        if(!playerStats[p]) playerStats[p] = { totalWon: 0 };
-                        playerStats[p].totalWon += (PRIZES[idx] / players.length);
+                    const shared = val.split(', ').filter(n => n);
+                    const splitAmount = PRIZES[idx] / shared.length;
+                    shared.forEach(p => {
+                        playerStats[p] = (playerStats[p] || 0) + splitAmount;
                     });
                 }
             });
         });
 
+        const playerPaidTotal = {};
         paidHistory.forEach(h => playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount);
 
         Object.keys(playerStats).sort().forEach(p => {
-            const won = Math.round(playerStats[p].totalWon);
+            const won = Math.round(playerStats[p]);
             const paid = playerPaidTotal[p] || 0;
             const due = won - paid;
-            if (won > 0) sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td>₹${paid}</td><td style="font-weight:bold; color:${due > 0 ? 'red' : 'green'}">₹${due}</td><td>${due > 0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}">` : '✅'}</td></tr>`;
+            if(won > 0) {
+                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}">₹${due}</td><td>${due>0?`<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}">`:'✅'}</td></tr>`;
+            }
         });
 
         paidHistory.slice().reverse().forEach(h => pBody.innerHTML += `<tr><td>${h.date}</td><td>${h.name}</td><td>₹${h.amount}</td></tr>`);
@@ -247,7 +228,7 @@
         db.ref('leagueMaster').update({ paidHistory }).then(() => { fetchAllData(); });
     }
 
-    window.onload = fetchAllData;
+    window.onload = () => { initDropdowns(); fetchAllData(); };
 </script>
 </body>
 </html>
