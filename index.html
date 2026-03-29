@@ -20,7 +20,6 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        /* Saturday Payout Tracker */
         .payout-timer { background: #fff1f2; border: 2px dashed var(--danger); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center; }
         .payout-timer h4 { margin: 0; color: var(--danger); text-transform: uppercase; font-size: 0.8em; }
         .payout-timer p { margin: 5px 0 0; font-size: 1.4em; font-weight: bold; color: #b91c1c; }
@@ -190,6 +189,7 @@
             document.getElementById('adminEntry').style.display = "block";
             document.getElementById('settleBtn').disabled = false;
             updateMatchDropdown();
+            renderTables(); // Re-render to enable checkboxes
         }
     }
 
@@ -197,16 +197,11 @@
         const selects = ['p1', 'p2', 'p3', 'p4', 'p5'];
         const allSelected = [];
         selects.forEach(id => {
-            const el = document.getElementById(id);
-            const selected = Array.from(el.selectedOptions).map(o => o.value);
-            allSelected.push(...selected);
+            allSelected.push(...Array.from(document.getElementById(id).selectedOptions).map(o => o.value));
         });
-        
         const hasDup = new Set(allSelected).size !== allSelected.length;
         document.getElementById('valError').style.display = hasDup ? 'block' : 'none';
         document.getElementById('saveBtn').disabled = hasDup;
-        
-        // Highlight duplicates
         selects.forEach(id => {
             const el = document.getElementById(id);
             const selected = Array.from(el.selectedOptions).map(o => o.value);
@@ -281,7 +276,9 @@
             const paid = playerPaidTotal[p] || 0;
             const due = won - paid;
             if (won > 0) {
-                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}">₹${due}</td><td>${due>0?`<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}">` : '✅'}</td></tr>`;
+                // Checkboxes are only enabled if isAdmin is true
+                const cbState = (isAdmin && due > 0) ? "" : "disabled";
+                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}">₹${due}</td><td>${due>0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}" ${cbState}>` : '✅'}</td></tr>`;
             }
         });
 
@@ -292,6 +289,7 @@
     }
 
     function processSettlement() {
+        if(!isAdmin) return;
         const checks = document.querySelectorAll('.pay-check:checked');
         const now = new Date().toLocaleDateString();
         checks.forEach(c => paidHistory.push({ date: now, name: c.dataset.name, amount: parseInt(c.dataset.amount) }));
