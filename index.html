@@ -3,51 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPL 2026 Private League - Official (15 Members)</title>
-    
+    <title>IPL 2026 Private League - Official</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-
     <style>
         :root { --primary: #1a3a5f; --secondary: #2b6cb0; --success: #28a745; --danger: #dc3545; --bg: #f4f7f9; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; margin: 0; padding: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
         .container { max-width: 1100px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; border-top: 8px solid var(--primary); }
         .setup-bar { background: #1a3a5f; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
         .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; background: #4a5568; }
         .tabs { display: flex; background: #e9ecef; border-bottom: 2px solid #dee2e6; position: sticky; top: 0; z-index: 100; }
-        .tab-btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #495057; transition: 0.3s; background: none; }
+        .tab-btn { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #495057; }
         .tab-btn.active { color: var(--primary); background: white; border-bottom: 4px solid var(--primary); }
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
-        
-        /* Handbook Styling */
-        .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
-        .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
-
-        /* Tracker & Table Styling */
         .entry-card { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid var(--secondary); margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9rem; }
         th { background: var(--primary); color: white; padding: 10px; }
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
-        .manual-input { width: 90%; border: 1px solid #ced4da; text-align: center; padding: 8px; border-radius: 4px; outline: none; }
-        .input-error { border: 2px solid var(--danger) !important; background-color: #ffeef0; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-fetch { background: var(--secondary); margin-bottom: 15px; width: 100%; justify-content: center; }
-        .btn-save { background: var(--success); width: 100%; justify-content: center; margin-top: 10px; }
-        .btn-save:disabled { background: #ccc; cursor: not-allowed; }
-        .error-text { color: var(--danger); font-weight: bold; font-size: 0.85em; display: none; margin-top: 10px; text-align: center; }
-        .tip { font-size: 0.8rem; color: #666; font-style: italic; }
+        
+        /* Multi-Select Styling */
+        .player-selector { border: 1px solid #ced4da; padding: 8px; border-radius: 4px; background: white; cursor: pointer; min-height: 35px; font-size: 0.8em; text-align: left; position: relative; }
+        .dropdown-content { display: none; position: absolute; background: white; border: 1px solid #ddd; width: 200px; max-height: 250px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 10px; }
+        .dropdown-content label { display: block; padding: 5px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .dropdown-content label:hover { background: #f1f1f1; }
+        .show { display: block; }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-save { background: var(--success); width: 100%; margin-top: 15px; }
+        .btn-fetch { background: var(--secondary); margin-bottom: 15px; width: 100%; }
+        .error-text { color: var(--danger); font-weight: bold; font-size: 0.8em; margin-top: 10px; text-align: center; display: none; }
     </style>
 </head>
 <body>
-
-<datalist id="playerNames">
-    <option value="Aju"> <option value="Anil"> <option value="Anju"> <option value="Ankita"> 
-    <option value="Ashu"> <option value="Atul"> <option value="Devansh"> <option value="Divya"> 
-    <option value="Dolly"> <option value="Khusboo"> <option value="Neeraj"> <option value="Nirvi"> 
-    <option value="Sonu"> <option value="Suksham"> <option value="Sweety">
-</datalist>
 
 <div class="setup-bar">
     <div>🌐 <span id="cloudStatus" class="status-pill">CONNECTING...</span></div>
@@ -61,54 +49,51 @@
         <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Payouts</button>
     </div>
 
-    <div id="rules" class="content-section handbook active">
-        <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE: OFFICIAL HANDBOOK</h1>
-        <h2>1. LEAGUE OVERVIEW & STRUCTURE</h2>
-        <ul>
-            <li>Total Matches: 74 | Confirmed Members: 15</li>
-            <li>Entry Fee per Match: ₹20 | Total Advance: ₹1,480</li>
-        </ul>
-        <h2>2. FINANCIAL MODEL (100% DAILY PAYOUT)</h2>
-        <div class="scenario-box">
-            <h3>Final Setup: 15 Members</h3>
-            <p><b>Total Pool:</b> ₹22,200 | <b>Per Match:</b> ₹300</p>
-            <hr>
-            <p><b>Daily Top 5 Payout:</b></p>
-            <p>1st: <b>₹110</b> | 2nd: <b>₹80</b> | 3rd: <b>₹50</b> | 4th: <b>₹35</b> | 5th: <b>₹25</b></p>
-            <p class="tip">*In case of shared positions, prize money for that rank is split equally.</p>
-        </div>
-        <h2>3. OPERATIONAL RULES</h2>
-        <ul>
-            <li><b>Shared Ranks:</b> Use a comma to enter multiple names in one box (e.g., Neeraj, Sonu).</li>
-            <li><b>Disputes:</b> My11Circle app completed rankings are final.</li>
-        </ul>
+    <div id="rules" class="content-section active">
+        <h1>🏆 IPL 2026 OFFICIAL HANDBOOK</h1>
+        <p><b>15 Members | ₹300 per match Pool | 100% Daily Distribution</b></p>
+        <p>1st: ₹110 | 2nd: ₹80 | 3rd: ₹50 | 4th: ₹35 | 5th: ₹25</p>
+        <p><i>*Shared ranks split the prize money equally (e.g., 2 people in 1st get ₹55 each).</i></p>
     </div>
 
     <div id="tracker" class="content-section">
         <div id="adminEntry" class="entry-card" style="display:none;">
             <h3>➕ Add Match Result</h3>
-            <p class="tip">Note: Use commas for shared ranks (e.g., Anil, Sonu)</p>
             <label>Select Match:</label>
             <select id="matchSelect" style="padding:8px; margin-bottom:15px; border-radius:5px; font-weight:bold;"></select>
+            
             <table>
                 <thead><tr><th>1st (₹110)</th><th>2nd (₹80)</th><th>3rd (₹50)</th><th>4th (₹35)</th><th>5th (₹25)</th></tr></thead>
                 <tbody>
                     <tr>
-                        <td><input type="text" id="p1" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
-                        <td><input type="text" id="p2" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
-                        <td><input type="text" id="p3" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
-                        <td><input type="text" id="p4" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
-                        <td><input type="text" id="p5" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
+                        <td>
+                            <div class="player-selector" onclick="toggleDropdown(1)">Select Player(s)...<div id="display-1"></div></div>
+                            <div id="drop-1" class="dropdown-content"></div>
+                        </td>
+                        <td>
+                            <div class="player-selector" onclick="toggleDropdown(2)">Select Player(s)...<div id="display-2"></div></div>
+                            <div id="drop-2" class="dropdown-content"></div>
+                        </td>
+                        <td>
+                            <div class="player-selector" onclick="toggleDropdown(3)">Select Player(s)...<div id="display-3"></div></div>
+                            <div id="drop-3" class="dropdown-content"></div>
+                        </td>
+                        <td>
+                            <div class="player-selector" onclick="toggleDropdown(4)">Select Player(s)...<div id="display-4"></div></div>
+                            <div id="drop-4" class="dropdown-content"></div>
+                        </td>
+                        <td>
+                            <div class="player-selector" onclick="toggleDropdown(5)">Select Player(s)...<div id="display-5"></div></div>
+                            <div id="drop-5" class="dropdown-content"></div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
-            <div id="realTimeError" class="error-text">⚠️ One person cannot hold multiple different ranks.</div>
+            <div id="valError" class="error-text">⚠️ Error: A player cannot be selected for more than one position!</div>
             <button id="saveBtn" class="btn btn-save" onclick="saveCurrentMatch()">💾 Save Match</button>
         </div>
 
-        <button class="btn btn-fetch" onclick="fetchAllData()">🔄 Fetch All Records</button>
-        
-        <h3>🏏 Match History</h3>
+        <button class="btn btn-fetch" onclick="fetchAllData()">🔄 Refresh Match History</button>
         <table id="historyTable">
             <thead><tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
             <tbody id="historyBody"></tbody>
@@ -116,19 +101,11 @@
     </div>
 
     <div id="summary" class="content-section">
-        <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:#fff;">
-            <h3>💳 Current Pending Balances</h3>
-            <table id="pendingTable">
-                <thead><tr><th>Name</th><th>Total Won</th><th>Already Paid</th><th>Pending Due</th><th>Settle?</th></tr></thead>
-                <tbody id="summaryBody"></tbody>
-            </table>
-            <button class="btn btn-settle" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Payouts (Admin Only)</button>
-        </div>
-        <h3 style="margin-top:30px;">📚 Permanent Payout History</h3>
-        <table id="paidTable">
-            <thead><tr><th>Date</th><th>Name</th><th>Amount</th></tr></thead>
-            <tbody id="paidHistoryBody"></tbody>
+        <table id="pendingTable">
+            <thead><tr><th>Name</th><th>Total Won</th><th>Already Paid</th><th>Pending</th><th>Settle?</th></tr></thead>
+            <tbody id="summaryBody"></tbody>
         </table>
+        <button class="btn btn-save" style="background:var(--success)" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Payouts</button>
     </div>
 </div>
 
@@ -145,19 +122,45 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
-    // PRIZES FOR ₹300 POOL (15 MEMBERS)
-    const PRIZES = [110, 80, 50, 35, 25]; 
+    const PRIZES = [110, 80, 50, 35, 25];
+    const ALL_PLAYERS = ["Aju", "Anil", "Anju", "Ankita", "Ashu", "Atul", "Devansh", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
     
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
 
-    function openTab(e, n) {
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(n).classList.add('active');
-        e.currentTarget.classList.add('active');
+    // Initialize Multi-Select Dropdowns
+    function initSelectors() {
+        for(let r=1; r<=5; r++) {
+            const container = document.getElementById('drop-'+r);
+            container.innerHTML = ALL_PLAYERS.map(p => `
+                <label><input type="checkbox" class="p-check-${r}" value="${p}" onchange="updateDisplay(${r})"> ${p}</label>
+            `).join('');
+        }
+    }
+
+    function toggleDropdown(r) {
+        if(!isAdmin) return;
+        document.querySelectorAll('.dropdown-content').forEach((d, idx) => {
+            if(idx + 1 !== r) d.classList.remove('show');
+        });
+        document.getElementById('drop-'+r).classList.toggle('show');
+    }
+
+    function updateDisplay(r) {
+        const selected = Array.from(document.querySelectorAll(`.p-check-${r}:checked`)).map(c => c.value);
+        document.getElementById('display-'+r).innerHTML = `<strong>${selected.join(', ')}</strong>`;
+        validateSelections();
+    }
+
+    function validateSelections() {
+        const allSelected = [];
+        for(let r=1; r<=5; r++) {
+            allSelected.push(...Array.from(document.querySelectorAll(`.p-check-${r}:checked`)).map(c => c.value));
+        }
+        const hasDup = new Set(allSelected).size !== allSelected.length;
+        document.getElementById('valError').style.display = hasDup ? 'block' : 'none';
+        document.getElementById('saveBtn').disabled = hasDup;
     }
 
     function adminLogin() {
@@ -171,60 +174,25 @@
         }
     }
 
-    function updateMatchDropdown() {
-        const sel = document.getElementById('matchSelect');
-        sel.innerHTML = "";
-        for (let i = 1; i <= 74; i++) {
-            const key = "match_" + i;
-            if (!winnersList[key]) {
-                const opt = document.createElement("option");
-                opt.value = i;
-                opt.text = "Match " + i;
-                sel.add(opt);
-            }
-        }
-    }
-
-    function checkRealTimeDup() {
-        const inputs = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4'), document.getElementById('p5')];
-        const rawNames = inputs.map(i => i.value.trim().toUpperCase());
-        const flatNames = rawNames.join(',').split(',').map(n => n.trim()).filter(n => n !== "");
-        
-        const errorText = document.getElementById('realTimeError');
-        const saveBtn = document.getElementById('saveBtn');
-        let duplicateFound = (new Set(flatNames).size !== flatNames.length);
-
-        inputs.forEach(i => i.classList.toggle('input-error', duplicateFound && i.value !== ""));
-        errorText.style.display = duplicateFound ? "block" : "none";
-        saveBtn.disabled = duplicateFound;
-    }
-
     function saveCurrentMatch() {
-        if(!isAdmin) return;
         const matchNum = document.getElementById('matchSelect').value;
-        const pValues = [
-            document.getElementById('p1').value.trim(),
-            document.getElementById('p2').value.trim(),
-            document.getElementById('p3').value.trim(),
-            document.getElementById('p4').value.trim(),
-            document.getElementById('p5').value.trim()
-        ];
-
-        db.ref('leagueRecords/match_' + matchNum).set({ winners: pValues }).then(() => {
-            alert("Match " + matchNum + " Saved Successfully!");
-            pValues.forEach((v, i) => document.getElementById('p' + (i+1)).value = "");
-            fetchAllData();
+        const result = [];
+        for(let r=1; r<=5; r++) {
+            result.push(Array.from(document.querySelectorAll(`.p-check-${r}:checked`)).map(c => c.value).join(', '));
+        }
+        db.ref('leagueRecords/match_' + matchNum).set({ winners: result }).then(() => {
+            alert("Saved!");
+            location.reload(); // Quick reset
         });
     }
 
+    // Standard Fetch/Render Logic
     function fetchAllData() {
         db.ref('leagueMaster').once('value').then(snap => {
-            const mData = snap.val() || {};
-            paidHistory = mData.paidHistory || [];
+            paidHistory = (snap.val() || {}).paidHistory || [];
             db.ref('leagueRecords').once('value').then(snap => {
                 winnersList = snap.val() || {};
                 renderTables();
-                if(isAdmin) updateMatchDropdown();
             });
         });
     }
@@ -232,66 +200,54 @@
     function renderTables() {
         const hBody = document.getElementById('historyBody');
         const sBody = document.getElementById('summaryBody');
-        const pBody = document.getElementById('paidHistoryBody');
-        hBody.innerHTML = ''; sBody.innerHTML = ''; pBody.innerHTML = '';
-
+        hBody.innerHTML = ''; sBody.innerHTML = '';
         const playerStats = {};
-        const playerPaidTotal = {};
 
         Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
             const winners = winnersList[key].winners;
-            hBody.innerHTML += `<tr><td><b>M${key.split('_')[1]}</b></td><td>${winners[0]}</td><td>${winners[1]}</td><td>${winners[2]}</td><td>${winners[3]}</td><td>${winners[4]}</td></tr>`;
-            
-            winners.forEach((boxValue, idx) => {
-                if(boxValue) {
-                    const sharedPlayers = boxValue.split(',').map(n => n.trim()).filter(n => n !== "");
-                    const splitPrize = PRIZES[idx] / sharedPlayers.length;
-                    
-                    sharedPlayers.forEach(p => {
-                        if(!playerStats[p]) playerStats[p] = { totalWon: 0 };
-                        playerStats[p].totalWon += splitPrize;
+            hBody.innerHTML += `<tr><td>M${key.split('_')[1]}</td>${winners.map(w => `<td>${w || '-'}</td>`).join('')}</tr>`;
+            winners.forEach((val, idx) => {
+                if(val) {
+                    const shared = val.split(', ').filter(n => n);
+                    shared.forEach(p => {
+                        playerStats[p] = (playerStats[p] || 0) + (PRIZES[idx] / shared.length);
                     });
                 }
             });
         });
 
-        paidHistory.forEach(h => {
-            if(!playerPaidTotal[h.name]) playerPaidTotal[h.name] = 0;
-            playerPaidTotal[h.name] += h.amount;
-        });
+        const playerPaidTotal = {};
+        paidHistory.forEach(h => playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount);
 
-        Object.keys(playerStats).sort().forEach(p => {
-            const won = Math.round(playerStats[p].totalWon);
-            const alreadyPaid = playerPaidTotal[p] || 0;
-            const pending = won - alreadyPaid;
-            if (won > 0) {
-                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td style="color:var(--success)">₹${alreadyPaid}</td><td style="font-weight:bold; color:${pending > 0 ? 'var(--danger)' : 'var(--success)'}">₹${pending}</td><td>${pending > 0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${pending}">` : '✅'}</td></tr>`;
+        ALL_PLAYERS.sort().forEach(p => {
+            const won = Math.round(playerStats[p] || 0);
+            const paid = playerPaidTotal[p] || 0;
+            const due = won - paid;
+            if(won > 0) {
+                sBody.innerHTML += `<tr><td>${p}</td><td>₹${won}</td><td>₹${paid}</td><td style="font-weight:bold; color:${due>0?'red':'green'}">₹${due}</td><td>${due>0?`<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}">`:'✅'}</td></tr>`;
             }
         });
-
-        paidHistory.slice().reverse().forEach(h => {
-            pBody.innerHTML += `<tr><td>${h.date}</td><td>${h.name}</td><td>₹${h.amount}</td></tr>`;
-        });
-
-        document.getElementById('cloudStatus').innerText = "LIVE ✅";
-        document.getElementById('cloudStatus').style.background = "#28a745";
     }
 
     function processSettlement() {
-        if(!isAdmin) return;
         const checks = document.querySelectorAll('.pay-check:checked');
-        if(checks.length === 0) return alert("Select someone to pay.");
         const now = new Date().toLocaleDateString();
-        checks.forEach(c => {
-            paidHistory.push({ date: now, name: c.dataset.name, amount: parseInt(c.dataset.amount) });
-        });
-        db.ref('leagueMaster').update({ paidHistory }).then(() => {
-            alert("Payouts Settled!");
-            fetchAllData();
-        });
+        checks.forEach(c => paidHistory.push({ date: now, name: c.dataset.name, amount: parseInt(c.dataset.amount) }));
+        db.ref('leagueMaster').update({ paidHistory }).then(() => { alert("Settled!"); fetchAllData(); });
     }
 
-    window.onload = fetchAllData;
+    function updateMatchDropdown() {
+        const sel = document.getElementById('matchSelect');
+        for (let i = 1; i <= 74; i++) {
+            if (!winnersList["match_" + i]) {
+                const opt = document.createElement("option");
+                opt.value = i; opt.text = "Match " + i;
+                sel.add(opt);
+            }
+        }
+    }
+
+    window.onload = () => { initSelectors(); fetchAllData(); };
 </script>
 </body>
 </html>
