@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPL 2026 Private League - Official (14 Members)</title>
+    <title>IPL 2026 Private League - Official (15 Members)</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -37,16 +37,16 @@
         .btn-save { background: var(--success); width: 100%; justify-content: center; margin-top: 10px; }
         .btn-save:disabled { background: #ccc; cursor: not-allowed; }
         .error-text { color: var(--danger); font-weight: bold; font-size: 0.85em; display: none; margin-top: 10px; text-align: center; }
+        .tip { font-size: 0.8rem; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
 
 <datalist id="playerNames">
-    <option value="Aju"> <option value="Anil"> <option value="Anju"> <option value="Ankita">
-    <option value="Ashu"> <option value="Atul"> <option value="Chintu"> <option value="Devansh">
-     <option value="Divya"> <option value="Dolly">
-    <option value="Khusboo"> <option value="Neeraj"> <option value="Nirvi"> <option value="Sonu">
-    <option value="Suksham"> <option value="Sweety">
+    <option value="Aju"> <option value="Anil"> <option value="Anju"> <option value="Ankita"> 
+    <option value="Ashu"> <option value="Atul"> <option value="Devansh"> <option value="Divya"> 
+    <option value="Dolly"> <option value="Khusboo"> <option value="Neeraj"> <option value="Nirvi"> 
+    <option value="Sonu"> <option value="Suksham"> <option value="Sweety">
 </datalist>
 
 <div class="setup-bar">
@@ -64,39 +64,34 @@
     <div id="rules" class="content-section handbook active">
         <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE: OFFICIAL HANDBOOK</h1>
         <h2>1. LEAGUE OVERVIEW & STRUCTURE</h2>
-        <p>This private league is conducted on the <b>My11Circle</b> app. It consists of all <b>74 matches</b> of the IPL 2026 season.</p>
         <ul>
-            <li>Total Matches: 74</li>
-            <li>Confirmed Members: 14</li>
-            <li>Entry Fee per Match: ₹20</li>
-            <li>Total Advance Deposit: ₹1,480 per member</li>
+            <li>Total Matches: 74 | Confirmed Members: 15</li>
+            <li>Entry Fee per Match: ₹20 | Total Advance: ₹1,480</li>
         </ul>
         <h2>2. FINANCIAL MODEL (100% DAILY PAYOUT)</h2>
         <div class="scenario-box">
-            <h3>Final League Setup: 14 Members</h3>
-            <p><b>Total Pool:</b> ₹20,720 (14 Members × ₹1,480)</p>
-            <p><b>Leaderboard Reserve:</b> ₹0 (Moved to Daily Budget)</p>
-            <p><b>Per Match Prize Pool:</b> ₹280</p>
+            <h3>Final Setup: 15 Members</h3>
+            <p><b>Total Pool:</b> ₹22,200 | <b>Per Match:</b> ₹300</p>
             <hr>
             <p><b>Daily Top 5 Payout:</b></p>
-            <p>1st: <b>₹110</b> | 2nd: <b>₹75</b> | 3rd: <b>₹50</b> | 4th: <b>₹25</b> | 5th: <b>₹20</b></p>
+            <p>1st: <b>₹110</b> | 2nd: <b>₹80</b> | 3rd: <b>₹50</b> | 4th: <b>₹35</b> | 5th: <b>₹25</b></p>
+            <p class="tip">*In case of shared positions, prize money for that rank is split equally.</p>
         </div>
         <h2>3. OPERATIONAL RULES</h2>
         <ul>
-            <li><b>No Season Leaderboard:</b> All funds are distributed daily. No end-of-season bulk prizes.</li>
-            <li><b>Advance Payment:</b> Full advance (₹1,480) required before Match 1.</li>
-            <li><b>Volunteer Role:</b> Neeraj (Volunteer) manages accounts and rankings screenshots.</li>
-            <li><b>Disputes:</b> My11Circle app rankings at "Match Completed" status are final.</li>
+            <li><b>Shared Ranks:</b> Use a comma to enter multiple names in one box (e.g., Neeraj, Sonu).</li>
+            <li><b>Disputes:</b> My11Circle app completed rankings are final.</li>
         </ul>
     </div>
 
     <div id="tracker" class="content-section">
         <div id="adminEntry" class="entry-card" style="display:none;">
             <h3>➕ Add Match Result</h3>
-            <label>Select Available Match:</label>
+            <p class="tip">Note: Use commas for shared ranks (e.g., Anil, Sonu)</p>
+            <label>Select Match:</label>
             <select id="matchSelect" style="padding:8px; margin-bottom:15px; border-radius:5px; font-weight:bold;"></select>
             <table>
-                <thead><tr><th>1st (₹110)</th><th>2nd (₹75)</th><th>3rd (₹50)</th><th>4th (₹25)</th><th>5th (₹20)</th></tr></thead>
+                <thead><tr><th>1st (₹110)</th><th>2nd (₹80)</th><th>3rd (₹50)</th><th>4th (₹35)</th><th>5th (₹25)</th></tr></thead>
                 <tbody>
                     <tr>
                         <td><input type="text" id="p1" list="playerNames" class="manual-input" onkeyup="checkRealTimeDup()"></td>
@@ -107,7 +102,7 @@
                     </tr>
                 </tbody>
             </table>
-            <div id="realTimeError" class="error-text">⚠️ Duplicate entry detected! One person cannot hold multiple ranks.</div>
+            <div id="realTimeError" class="error-text">⚠️ One person cannot hold multiple different ranks.</div>
             <button id="saveBtn" class="btn btn-save" onclick="saveCurrentMatch()">💾 Save Match</button>
         </div>
 
@@ -151,8 +146,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     
-    // NEW PAYOUT SCALE FOR ₹280 POOL
-    const PRIZES = [110, 75, 50, 25, 20]; 
+    // PRIZES FOR ₹300 POOL (15 MEMBERS)
+    const PRIZES = [110, 80, 50, 35, 25]; 
     
     let winnersList = {};
     let paidHistory = [];
@@ -192,27 +187,16 @@
 
     function checkRealTimeDup() {
         const inputs = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4'), document.getElementById('p5')];
-        const names = inputs.map(i => i.value.trim().toUpperCase());
+        const rawNames = inputs.map(i => i.value.trim().toUpperCase());
+        const flatNames = rawNames.join(',').split(',').map(n => n.trim()).filter(n => n !== "");
+        
         const errorText = document.getElementById('realTimeError');
         const saveBtn = document.getElementById('saveBtn');
-        let duplicateFound = false;
+        let duplicateFound = (new Set(flatNames).size !== flatNames.length);
 
-        inputs.forEach(i => i.classList.remove('input-error'));
-        names.forEach((name, idx) => {
-            if (name !== "" && names.indexOf(name) !== idx) {
-                duplicateFound = true;
-                inputs[idx].classList.add('input-error');
-                inputs[names.indexOf(name)].classList.add('input-error');
-            }
-        });
-
-        if (duplicateFound) {
-            errorText.style.display = "block";
-            saveBtn.disabled = true;
-        } else {
-            errorText.style.display = "none";
-            saveBtn.disabled = false;
-        }
+        inputs.forEach(i => i.classList.toggle('input-error', duplicateFound && i.value !== ""));
+        errorText.style.display = duplicateFound ? "block" : "none";
+        saveBtn.disabled = duplicateFound;
     }
 
     function saveCurrentMatch() {
@@ -257,10 +241,16 @@
         Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
             const winners = winnersList[key].winners;
             hBody.innerHTML += `<tr><td><b>M${key.split('_')[1]}</b></td><td>${winners[0]}</td><td>${winners[1]}</td><td>${winners[2]}</td><td>${winners[3]}</td><td>${winners[4]}</td></tr>`;
-            winners.forEach((p, idx) => {
-                if(p) {
-                    if(!playerStats[p]) playerStats[p] = { totalWon: 0 };
-                    playerStats[p].totalWon += PRIZES[idx];
+            
+            winners.forEach((boxValue, idx) => {
+                if(boxValue) {
+                    const sharedPlayers = boxValue.split(',').map(n => n.trim()).filter(n => n !== "");
+                    const splitPrize = PRIZES[idx] / sharedPlayers.length;
+                    
+                    sharedPlayers.forEach(p => {
+                        if(!playerStats[p]) playerStats[p] = { totalWon: 0 };
+                        playerStats[p].totalWon += splitPrize;
+                    });
                 }
             });
         });
@@ -271,7 +261,7 @@
         });
 
         Object.keys(playerStats).sort().forEach(p => {
-            const won = playerStats[p].totalWon;
+            const won = Math.round(playerStats[p].totalWon);
             const alreadyPaid = playerPaidTotal[p] || 0;
             const pending = won - alreadyPaid;
             if (won > 0) {
