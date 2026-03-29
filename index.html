@@ -20,13 +20,16 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        /* Financial Dashboard */
+        /* Payout Countdown Tracker */
+        .payout-timer { background: #fff1f2; border: 2px dashed var(--danger); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center; }
+        .payout-timer h4 { margin: 0; color: var(--danger); text-transform: uppercase; font-size: 0.8em; }
+        .payout-timer p { margin: 5px 0 0; font-size: 1.4em; font-weight: bold; color: #b91c1c; }
+
+        /* Dashboard & UI */
         .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dash-card { padding: 15px; border-radius: 8px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .dash-card h3 { margin: 0; font-size: 0.85em; opacity: 0.9; text-transform: uppercase; }
         .dash-card p { margin: 5px 0 0; font-size: 1.5em; font-weight: bold; }
-
-        /* Tables & UI */
         .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
         .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
@@ -35,7 +38,6 @@
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
         .multi-select { width: 100%; height: 100px; border: 1px solid #ced4da; border-radius: 4px; padding: 5px; font-size: 0.8em; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
-        .error-text { color: var(--danger); font-weight: bold; font-size: 0.85em; display: none; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -65,11 +67,6 @@
             <h3>Scenario 1: 15 Members (Total Pool: ₹22,200)</h3>
             <p>1st: ₹100 | 2. 2nd: ₹70 | 3. 3rd: ₹50 | 4. 4th: ₹25 | 5. 5th: ₹25</p>
         </div>
-        <h2>3. OPERATIONAL RULES & CONTINGENCIES</h2>
-        <ul>
-            <li><b>Advance Payment:</b> Full advance (₹1,480) before Match 1.</li>
-            <li><b>Volunteer Role:</b> Volunteer manages accounts and rankings screenshots.</li>
-        </ul>
     </div>
 
     <div id="tracker" class="content-section">
@@ -89,7 +86,6 @@
                     </tr>
                 </tbody>
             </table>
-            <div id="valError" class="error-text">⚠️ Error: A player cannot be selected for more than one rank position!</div>
             <button id="saveBtn" class="btn" style="background:var(--success); width:100%;" onclick="saveCurrentMatch()">💾 Save Match</button>
         </div>
 
@@ -101,10 +97,14 @@
     </div>
 
     <div id="summary" class="content-section">
+        <div class="payout-timer">
+            <h4>📅 Saturday Payout Tracker</h4>
+            <p id="daysToSaturday">Calculating...</p>
+        </div>
+
         <div class="dash-grid">
-            <div class="dash-card" style="background:var(--primary);"><h3>Total Pool Recieved</h3><p id="dashTotal">₹22,200</p></div>
-            <div class="dash-card" style="background:var(--success);"><h3>Total Distributed</h3><p id="dashPaid">₹0</p></div>
-            <div class="dash-card" style="background:#fd7e14;"><h3>Cash Balance</h3><p id="dashCash">₹0</p></div>
+            <div class="dash-card" style="background:var(--primary);"><h3>Pool Collected</h3><p id="dashTotal">₹22,200</p></div>
+            <div class="dash-card" style="background:var(--success);"><h3>Distributed</h3><p id="dashPaid">₹0</p></div>
             <div class="dash-card" style="background:var(--danger);"><h3>Pending Liability</h3><p id="dashPending">₹0</p></div>
         </div>
 
@@ -114,10 +114,8 @@
                 <thead><tr><th>Name</th><th>Total Won</th><th>Already Paid</th><th>Pending Due</th><th>Settle?</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
             </table>
-            <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Selection & Settle</button>
+            <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm & Settle</button>
         </div>
-        <h3 style="margin-top:30px;">📚 Permanent Payout History</h3>
-        <table id="paidTable"><thead><tr><th>Date</th><th>Name</th><th>Amount Settled</th></tr></thead><tbody id="paidHistoryBody"></tbody></table>
     </div>
 </div>
 
@@ -136,11 +134,26 @@
     const db = firebase.database();
     const PRIZES = [110, 80, 50, 35, 25];
     const ALL_PLAYERS = ["Aju", "Anil", "Anju", "Ankita", "Ashu", "Atul", "Chintu", "Devansh", "Dharak", "Dhwanish", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
-    const TOTAL_POOL = 15 * 1480;
-
+    
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
+
+    // SATURDAY TRACKER LOGIC
+    function updateSaturdayTracker() {
+        const now = new Date();
+        const dayOfWeek = now.getDay(); // 0=Sun, 6=Sat
+        const daysToSat = (6 - dayOfWeek + 7) % 7;
+        const display = document.getElementById('daysToSaturday');
+        
+        if (daysToSat === 0) {
+            display.innerText = "🎉 Payout Day! (Settlements Due)";
+            display.style.color = "#059669";
+        } else {
+            display.innerText = `${daysToSat} Day(s) until Payout Saturday`;
+            display.style.color = "#b91c1c";
+        }
+    }
 
     function initMultiSelects() {
         ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(id => {
@@ -172,7 +185,6 @@
             allSelected.push(...Array.from(document.getElementById('p'+i).selectedOptions).map(o => o.value));
         }
         const hasDup = new Set(allSelected).size !== allSelected.length;
-        document.getElementById('valError').style.display = hasDup ? 'block' : 'none';
         document.getElementById('saveBtn').disabled = hasDup;
     }
 
@@ -193,16 +205,12 @@
         for(let i=1; i<=5; i++) {
             results.push(Array.from(document.getElementById('p'+i).selectedOptions).map(o => o.value).join(', '));
         }
-        db.ref('leagueRecords/match_' + matchNum).set({ winners: results }).then(() => {
-            alert("Match Saved!");
-            location.reload(); 
-        });
+        db.ref('leagueRecords/match_' + matchNum).set({ winners: results }).then(() => { fetchAllData(); });
     }
 
     function fetchAllData() {
         db.ref('leagueMaster').once('value').then(snap => {
-            const mData = snap.val() || {};
-            paidHistory = mData.paidHistory || [];
+            paidHistory = (snap.val() || {}).paidHistory || [];
             db.ref('leagueRecords').once('value').then(snap => {
                 winnersList = snap.val() || {};
                 renderTables();
@@ -214,8 +222,7 @@
     function renderTables() {
         const hBody = document.getElementById('historyBody');
         const sBody = document.getElementById('summaryBody');
-        const pBody = document.getElementById('paidHistoryBody');
-        hBody.innerHTML = ''; sBody.innerHTML = ''; pBody.innerHTML = '';
+        hBody.innerHTML = ''; sBody.innerHTML = '';
 
         const playerStats = {};
         let totalWonInLeague = 0;
@@ -223,7 +230,6 @@
         Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
             const winners = winnersList[key].winners;
             hBody.innerHTML += `<tr><td>M${key.split('_')[1]}</td>${winners.map(w => `<td>${w || '-'}</td>`).join('')}</tr>`;
-            
             winners.forEach((boxValue, idx) => {
                 if(boxValue) {
                     const shared = boxValue.split(', ').filter(n => n);
@@ -236,11 +242,11 @@
             });
         });
 
+        let totalPaid = 0;
         const playerPaidTotal = {};
-        let totalDistributed = 0;
         paidHistory.forEach(h => {
             playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount;
-            totalDistributed += h.amount;
+            totalPaid += h.amount;
         });
 
         Object.keys(playerStats).sort().forEach(p => {
@@ -248,19 +254,14 @@
             const paid = playerPaidTotal[p] || 0;
             const due = won - paid;
             if (won > 0) {
-                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td style="color:var(--success)">₹${paid}</td><td style="font-weight:bold; color:${due > 0 ? 'red' : 'green'}">₹${due}</td><td>${due > 0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}">` : '✅'}</td></tr>`;
+                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}">₹${due}</td><td>${due>0?`<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}">`:'✅'}</td></tr>`;
             }
         });
 
-        paidHistory.slice().reverse().forEach(h => pBody.innerHTML += `<tr><td>${h.date}</td><td>${h.name}</td><td>₹${h.amount}</td></tr>`);
-
-        // Financial Dashboard Logic
-        document.getElementById('dashPaid').innerText = `₹${totalDistributed.toLocaleString()}`;
-        document.getElementById('dashCash').innerText = `₹${(TOTAL_POOL - totalDistributed).toLocaleString()}`;
-        document.getElementById('dashPending').innerText = `₹${Math.round(totalWonInLeague - totalDistributed).toLocaleString()}`;
-
+        document.getElementById('dashPaid').innerText = `₹${totalPaid}`;
+        document.getElementById('dashPending').innerText = `₹${Math.round(totalWonInLeague - totalPaid)}`;
         document.getElementById('cloudStatus').innerText = "LIVE ✅";
-        document.getElementById('cloudStatus').style.background = "#28a745";
+        updateSaturdayTracker();
     }
 
     function processSettlement() {
