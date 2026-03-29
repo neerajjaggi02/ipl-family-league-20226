@@ -20,18 +20,16 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        /* Payout Countdown Tracker */
+        /* Saturday Payout Tracker */
         .payout-timer { background: #fff1f2; border: 2px dashed var(--danger); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center; }
         .payout-timer h4 { margin: 0; color: var(--danger); text-transform: uppercase; font-size: 0.8em; }
         .payout-timer p { margin: 5px 0 0; font-size: 1.4em; font-weight: bold; color: #b91c1c; }
 
-        /* Dashboard & UI */
         .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dash-card { padding: 15px; border-radius: 8px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .dash-card h3 { margin: 0; font-size: 0.85em; opacity: 0.9; text-transform: uppercase; }
         .dash-card p { margin: 5px 0 0; font-size: 1.5em; font-weight: bold; }
         
-        /* Handbook Styling - EXACT TEXT PRESERVED */
         .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
         .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
@@ -40,7 +38,9 @@
         th { background: var(--primary); color: white; padding: 10px; }
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
         .multi-select { width: 100%; height: 100px; border: 1px solid #ced4da; border-radius: 4px; padding: 5px; font-size: 0.8em; }
+        .multi-select.input-error { border: 2px solid var(--danger); background: #fff1f2; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
+        .error-text { color: var(--danger); font-weight: bold; font-size: 0.85em; display: none; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -60,38 +60,28 @@
     <div id="rules" class="content-section handbook active">
         <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE: OFFICIAL HANDBOOK</h1>
         <h2>1. LEAGUE OVERVIEW & STRUCTURE</h2>
-        <p>This private league is conducted on the <b>My11Circle</b> app. It consists of all <b>74 matches</b> of the IPL 2026 season. This document serves as the official agreement for all participating members.</p>
+        <p>This private league is conducted on the <b>My11Circle</b> app for all <b>74 matches</b> of IPL 2026.</p>
         <ul>
-            <li>Total Matches: 74 | Entry Fee per Match: ₹20 | Platform: My11Circle</li>
-            <li>Total Advance Deposit: ₹1,480 per member</li>
+            <li><b>Total Members:</b> 15</li>
+            <li><b>Entry Fee:</b> ₹20 per match</li>
+            <li><b>Total Deposit:</b> ₹1,480 per person</li>
+            <li><b>Total Pool:</b> ₹22,200</li>
         </ul>
-        <h2>2. FINANCIAL MODELS (BASED ON MEMBER COUNT)</h2>
+        <h2>2. FINANCIAL MODEL (100% DAILY PAYOUT)</h2>
         <div class="scenario-box">
-            <h3>Scenario 1: 15 Members (Total Pool: ₹22,200)</h3>
-            <p>1st: ₹100 | 2. 2nd: ₹70 | 3. 3rd: ₹50 | 4. 4th: ₹25 | 5. 5th: ₹25</p>
+            <h3>Final League Structure</h3>
+            <p>There is <b>NO Season Leaderboard</b> prize. 100% of the pool is distributed across the 74 daily matches.</p>
+            <p><b>Prize Pool per Match:</b> ₹300</p>
+            <hr>
+            <p><b>Daily Top 5 Payout:</b></p>
+            <p>1st: <b>₹110</b> | 2nd: <b>₹80</b> | 3rd: <b>₹50</b> | 4th: <b>₹35</b> | 5th: <b>₹25</b></p>
+            <p><i>*If members tie for a position, the prize money for that rank is split equally.</i></p>
         </div>
-        <div class="scenario-box">
-            <h3>Scenario 2: 12 Members (Total Pool: ₹17,760)</h3>
-            <p>1st: ₹80 | 2. 2nd: ₹55 | 3. 3rd: ₹40 | 4. 4th: ₹21 | 5. 5th: ₹20</p>
-        </div>
-        <div class="scenario-box">
-            <h3>Scenario 3: 10 Members (Total Pool: ₹14,800)</h3>
-            <p>1st: ₹65 | 2. 2nd: ₹45 | 3. 3rd: ₹35 | 4. 4th: ₹20 | 5. 5th: ₹15</p>
-        </div>
-        <h2>3. SEASON LEADERBOARD PRIZES (TOP 3)</h2>
-        <table>
-            <thead><tr><th>Rank</th><th>15 Members</th><th>12 Members</th><th>10 Members</th></tr></thead>
-            <tbody>
-                <tr><td>Champion (1st)</td><td>₹1,110</td><td>₹888</td><td>₹740</td></tr>
-                <tr><td>Runner-up (2nd)</td><td>₹666</td><td>₹533</td><td>₹444</td></tr>
-                <tr><td>3rd Place</td><td>₹444</td><td>₹355</td><td>₹296</td></tr>
-            </tbody>
-        </table>
-        <h2>4. OPERATIONAL RULES & CONTINGENCIES</h2>
+        <h2>3. OPERATIONAL RULES</h2>
         <ul>
-            <li><b>Advance Payment:</b> Full advance (₹1,480) before Match 1. No "pay-as-you-go" allowed.</li>
-            <li><b>Volunteer Role:</b> Volunteer manages accounts and takes rankings screenshots for transparency.</li>
-            <li><b>Disputes:</b> My11Circle rankings at "Match Completed" status are final.</li>
+            <li><b>Advance Payment:</b> Full amount (₹1,480) is received from all 15 members.</li>
+            <li><b>Volunteer:</b> Neeraj manages accounts and ranking transparency.</li>
+            <li><b>Duplicates:</b> One person cannot hold multiple winning ranks in the same match.</li>
         </ul>
     </div>
 
@@ -112,6 +102,7 @@
                     </tr>
                 </tbody>
             </table>
+            <div id="valError" class="error-text">⚠️ Error: A player cannot be selected for more than one rank position!</div>
             <button id="saveBtn" class="btn" style="background:var(--success); width:100%;" onclick="saveCurrentMatch()">💾 Save Match</button>
         </div>
 
@@ -129,15 +120,15 @@
         </div>
 
         <div class="dash-grid">
-            <div class="dash-card" style="background:var(--primary);"><h3>Pool Recieved</h3><p id="dashTotal">₹22,200</p></div>
+            <div class="dash-card" style="background:var(--primary);"><h3>Total Pool</h3><p>₹22,200</p></div>
             <div class="dash-card" style="background:var(--success);"><h3>Distributed</h3><p id="dashPaid">₹0</p></div>
-            <div class="dash-card" style="background:var(--danger);"><h3>Pending Liability</h3><p id="dashPending">₹0</p></div>
+            <div class="dash-card" style="background:var(--danger);"><h3>Pending Due</h3><p id="dashPending">₹0</p></div>
         </div>
 
         <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:#fff;">
-            <h3>💳 Pending Individual Balances</h3>
+            <h3>💳 Current Pending Balances</h3>
             <table id="pendingTable">
-                <thead><tr><th>Name</th><th>Total Won</th><th>Already Paid</th><th>Pending Due</th><th>Settle?</th></tr></thead>
+                <thead><tr><th>Name</th><th>Total Won</th><th>Paid</th><th>Due</th><th>Settle?</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
             </table>
             <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm & Settle</button>
@@ -167,8 +158,7 @@
 
     function updateSaturdayTracker() {
         const now = new Date();
-        const dayOfWeek = now.getDay(); 
-        const daysToSat = (6 - dayOfWeek + 7) % 7;
+        const daysToSat = (6 - now.getDay() + 7) % 7;
         const display = document.getElementById('daysToSaturday');
         if (daysToSat === 0) {
             display.innerText = "🎉 Payout Day! (Settlements Due)";
@@ -204,12 +194,25 @@
     }
 
     function validatePositions() {
+        const selects = ['p1', 'p2', 'p3', 'p4', 'p5'];
         const allSelected = [];
-        for(let i=1; i<=5; i++) {
-            allSelected.push(...Array.from(document.getElementById('p'+i).selectedOptions).map(o => o.value));
-        }
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            const selected = Array.from(el.selectedOptions).map(o => o.value);
+            allSelected.push(...selected);
+        });
+        
         const hasDup = new Set(allSelected).size !== allSelected.length;
+        document.getElementById('valError').style.display = hasDup ? 'block' : 'none';
         document.getElementById('saveBtn').disabled = hasDup;
+        
+        // Highlight duplicates
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            const selected = Array.from(el.selectedOptions).map(o => o.value);
+            const isDup = selected.some(name => allSelected.filter(n => n === name).length > 1);
+            el.classList.toggle('input-error', isDup);
+        });
     }
 
     function updateMatchDropdown() {
@@ -254,9 +257,9 @@
         Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
             const winners = winnersList[key].winners;
             hBody.innerHTML += `<tr><td>M${key.split('_')[1]}</td>${winners.map(w => `<td>${w || '-'}</td>`).join('')}</tr>`;
-            winners.forEach((boxValue, idx) => {
-                if(boxValue) {
-                    const shared = boxValue.split(', ').filter(n => n);
+            winners.forEach((val, idx) => {
+                if(val) {
+                    const shared = val.split(', ').filter(n => n);
                     const splitPrize = PRIZES[idx] / shared.length;
                     shared.forEach(p => {
                         playerStats[p] = (playerStats[p] || 0) + splitPrize;
@@ -278,7 +281,7 @@
             const paid = playerPaidTotal[p] || 0;
             const due = won - paid;
             if (won > 0) {
-                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}">₹${due}</td><td>${due>0?`<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}">`:'✅'}</td></tr>`;
+                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}">₹${due}</td><td>${due>0?`<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}">` : '✅'}</td></tr>`;
             }
         });
 
