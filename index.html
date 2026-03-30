@@ -45,6 +45,7 @@
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; }
         th { background: var(--primary); color: white; padding: 10px; }
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; }
+        .manual-input { width: 90%; border: 1px solid #ced4da; padding: 8px; border-radius: 4px; outline: none; }
         .multi-select { width: 100%; height: 100px; border: 1px solid #ced4da; border-radius: 4px; padding: 5px; font-size: 0.8em; }
         .multi-select.input-error { border: 2px solid var(--danger); background: #fff1f2; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
@@ -66,6 +67,7 @@
         <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 Handbook</button>
         <button class="tab-btn" onclick="openTab(event, 'tracker')">🏏 Tracker</button>
         <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Payouts</button>
+        <button class="tab-btn" style="color: #6f42c1;" onclick="openTab(event, 'prophecy')">🔮 Prophecy</button>
     </div>
 
     <div id="rules" class="content-section handbook active">
@@ -127,8 +129,7 @@
     <div id="summary" class="content-section">
         
         <h3 style="text-align:center; color:var(--primary); margin:0;">🏆 Top Earners</h3>
-        <div class="podium" id="topPodium">
-            </div>
+        <div class="podium" id="topPodium"></div>
 
         <div class="payout-timer">
             <h4>📅 Saturday Payout Tracker</h4>
@@ -158,6 +159,51 @@
             <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm & Settle</button>
         </div>
     </div>
+
+    <div id="prophecy" class="content-section">
+        <div style="background:#fff; border:2px solid #6f42c1; padding:20px; border-radius:10px; margin-bottom:20px;">
+            <h3 style="color:#6f42c1; margin-top:0;">🔮 Daily Prophecy</h3>
+            
+            <div id="adminProphecy" style="display:none; background:#f8f9fa; padding:15px; border-radius:8px; margin-bottom:15px; border:1px dashed #6f42c1;">
+                <h4>⚙️ Set Today's Questions (Admin Only)</h4>
+                <input type="text" id="q1_text" class="manual-input" style="width:95%" placeholder="Q1 (e.g., Who hits the first six?)">
+                <input type="text" id="q1_opts" class="manual-input" style="width:95%; margin-bottom:10px;" placeholder="Options (comma separated: Rohit, Kohli, Other)">
+                
+                <input type="text" id="q2_text" class="manual-input" style="width:95%" placeholder="Q2 (e.g., Will total cross 180?)">
+                <input type="text" id="q2_opts" class="manual-input" style="width:95%; margin-bottom:10px;" placeholder="Options (Yes, No)">
+                
+                <input type="text" id="q3_text" class="manual-input" style="width:95%" placeholder="Q3 (e.g., Most wickets?)">
+                <input type="text" id="q3_opts" class="manual-input" style="width:95%; margin-bottom:10px;" placeholder="Options (Bumrah, Shami, Tie)">
+                
+                <button class="btn" style="background:#6f42c1; width:100%; margin-top:10px;" onclick="saveQuestions()">💾 Publish Questions</button>
+            </div>
+
+            <div id="memberProphecy" style="display:none;">
+                <p><b>Who are you?</b> <select id="pred_player" style="padding:6px; border-radius:4px; font-weight:bold;"></select></p>
+                
+                <p id="display_q1" style="font-weight:bold; margin-bottom:5px;"></p>
+                <select id="ans_1" style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px;"></select>
+                
+                <p id="display_q2" style="font-weight:bold; margin-bottom:5px;"></p>
+                <select id="ans_2" style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px;"></select>
+                
+                <p id="display_q3" style="font-weight:bold; margin-bottom:5px;"></p>
+                <select id="ans_3" style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px;"></select>
+                
+                <button class="btn" style="background:var(--success); width:100%;" onclick="submitPrediction()">🚀 Submit Prophecy</button>
+            </div>
+            
+            <div id="noQuestions" style="text-align:center; color:#666; margin-top:20px; font-style:italic;">Waiting for today's match prophecy...</div>
+        </div>
+
+        <div style="background:#fff; border:1px solid #ddd; padding:20px; border-radius:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0;">📜 Today's Submissions</h3>
+                <button id="waPredBtn" class="btn" style="background:#25D366; display:none; padding:8px 15px; font-size:0.85em;" onclick="sharePredictionsWA()">📱 Share to Group</button>
+            </div>
+            <div id="predictionsList" style="margin-top:15px; font-size:0.9em; line-height:1.6;"></div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -174,17 +220,19 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const PRIZES = [110, 80, 50, 35, 25]; 
-    const ALL_PLAYERS = ["Abha","Aju", "Anil", "Anju", "Ashu", "Atul", "Devansh", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
+    const ALL_PLAYERS = ["Aju", "Anil", "Anju", "Ankita", "Ashu", "Atul", "Chintu", "Devansh", "Dharak", "Dhwanish", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
     
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
-    
-    // Global stats for WhatsApp report
     let g_totalPaid = 0;
     let g_totalWon = 0;
     let g_playerStats = {};
     let g_lastMatchInfo = { num: 'N/A', winners: [] };
+
+    // PROPHECY VARIABLES
+    let currentQuestions = null;
+    let currentAnswers = {};
 
     function updateSaturdayTracker() {
         const now = new Date();
@@ -219,10 +267,12 @@
             document.getElementById('adminText').innerText = "🔓 Volunteer Mode";
             document.getElementById('adminEntry').style.display = "block";
             document.getElementById('settleBtn').disabled = false;
-            document.getElementById('waBtn').style.display = "block"; // Show WhatsApp Button
-            
-            // Show Delete column header
+            document.getElementById('waBtn').style.display = "block";
             document.getElementById('historyHead').innerHTML = `<tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th><th>Delete</th></tr>`;
+            
+            // Show Prophecy Admin Controls
+            document.getElementById('adminProphecy').style.display = "block";
+            document.getElementById('waPredBtn').style.display = "inline-block";
             
             updateMatchDropdown();
             renderTables();
@@ -269,7 +319,7 @@
     function deleteMatch(matchNum) {
         if(!isAdmin) return;
         if(confirm(`WARNING: Are you sure you want to permanently delete Match ${matchNum}?`)) {
-            db.ref('leagueRecords/match_' + matchNum).remove().then(() => { alert("Deleted."); fetchAllData(); });
+            db.ref('leagueRecords/match_' + matchNum).remove().then(() => { fetchAllData(); });
         }
     }
 
@@ -292,34 +342,26 @@
         g_playerStats = {};
         g_totalWon = 0;
         
-        // Setup Hot Streaks (Look at last 3 matches)
         const sortedMatchKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
         const last3Keys = sortedMatchKeys.slice(-3);
         const hotPlayers = new Set();
         
         if(last3Keys.length > 0) {
-            // Save last match info for WhatsApp report
-            g_lastMatchInfo.num = lastMatchKey = sortedMatchKeys[sortedMatchKeys.length - 1].split('_')[1];
+            g_lastMatchInfo.num = sortedMatchKeys[sortedMatchKeys.length - 1].split('_')[1];
             g_lastMatchInfo.winners = winnersList["match_"+g_lastMatchInfo.num].winners;
             
-            // Calculate Streaks
             ALL_PLAYERS.forEach(p => {
                 let streak = 0;
-                last3Keys.forEach(k => {
-                    if(winnersList[k].winners.join(',').includes(p)) streak++;
-                });
+                last3Keys.forEach(k => { if(winnersList[k].winners.join(',').includes(p)) streak++; });
                 if(streak === 3) hotPlayers.add(p);
             });
         }
 
-        // Render History & Calculate Wins
         sortedMatchKeys.forEach(key => {
             const matchNum = key.split('_')[1];
             const winners = winnersList[key].winners;
-            
             let rowHTML = `<td><b>M${matchNum}</b></td>`;
             
-            // ACCURATE PRIZE SPLIT LOGIC
             winners.forEach((boxValue, idx) => {
                 if(boxValue) {
                     const shared = boxValue.split(', ').filter(n => n);
@@ -330,23 +372,19 @@
                     }
                     const splitPrize = Math.round(pooledPrize / numPlayers);
                     
-                    // Build History Cell
                     const cellHTML = shared.map(p => {
                         g_playerStats[p] = (g_playerStats[p] || 0) + splitPrize;
                         g_totalWon += splitPrize;
                         return `<div class="player-row">${p} <span class="amt-tag">₹${splitPrize}</span></div>`;
                     }).join('');
-                    
                     rowHTML += `<td>${cellHTML}</td>`;
                 } else {
                     rowHTML += `<td style="color:#aaa;">-</td>`;
                 }
             });
-            
             hBody.innerHTML += `<tr>${rowHTML}${isAdmin ? `<td><button class="btn" style="background:var(--danger); padding:4px 8px; font-size:0.8em;" onclick="deleteMatch(${matchNum})">🗑️</button></td>` : ''}</tr>`;
         });
 
-        // Setup Podium
         const sortedEarners = Object.entries(g_playerStats).sort((a,b) => b[1] - a[1]);
         const podiumDiv = document.getElementById('topPodium');
         if(sortedEarners.length >= 3) {
@@ -356,10 +394,9 @@
                 <div class="podium-place place-3"><div class="podium-name">${sortedEarners[2][0]}</div><div class="podium-amt">₹${sortedEarners[2][1]}</div><h2>3</h2></div>
             `;
         } else {
-            podiumDiv.innerHTML = `<p style="color:#666; font-size:0.8em; margin-top:20px;">Play more matches to unlock the podium!</p>`;
+            podiumDiv.innerHTML = `<p style="color:#666; font-size:0.8em;">Play more matches to unlock the podium!</p>`;
         }
 
-        // Payouts & Pending Table
         g_totalPaid = 0;
         const playerPaidTotal = {};
         paidHistory.forEach(h => {
@@ -374,7 +411,6 @@
             const paid = playerPaidTotal[p] || 0;
             const due = won - paid;
             
-            // Filter logic
             if (won > 0 && (!hideSettled || due > 0)) {
                 const isHot = hotPlayers.has(p) ? '🔥' : '';
                 const cbState = (isAdmin && due > 0) ? "" : "disabled";
@@ -402,7 +438,7 @@
         checks.forEach(c => paidHistory.push({ date: now, name: c.dataset.name, amount: parseFloat(c.dataset.amount) }));
         db.ref('leagueMaster').update({ paidHistory }).then(() => { fetchAllData(); });
     }
-    
+
     function generateWhatsAppReport() {
         if(!isAdmin) return;
         const sortedEarners = Object.entries(g_playerStats).sort((a, b) => b[1] - a[1]);
@@ -426,7 +462,98 @@
         navigator.clipboard.writeText(text).then(() => alert("Report copied to clipboard! Paste it directly into your WhatsApp group."));
     }
 
-    window.onload = () => { initMultiSelects(); fetchAllData(); };
+    // --- DAILY PROPHECY LOGIC ---
+    function fetchPredictions() {
+        db.ref('leaguePredictions/current').on('value', snap => {
+            const data = snap.val() || {};
+            currentQuestions = data.questions || null;
+            currentAnswers = data.answers || {};
+            renderPredictionsUI();
+        });
+    }
+
+    function renderPredictionsUI() {
+        const noQDiv = document.getElementById('noQuestions');
+        const memDiv = document.getElementById('memberProphecy');
+        const listDiv = document.getElementById('predictionsList');
+        
+        const pSel = document.getElementById('pred_player');
+        if (pSel.options.length === 0) {
+            pSel.innerHTML = '<option value="">Select your name...</option>' + ALL_PLAYERS.map(p => `<option value="${p}">${p}</option>`).join('');
+        }
+
+        if (currentQuestions) {
+            noQDiv.style.display = 'none';
+            memDiv.style.display = 'block';
+            
+            document.getElementById('display_q1').innerText = "1. " + currentQuestions.q1.text;
+            document.getElementById('ans_1').innerHTML = '<option value="">Choose...</option>' + currentQuestions.q1.opts.split(',').map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join('');
+            
+            document.getElementById('display_q2').innerText = "2. " + currentQuestions.q2.text;
+            document.getElementById('ans_2').innerHTML = '<option value="">Choose...</option>' + currentQuestions.q2.opts.split(',').map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join('');
+            
+            document.getElementById('display_q3').innerText = "3. " + currentQuestions.q3.text;
+            document.getElementById('ans_3').innerHTML = '<option value="">Choose...</option>' + currentQuestions.q3.opts.split(',').map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join('');
+            
+            let listHTML = '';
+            Object.keys(currentAnswers).forEach(player => {
+                listHTML += `<div style="background:#f8f9fa; padding:10px; border-radius:6px; margin-bottom:10px; border-left:4px solid #6f42c1;">
+                    <b>${player}:</b><br>
+                    <span style="font-size:0.9em; color:#444;">1️⃣ ${currentAnswers[player][0]} | 2️⃣ ${currentAnswers[player][1]} | 3️⃣ ${currentAnswers[player][2]}</span>
+                </div>`;
+            });
+            listDiv.innerHTML = listHTML || '<p style="color:#666; font-style:italic;">No prophecies yet. Be the first!</p>';
+        } else {
+            noQDiv.style.display = 'block';
+            memDiv.style.display = 'none';
+            listDiv.innerHTML = '';
+        }
+    }
+
+    function saveQuestions() {
+        if (!isAdmin) return;
+        const qData = {
+            q1: { text: document.getElementById('q1_text').value, opts: document.getElementById('q1_opts').value },
+            q2: { text: document.getElementById('q2_text').value, opts: document.getElementById('q2_opts').value },
+            q3: { text: document.getElementById('q3_text').value, opts: document.getElementById('q3_opts').value }
+        };
+        db.ref('leaguePredictions/current').set({ questions: qData, answers: {} }).then(() => {
+            alert("Questions Published!");
+            document.getElementById('q1_text').value = ''; document.getElementById('q1_opts').value = '';
+            document.getElementById('q2_text').value = ''; document.getElementById('q2_opts').value = '';
+            document.getElementById('q3_text').value = ''; document.getElementById('q3_opts').value = '';
+        });
+    }
+
+    function submitPrediction() {
+        const player = document.getElementById('pred_player').value;
+        const a1 = document.getElementById('ans_1').value;
+        const a2 = document.getElementById('ans_2').value;
+        const a3 = document.getElementById('ans_3').value;
+        
+        if (!player) return alert("Please select your name from the dropdown!");
+        if (!a1 || !a2 || !a3) return alert("Please answer all 3 questions before submitting!");
+
+        db.ref('leaguePredictions/current/answers/' + player).set([a1, a2, a3]).then(() => {
+            alert("Prophecy logged! Good luck tonight.");
+        });
+    }
+
+    function sharePredictionsWA() {
+        if (!currentQuestions || !isAdmin) return;
+        
+        let text = `🔮 *Tonight's Match Prophecies* 🔮\n\n`;
+        text += `*1️⃣ ${currentQuestions.q1.text}*\n*2️⃣ ${currentQuestions.q2.text}*\n*3️⃣ ${currentQuestions.q3.text}*\n\n`;
+        
+        Object.keys(currentAnswers).forEach(p => {
+            text += `👤 *${p}:* ${currentAnswers[p][0]}, ${currentAnswers[p][1]}, ${currentAnswers[p][2]}\n`;
+        });
+        
+        text += `\n_Will they be a Hero or a Zero? Watch the match to find out!_ 🏏`;
+        navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard! Ready to paste into your WhatsApp group."));
+    }
+
+    window.onload = () => { initMultiSelects(); fetchAllData(); fetchPredictions(); };
 </script>
 </body>
 </html>
