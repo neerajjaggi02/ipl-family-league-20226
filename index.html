@@ -174,7 +174,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const PRIZES = [110, 80, 50, 35, 25]; 
-    const ALL_PLAYERS = ["Aju", "Anil", "Anju", "Ankita", "Ashu", "Atul", "Chintu", "Devansh", "Dharak", "Dhwanish", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
+    const ALL_PLAYERS = ["Abha","Aju", "Anil", "Anju", "Ashu", "Atul", "Devansh", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
     
     let winnersList = {};
     let paidHistory = [];
@@ -411,7 +411,9 @@
         text += `*Latest Match Result (Match ${g_lastMatchInfo.num})*\n`;
         text += `🥇 1st: ${g_lastMatchInfo.winners[0] || '-'}\n`;
         text += `🥈 2nd: ${g_lastMatchInfo.winners[1] || '-'}\n`;
-        text += `🥉 3rd: ${g_lastMatchInfo.winners[2] || '-'}\n\n`;
+        text += `🥉 3rd: ${g_lastMatchInfo.winners[2] || '-'}\n`;
+        text += `🏅 4th: ${g_lastMatchInfo.winners[3] || '-'}\n`;
+        text += `🏅 5th: ${g_lastMatchInfo.winners[4] || '-'}\n\n`;
         
         text += `*🏆 Top Earners Podium:*\n`;
         sortedEarners.slice(0, 3).forEach((p, i) => { text += `${i+1}. ${p[0]} - ₹${p[1]}\n`; });
