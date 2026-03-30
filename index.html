@@ -74,7 +74,7 @@
             <hr>
             <p><b>Daily Top 5 Payout:</b></p>
             <p>1st: <b>₹110</b> | 2nd: <b>₹80</b> | 3rd: <b>₹50</b> | 4th: <b>₹35</b> | 5th: <b>₹25</b></p>
-            <p><i>*If members tie for a position, the prize money for that rank and the subsequent ranks they absorb is combined and split equally.</i></p>
+            <p><i>*If members tie for a position, the prize money for that rank is split equally.</i></p>
         </div>
         <h2>3. OPERATIONAL RULES</h2>
         <ul>
@@ -253,17 +253,16 @@
             const winners = winnersList[key].winners;
             hBody.innerHTML += `<tr><td>M${key.split('_')[1]}</td>${winners.map(w => `<td>${w || '-'}</td>`).join('')}</tr>`;
             
-            // Core Logic for Payout Distribution
-            let prizeIndex = 0;
-            winners.forEach(boxValue => {
-                if(boxValue && prizeIndex < PRIZES.length) {
+            // CORRECTED: Prize is strictly tied to the box index
+            winners.forEach((boxValue, idx) => {
+                if(boxValue) {
                     const shared = boxValue.split(', ').filter(n => n);
                     const numPlayers = shared.length;
                     
                     let pooledPrize = 0;
                     for(let i = 0; i < numPlayers; i++) {
-                        if((prizeIndex + i) < PRIZES.length) {
-                             pooledPrize += PRIZES[prizeIndex + i];
+                        if((idx + i) < PRIZES.length) {
+                             pooledPrize += PRIZES[idx + i];
                         }
                     }
                     
@@ -273,10 +272,6 @@
                         playerStats[p] = (playerStats[p] || 0) + splitPrize;
                         totalWonInLeague += splitPrize;
                     });
-                    
-                    prizeIndex += numPlayers; // Advance the prize index by the number of players who tied
-                } else if (boxValue === "") {
-                    prizeIndex++; // If a box is empty (no tie, but empty for some reason), still advance
                 }
             });
         });
@@ -294,7 +289,6 @@
             const due = won - paid;
             if (won > 0) {
                 const cbState = (isAdmin && due > 0) ? "" : "disabled";
-                // Changed Math.round to toFixed(2) to handle fractions properly if they don't round neatly
                 sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won.toFixed(2)}</td><td>₹${paid.toFixed(2)}</td><td style="color:${due>0?'red':'green'}">₹${due.toFixed(2)}</td><td>${due>0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}" ${cbState}>` : '✅'}</td></tr>`;
             }
         });
