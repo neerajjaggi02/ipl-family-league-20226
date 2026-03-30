@@ -29,17 +29,29 @@
         .dash-card h3 { margin: 0; font-size: 0.85em; opacity: 0.9; text-transform: uppercase; }
         .dash-card p { margin: 5px 0 0; font-size: 1.5em; font-weight: bold; }
         
+        /* Podium CSS */
+        .podium { display: flex; justify-content: center; align-items: flex-end; gap: 10px; margin: 20px 0 30px; height: 130px; }
+        .podium-place { width: 90px; text-align: center; color: white; border-radius: 8px 8px 0 0; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 10px; font-weight: bold; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); }
+        .place-1 { background: #fbbf24; height: 110px; }
+        .place-2 { background: #94a3b8; height: 85px; }
+        .place-3 { background: #b45309; height: 60px; }
+        .podium-name { font-size: 0.85em; margin-bottom: 2px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        .podium-amt { font-size: 0.75em; opacity: 0.9; }
+
         .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
         .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
         
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; }
         th { background: var(--primary); color: white; padding: 10px; }
-        td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
+        td { border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; }
         .multi-select { width: 100%; height: 100px; border: 1px solid #ced4da; border-radius: 4px; padding: 5px; font-size: 0.8em; }
         .multi-select.input-error { border: 2px solid var(--danger); background: #fff1f2; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
         .error-text { color: var(--danger); font-weight: bold; font-size: 0.85em; display: none; margin-top: 10px; text-align: center; }
+        .amt-tag { display: block; font-size: 0.8em; color: #166534; font-weight: bold; margin-top: 3px; background: #dcfce7; border-radius: 4px; padding: 2px 4px;}
+        .player-row { margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        .player-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
     </style>
 </head>
 <body>
@@ -74,7 +86,7 @@
             <hr>
             <p><b>Daily Top 5 Payout:</b></p>
             <p>1st: <b>₹110</b> | 2nd: <b>₹80</b> | 3rd: <b>₹50</b> | 4th: <b>₹35</b> | 5th: <b>₹25</b></p>
-            <p><i>*If members tie for a position, the prize money for that rank is split equally.</i></p>
+            <p><i>*If members tie for a position, the prize money for that rank and the subsequent ranks they absorb is combined and split equally. The remaining untouched ranks pay out their standard amounts.</i></p>
         </div>
         <h2>3. OPERATIONAL RULES</h2>
         <ul>
@@ -107,12 +119,17 @@
 
         <button class="btn" style="background:var(--secondary); width:100%; margin-bottom:15px;" onclick="fetchAllData()">🔄 Refresh Match Records</button>
         <table id="historyTable">
-            <thead><tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
+            <thead id="historyHead"><tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
             <tbody id="historyBody"></tbody>
         </table>
     </div>
 
     <div id="summary" class="content-section">
+        
+        <h3 style="text-align:center; color:var(--primary); margin:0;">🏆 Top Earners</h3>
+        <div class="podium" id="topPodium">
+            </div>
+
         <div class="payout-timer">
             <h4>📅 Saturday Payout Tracker</h4>
             <p id="daysToSaturday">Calculating...</p>
@@ -125,9 +142,17 @@
         </div>
 
         <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:#fff;">
-            <h3>💳 Current Pending Balances</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0;">💳 Current Pending Balances</h3>
+                <button id="waBtn" class="btn" style="background:#25D366; display:none; padding:8px 15px; font-size:0.85em;" onclick="generateWhatsAppReport()">📱 WhatsApp Report</button>
+            </div>
+            
+            <label style="font-size:0.85em; color:#666; display:block; margin-bottom:10px;">
+                <input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Fully Paid Accounts
+            </label>
+            
             <table id="pendingTable">
-                <thead><tr><th>Name</th><th>Total Won</th><th>Paid</th><th>Due</th><th>Settle?</th></tr></thead>
+                <thead><tr><th>Name (🔥=Streak)</th><th>Total Won</th><th>Paid</th><th>Due</th><th>Settle?</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
             </table>
             <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm & Settle</button>
@@ -154,6 +179,12 @@
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
+    
+    // Global stats for WhatsApp report
+    let g_totalPaid = 0;
+    let g_totalWon = 0;
+    let g_playerStats = {};
+    let g_lastMatchInfo = { num: 'N/A', winners: [] };
 
     function updateSaturdayTracker() {
         const now = new Date();
@@ -188,6 +219,11 @@
             document.getElementById('adminText').innerText = "🔓 Volunteer Mode";
             document.getElementById('adminEntry').style.display = "block";
             document.getElementById('settleBtn').disabled = false;
+            document.getElementById('waBtn').style.display = "block"; // Show WhatsApp Button
+            
+            // Show Delete column header
+            document.getElementById('historyHead').innerHTML = `<tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th><th>Delete</th></tr>`;
+            
             updateMatchDropdown();
             renderTables();
         }
@@ -230,6 +266,13 @@
         db.ref('leagueRecords/match_' + matchNum).set({ winners: results }).then(() => { fetchAllData(); });
     }
 
+    function deleteMatch(matchNum) {
+        if(!isAdmin) return;
+        if(confirm(`WARNING: Are you sure you want to permanently delete Match ${matchNum}?`)) {
+            db.ref('leagueRecords/match_' + matchNum).remove().then(() => { alert("Deleted."); fetchAllData(); });
+        }
+    }
+
     function fetchAllData() {
         db.ref('leagueMaster').once('value').then(snap => {
             paidHistory = (snap.val() || {}).paidHistory || [];
@@ -246,55 +289,107 @@
         const sBody = document.getElementById('summaryBody');
         hBody.innerHTML = ''; sBody.innerHTML = '';
 
-        const playerStats = {};
-        let totalWonInLeague = 0;
-
-        Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
-            const winners = winnersList[key].winners;
-            hBody.innerHTML += `<tr><td>M${key.split('_')[1]}</td>${winners.map(w => `<td>${w || '-'}</td>`).join('')}</tr>`;
+        g_playerStats = {};
+        g_totalWon = 0;
+        
+        // Setup Hot Streaks (Look at last 3 matches)
+        const sortedMatchKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
+        const last3Keys = sortedMatchKeys.slice(-3);
+        const hotPlayers = new Set();
+        
+        if(last3Keys.length > 0) {
+            // Save last match info for WhatsApp report
+            g_lastMatchInfo.num = lastMatchKey = sortedMatchKeys[sortedMatchKeys.length - 1].split('_')[1];
+            g_lastMatchInfo.winners = winnersList["match_"+g_lastMatchInfo.num].winners;
             
-            // CORRECTED: Prize is strictly tied to the box index
+            // Calculate Streaks
+            ALL_PLAYERS.forEach(p => {
+                let streak = 0;
+                last3Keys.forEach(k => {
+                    if(winnersList[k].winners.join(',').includes(p)) streak++;
+                });
+                if(streak === 3) hotPlayers.add(p);
+            });
+        }
+
+        // Render History & Calculate Wins
+        sortedMatchKeys.forEach(key => {
+            const matchNum = key.split('_')[1];
+            const winners = winnersList[key].winners;
+            
+            let rowHTML = `<td><b>M${matchNum}</b></td>`;
+            
+            // ACCURATE PRIZE SPLIT LOGIC
             winners.forEach((boxValue, idx) => {
                 if(boxValue) {
                     const shared = boxValue.split(', ').filter(n => n);
                     const numPlayers = shared.length;
-                    
                     let pooledPrize = 0;
                     for(let i = 0; i < numPlayers; i++) {
-                        if((idx + i) < PRIZES.length) {
-                             pooledPrize += PRIZES[idx + i];
-                        }
+                        if((idx + i) < PRIZES.length) pooledPrize += PRIZES[idx + i];
                     }
+                    const splitPrize = Math.round(pooledPrize / numPlayers);
                     
-                    const splitPrize = pooledPrize / numPlayers;
+                    // Build History Cell
+                    const cellHTML = shared.map(p => {
+                        g_playerStats[p] = (g_playerStats[p] || 0) + splitPrize;
+                        g_totalWon += splitPrize;
+                        return `<div class="player-row">${p} <span class="amt-tag">₹${splitPrize}</span></div>`;
+                    }).join('');
                     
-                    shared.forEach(p => {
-                        playerStats[p] = (playerStats[p] || 0) + splitPrize;
-                        totalWonInLeague += splitPrize;
-                    });
+                    rowHTML += `<td>${cellHTML}</td>`;
+                } else {
+                    rowHTML += `<td style="color:#aaa;">-</td>`;
                 }
             });
+            
+            hBody.innerHTML += `<tr>${rowHTML}${isAdmin ? `<td><button class="btn" style="background:var(--danger); padding:4px 8px; font-size:0.8em;" onclick="deleteMatch(${matchNum})">🗑️</button></td>` : ''}</tr>`;
         });
 
-        let totalPaid = 0;
+        // Setup Podium
+        const sortedEarners = Object.entries(g_playerStats).sort((a,b) => b[1] - a[1]);
+        const podiumDiv = document.getElementById('topPodium');
+        if(sortedEarners.length >= 3) {
+            podiumDiv.innerHTML = `
+                <div class="podium-place place-2"><div class="podium-name">${sortedEarners[1][0]}</div><div class="podium-amt">₹${sortedEarners[1][1]}</div><h2>2</h2></div>
+                <div class="podium-place place-1"><div class="podium-name">${sortedEarners[0][0]}</div><div class="podium-amt">₹${sortedEarners[0][1]}</div><h2>1</h2></div>
+                <div class="podium-place place-3"><div class="podium-name">${sortedEarners[2][0]}</div><div class="podium-amt">₹${sortedEarners[2][1]}</div><h2>3</h2></div>
+            `;
+        } else {
+            podiumDiv.innerHTML = `<p style="color:#666; font-size:0.8em; margin-top:20px;">Play more matches to unlock the podium!</p>`;
+        }
+
+        // Payouts & Pending Table
+        g_totalPaid = 0;
         const playerPaidTotal = {};
         paidHistory.forEach(h => {
             playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount;
-            totalPaid += h.amount;
+            g_totalPaid += h.amount;
         });
 
-        Object.keys(playerStats).sort().forEach(p => {
-            const won = playerStats[p];
+        const hideSettled = document.getElementById('hideSettled').checked;
+
+        Object.keys(g_playerStats).sort().forEach(p => {
+            const won = Math.round(g_playerStats[p]);
             const paid = playerPaidTotal[p] || 0;
             const due = won - paid;
-            if (won > 0) {
+            
+            // Filter logic
+            if (won > 0 && (!hideSettled || due > 0)) {
+                const isHot = hotPlayers.has(p) ? '🔥' : '';
                 const cbState = (isAdmin && due > 0) ? "" : "disabled";
-                sBody.innerHTML += `<tr><td><b>${p}</b></td><td>₹${won.toFixed(2)}</td><td>₹${paid.toFixed(2)}</td><td style="color:${due>0?'red':'green'}">₹${due.toFixed(2)}</td><td>${due>0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}" ${cbState}>` : '✅'}</td></tr>`;
+                sBody.innerHTML += `<tr>
+                    <td><b>${p}</b> ${isHot}</td>
+                    <td>₹${won}</td>
+                    <td style="color:var(--success)">₹${paid}</td>
+                    <td style="font-weight:bold; color:${due>0?'red':'green'}">₹${due}</td>
+                    <td>${due>0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}" ${cbState}>` : '✅'}</td>
+                </tr>`;
             }
         });
 
-        document.getElementById('dashPaid').innerText = `₹${totalPaid.toFixed(2)}`;
-        document.getElementById('dashPending').innerText = `₹${(totalWonInLeague - totalPaid).toFixed(2)}`;
+        document.getElementById('dashPaid').innerText = `₹${g_totalPaid}`;
+        document.getElementById('dashPending').innerText = `₹${Math.round(g_totalWon - g_totalPaid)}`;
         document.getElementById('cloudStatus').innerText = "LIVE ✅";
         updateSaturdayTracker();
     }
@@ -302,9 +397,31 @@
     function processSettlement() {
         if(!isAdmin) return;
         const checks = document.querySelectorAll('.pay-check:checked');
+        if(checks.length === 0) return alert("Select someone to pay.");
         const now = new Date().toLocaleDateString();
         checks.forEach(c => paidHistory.push({ date: now, name: c.dataset.name, amount: parseFloat(c.dataset.amount) }));
         db.ref('leagueMaster').update({ paidHistory }).then(() => { fetchAllData(); });
+    }
+    
+    function generateWhatsAppReport() {
+        if(!isAdmin) return;
+        const sortedEarners = Object.entries(g_playerStats).sort((a, b) => b[1] - a[1]);
+        
+        let text = `🏏 *IPL 2026 League Update* 🏏\n\n`;
+        text += `*Latest Match Result (Match ${g_lastMatchInfo.num})*\n`;
+        text += `🥇 1st: ${g_lastMatchInfo.winners[0] || '-'}\n`;
+        text += `🥈 2nd: ${g_lastMatchInfo.winners[1] || '-'}\n`;
+        text += `🥉 3rd: ${g_lastMatchInfo.winners[2] || '-'}\n\n`;
+        
+        text += `*🏆 Top Earners Podium:*\n`;
+        sortedEarners.slice(0, 3).forEach((p, i) => { text += `${i+1}. ${p[0]} - ₹${p[1]}\n`; });
+        
+        text += `\n*💰 League Finance:*\n`;
+        text += `Total Distributed: ₹${g_totalPaid}\n`;
+        text += `Pending Payouts: ₹${Math.round(g_totalWon - g_totalPaid)}\n\n`;
+        text += `_Check the portal for full details!_`;
+        
+        navigator.clipboard.writeText(text).then(() => alert("Report copied to clipboard! Paste it directly into your WhatsApp group."));
     }
 
     window.onload = () => { initMultiSelects(); fetchAllData(); };
