@@ -369,10 +369,15 @@
 
         const hideSettled = document.getElementById('hideSettled').checked;
 
-        Object.keys(g_playerStats).sort().forEach(p => {
-            const won = Math.round(g_playerStats[p]);
-            const paid = playerPaidTotal[p] || 0;
-            const due = won - paid;
+        // Sort by winning amount (Total Won) descending
+Object.entries(g_playerStats)
+    .sort((a, b) => b[1] - a[1]) // Compare the amounts (index 1)
+    .forEach(([p, wonValue]) => {
+        const won = Math.round(wonValue);
+        const paid = playerPaidTotal[p] || 0;
+        const due = won - paid;
+        
+        // ... rest of your existing logic inside the loop ...
             
             // Filter logic
             if (won > 0 && (!hideSettled || due > 0)) {
