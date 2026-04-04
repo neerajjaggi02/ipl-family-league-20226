@@ -42,6 +42,10 @@
         .dash-card h3 { margin: 0; font-size: 0.85em; opacity: 0.9; text-transform: uppercase; }
         .dash-card p { margin: 5px 0 0; font-size: 1.5em; font-weight: bold; }
         
+        .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
+        .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
+
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; }
         th { background: var(--primary); color: white; padding: 10px; }
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
@@ -64,10 +68,30 @@
         <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Payouts</button>
     </div>
 
-    <div id="rules" class="content-section active">
-        <h1 style="text-align:center;">🏆 IPL 2026 LEAGUE</h1>
-        <p><b>Target:</b> Reach ₹1,480 in winnings to recover your entry fee!</p>
-        <p><b>Daily Prize:</b> 1st: ₹110 | 2nd: ₹80 | 3rd: ₹50 | 4th: ₹35 | 5th: ₹25</p>
+    <div id="rules" class="content-section handbook active">
+        <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE: OFFICIAL HANDBOOK</h1>
+        <h2>1. LEAGUE OVERVIEW & STRUCTURE</h2>
+        <p>This private league is conducted on the <b>My11Circle</b> app for all <b>74 matches</b> of IPL 2026.</p>
+        <ul>
+            <li><b>Total Members:</b> 15</li>
+            <li><b>Entry Fee:</b> ₹20 per match</li>
+            <li><b>Total Deposit:</b> ₹1,480 per person</li>
+            <li><b>Total Pool:</b> ₹22,200</li>
+        </ul>
+        <h2>2. FINANCIAL MODEL (100% DAILY PAYOUT)</h2>
+        <div class="scenario-box">
+            <h3>Final League Structure</h3>
+            <p>There is <b>NO Season Leaderboard</b> prize. 100% of the pool is distributed across the 74 daily matches.</p>
+            <p><b>Prize Pool per Match:</b> ₹300</p>
+            <hr>
+            <p><b>Daily Top 5 Payout:</b></p>
+            <p>1st: <b>₹110</b> | 2nd: <b>₹80</b> | 3rd: <b>₹50</b> | 4th: <b>₹35</b> | 5th: <b>₹25</b></p>
+        </div>
+        <h2>3. OPERATIONAL RULES</h2>
+        <ul>
+            <li><b>Advance Payment:</b> Full amount (₹1,480) is received from all 15 members.</li>
+            <li><b>Volunteer:</b> Neeraj manages accounts and ranking transparency.</li>
+        </ul>
     </div>
 
     <div id="tracker" class="content-section">
@@ -113,7 +137,7 @@
         </div>
 
         <div style="border:2px solid var(--success); padding:20px; border-radius:10px;">
-            <h3>💳 Player Balances & Progress</h3>
+            <h3>💳 Player Balances (Sorted by Winnings)</h3>
             <table id="pendingTable">
                 <thead><tr><th>Member (Race to 1480)</th><th>Won</th><th>Paid</th><th>Due</th><th>Action</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
@@ -143,7 +167,6 @@
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
-    let g_playerStats = {};
 
     function initMultiSelects() {
         ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(id => {
@@ -204,7 +227,7 @@
         const hBody = document.getElementById('historyBody');
         const sBody = document.getElementById('summaryBody');
         hBody.innerHTML = ''; sBody.innerHTML = '';
-        g_playerStats = {};
+        let currentStats = {};
         let raceWinners = [];
 
         const sortedMatchKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
@@ -224,74 +247,71 @@
                     }
                     const splitPrize = Math.round(pooledPrize / numPlayers);
 
-                    const cellHTML = shared.map(p => {
-                        const oldTotal = g_playerStats[p] || 0;
-                        g_playerStats[p] = oldTotal + splitPrize;
-                        
-                        if (oldTotal < DEPOSIT_GOAL && g_playerStats[p] >= DEPOSIT_GOAL) {
+                    shared.forEach(p => {
+                        const oldTotal = currentStats[p] || 0;
+                        currentStats[p] = oldTotal + splitPrize;
+                        if (oldTotal < DEPOSIT_GOAL && currentStats[p] >= DEPOSIT_GOAL) {
                             raceWinners.push({name: p, match: matchNum});
                         }
-                        return `<div style="font-size:0.8em">${p} <span class="amt-tag">₹${splitPrize}</span></div>`;
-                    }).join('');
-                    rowHTML += `<td>${cellHTML}</td>`;
+                    });
+                    
+                    rowHTML += `<td>${shared.map(p => `<div>${p} <span class="amt-tag">₹${splitPrize}</span></div>`).join('')}</td>`;
                 } else { rowHTML += `<td>-</td>`; }
             });
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
-        // Update Podium 1 (Earnings)
-        const sortedEarners = Object.entries(g_playerStats).sort((a,b) => b[1] - a[1]);
-        const topPodium = document.getElementById('topPodium');
-        if(sortedEarners.length > 0) {
-            topPodium.innerHTML = `
-                <div class="podium-place place-2"><div class="podium-name">${sortedEarners[1]?.[0] || '-'}</div><div class="podium-amt">₹${sortedEarners[1]?.[1] || 0}</div><h2>2</h2></div>
-                <div class="podium-place place-1"><div class="podium-name">${sortedEarners[0][0]}</div><div class="podium-amt">₹${sortedEarners[0][1]}</div><h2>1</h2></div>
-                <div class="podium-place place-3"><div class="podium-name">${sortedEarners[2]?.[0] || '-'}</div><div class="podium-amt">₹${sortedEarners[2]?.[1] || 0}</div><h2>3</h2></div>`;
-        }
+        // Podium Logic
+        const sortedEarners = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
+        document.getElementById('topPodium').innerHTML = sortedEarners.length > 0 ? `
+            <div class="podium-place place-2"><div class="podium-name">${sortedEarners[1]?.[0] || '-'}</div><div class="podium-amt">₹${sortedEarners[1]?.[1] || 0}</div><h2>2</h2></div>
+            <div class="podium-place place-1"><div class="podium-name">${sortedEarners[0][0]}</div><div class="podium-amt">₹${sortedEarners[0][1]}</div><h2>1</h2></div>
+            <div class="podium-place place-3"><div class="podium-name">${sortedEarners[2]?.[0] || '-'}</div><div class="podium-amt">₹${sortedEarners[2]?.[1] || 0}</div><h2>3</h2></div>` : "";
 
-        // Update Podium 2 (Race)
-        const racePodium = document.getElementById('racePodium');
-        if(raceWinners.length > 0) {
-            racePodium.innerHTML = `
-                <div class="podium-place place-2" style="background:#6ee7b7"><div class="podium-name">${raceWinners[1]?.name || '-'}</div><div class="podium-amt">${raceWinners[1]?'Match '+raceWinners[1].match:''}</div><h2>2</h2></div>
-                <div class="podium-place place-1" style="background:#10b981"><div class="podium-name">${raceWinners[0].name}</div><div class="podium-amt">Match ${raceWinners[0].match}</div><h2>1</h2></div>
-                <div class="podium-place place-3" style="background:#a7f3d0"><div class="podium-name">${raceWinners[2]?.name || '-'}</div><div class="podium-amt">${raceWinners[2]?'Match '+raceWinners[2].match:''}</div><h2>3</h2></div>`;
-        } else { racePodium.innerHTML = "<p>Race in progress...</p>"; }
+        document.getElementById('racePodium').innerHTML = raceWinners.length > 0 ? `
+            <div class="podium-place place-2" style="background:#6ee7b7"><div class="podium-name">${raceWinners[1]?.name || '-'}</div><div class="podium-amt">${raceWinners[1]?'M'+raceWinners[1].match:''}</div><h2>2</h2></div>
+            <div class="podium-place place-1" style="background:#10b981"><div class="podium-name">${raceWinners[0].name}</div><div class="podium-amt">M${raceWinners[0].match}</div><h2>1</h2></div>
+            <div class="podium-place place-3" style="background:#a7f3d0"><div class="podium-name">${raceWinners[2]?.name || '-'}</div><div class="podium-amt">${raceWinners[2]?'M'+raceWinners[2].match:''}</div><h2>3</h2></div>` : "<p>No one reached ₹1480 yet.</p>";
 
-        // Render Summary Table
-        let totalDistributed = 0;
-        let totalWon = Object.values(g_playerStats).reduce((a, b) => a + b, 0);
-        
+        // Payout Section Sorted by Winnings
+        let totalPaidOut = 0;
         const playerPaidTotal = {};
         paidHistory.forEach(h => {
             playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount;
-            totalDistributed += h.amount;
+            totalPaidOut += h.amount;
         });
 
-        ALL_PLAYERS.forEach(p => {
-            const won = Math.round(g_playerStats[p] || 0);
+        // 1. Prepare data for all 15 members
+        let tableData = ALL_PLAYERS.map(p => {
+            const won = Math.round(currentStats[p] || 0);
             const paid = playerPaidTotal[p] || 0;
-            const due = won - paid;
-            const progress = Math.min((won / DEPOSIT_GOAL) * 100, 100);
-            const remaining = Math.max(DEPOSIT_GOAL - won, 0);
+            return { name: p, won, paid, due: won - paid };
+        });
+
+        // 2. SORT TABLE BY WINNING AMOUNT (DESC)
+        tableData.sort((a, b) => b.won - a.won);
+
+        tableData.forEach(d => {
+            const progress = Math.min((d.won / DEPOSIT_GOAL) * 100, 100);
+            const remaining = Math.max(DEPOSIT_GOAL - d.won, 0);
 
             sBody.innerHTML += `<tr>
                 <td style="text-align:left">
-                    <b>${p}</b>
+                    <b>${d.name}</b>
                     <div class="race-bar-container">
                         <div class="race-bar-bg"><div class="race-bar-fill" style="width:${progress}%"></div></div>
-                        <div class="goal-status">${remaining > 0 ? '₹'+remaining+' to go' : '✅ RECOVERED'}</div>
+                        <div class="goal-status">${remaining > 0 ? '₹'+remaining+' to 1480' : '✅ RECOVERED'}</div>
                     </div>
                 </td>
-                <td>₹${won}</td>
-                <td>₹${paid}</td>
-                <td style="color:${due>0?'red':'green'}; font-weight:bold">₹${due}</td>
-                <td>${due > 0 ? `<input type="checkbox" class="pay-check" data-name="${p}" data-amount="${due}" ${isAdmin?'':'disabled'}>` : '✅'}</td>
+                <td>₹${d.won}</td>
+                <td>₹${d.paid}</td>
+                <td style="color:${d.due>0?'red':'green'}; font-weight:bold">₹${d.due}</td>
+                <td>${d.due > 0 ? `<input type="checkbox" class="pay-check" data-name="${d.name}" data-amount="${d.due}" ${isAdmin?'':'disabled'}>` : '✅'}</td>
             </tr>`;
         });
 
-        document.getElementById('dashPaid').innerText = `₹${totalDistributed}`;
-        document.getElementById('dashPending').innerText = `₹${Math.round(totalWon - totalDistributed)}`;
+        document.getElementById('dashPaid').innerText = `₹${totalPaidOut}`;
+        document.getElementById('dashPending').innerText = `₹${Math.round(Object.values(currentStats).reduce((a,b)=>a+b,0) - totalPaidOut)}`;
         document.getElementById('cloudStatus').innerText = "LIVE ✅";
     }
 
