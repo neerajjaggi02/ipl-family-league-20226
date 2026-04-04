@@ -20,27 +20,31 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        /* Fixed Podium Styles */
-        .podium-container { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 20px; margin-bottom: 30px; }
+        /* Podium Fixes */
+        .podium-container { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 15px; margin-bottom: 30px; }
         .podium-box { flex: 1; min-width: 300px; text-align: center; }
         .podium { display: flex; justify-content: center; align-items: flex-end; gap: 8px; height: 160px; margin-top: 10px; }
-        .podium-place { width: 100px; text-align: center; color: white; border-radius: 8px 8px 0 0; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 10px; font-weight: bold; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); overflow: hidden; }
+        .podium-place { width: 95px; text-align: center; color: white; border-radius: 8px 8px 0 0; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 10px; font-weight: bold; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); }
         .place-1 { background: var(--gold); height: 130px; }
         .place-2 { background: var(--silver); height: 100px; }
         .place-3 { background: var(--bronze); height: 75px; }
-        .podium-name { font-size: 0.85em; text-shadow: 1px 1px 2px rgba(0,0,0,0.4); padding: 0 4px; word-wrap: break-word; line-height: 1.2; margin-bottom: 3px; display: block; min-height: 2em; }
-        .podium-amt { font-size: 0.75em; opacity: 0.9; background: rgba(0,0,0,0.1); padding: 2px 0; width: 100%; }
+        .podium-name { font-size: 0.8em; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); padding: 0 2px; line-height: 1.1; min-height: 2.2em; display: flex; align-items: center; justify-content: center; }
+        .podium-amt { font-size: 0.75em; opacity: 0.9; background: rgba(0,0,0,0.1); padding: 2px 0; width: 100%; margin-top: auto; }
 
-        /* Progress & Handbook Styles */
-        .race-bar-bg { background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden; margin: 4px 0; width: 100%; max-width: 120px; }
+        /* Race Tracker Bar */
+        .race-bar-bg { background: #e2e8f0; height: 5px; border-radius: 3px; overflow: hidden; margin: 4px 0; width: 100%; max-width: 110px; }
         .race-bar-fill { background: var(--success); height: 100%; transition: width 0.5s; }
         .goal-status { font-size: 0.7em; font-weight: bold; color: #666; }
+
+        /* Original Handbook Styles */
         .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
         .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
+
         .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dash-card { padding: 15px; border-radius: 8px; color: white; text-align: center; }
         .dash-card p { margin: 5px 0 0; font-size: 1.5em; font-weight: bold; }
+
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; }
         th { background: var(--primary); color: white; padding: 10px; }
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
@@ -123,21 +127,21 @@
         <div class="dash-grid">
             <div class="dash-card" style="background:var(--primary);"><h3>Total Pool</h3><p>₹22,200</p></div>
             <div class="dash-card" style="background:var(--success);"><h3>Paid Out</h3><p id="dashPaid">₹0</p></div>
-            <div class="dash-card" style="background:var(--danger);"><h3>Pending</h3><p id="dashPending">₹0</p></div>
+            <div class="dash-card" style="background:var(--danger);"><h3>Pending Due</h3><p id="dashPending">₹0</p></div>
         </div>
 
         <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:white;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">💳 Player Balances</h3>
+                <h3 style="margin:0;">💳 Current Pending Balances</h3>
                 <label style="font-size:0.85em; color:#666; cursor:pointer;">
-                    <input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Settled Accounts
+                    <input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Fully Settled
                 </label>
             </div>
             <table id="pendingTable">
                 <thead><tr><th>Member</th><th>Total Won</th><th>Paid</th><th>Due</th><th>Action</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
             </table>
-            <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Settle Selected</button>
+            <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm & Settle</button>
         </div>
     </div>
 </div>
@@ -254,7 +258,7 @@
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
-        // Fixed Podium Display
+        // Podium Fixes
         const sortedEarners = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
         if(sortedEarners.length > 0) {
             document.getElementById('topPodium').innerHTML = `
@@ -266,7 +270,7 @@
         document.getElementById('racePodium').innerHTML = raceWinners.length > 0 ? `
             <div class="podium-place place-2" style="background:#6ee7b7"><span class="podium-name">${raceWinners[1]?.name || '-'}</span><div class="podium-amt">${raceWinners[1]?'M'+raceWinners[1].match:''}</div><h2>2</h2></div>
             <div class="podium-place place-1" style="background:#10b981"><span class="podium-name">${raceWinners[0].name}</span><div class="podium-amt">M${raceWinners[0].match}</div><h2>1</h2></div>
-            <div class="podium-place place-3" style="background:#a7f3d0"><span class="podium-name">${raceWinners[2]?.name || '-'}</span><div class="podium-amt">${raceWinners[2]?'M'+raceWinners[2].match:''}</div><h2>3</h2></div>` : "<p>No one crossed ₹1480 yet.</p>";
+            <div class="podium-place place-3" style="background:#a7f3d0"><span class="podium-name">${raceWinners[2]?.name || '-'}</span><div class="podium-amt">${raceWinners[2]?'M'+raceWinners[2].match:''}</div><h2>3</h2></div>` : "<p>Race in progress!</p>";
 
         let totalPaidOut = 0;
         const playerPaidTotal = {};
@@ -275,28 +279,29 @@
             totalPaidOut += h.amount;
         });
 
-        let tableData = ALL_PLAYERS.map(p => {
-            const won = Math.round(currentStats[p] || 0);
-            const paid = playerPaidTotal[p] || 0;
-            return { name: p, won, paid, due: won - paid };
-        }).sort((a, b) => b.won - a.won);
+        // ONLY Show members who have WON something (original logic)
+        const winnersOnly = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
 
-        tableData.forEach(d => {
-            if (hideSettled && d.due <= 0 && d.won > 0) return; // Skip settled
+        winnersOnly.forEach(([name, wonValue]) => {
+            const won = Math.round(wonValue);
+            const paid = playerPaidTotal[name] || 0;
+            const due = won - paid;
 
-            const progress = Math.min((d.won / DEPOSIT_GOAL) * 100, 100);
-            const remaining = Math.max(DEPOSIT_GOAL - d.won, 0);
+            if (hideSettled && due <= 0) return; // Original hide logic
+
+            const progress = Math.min((won / DEPOSIT_GOAL) * 100, 100);
+            const remaining = Math.max(DEPOSIT_GOAL - won, 0);
 
             sBody.innerHTML += `<tr>
                 <td style="text-align:left">
-                    <b>${d.name}</b>
+                    <b>${name}</b>
                     <div class="race-bar-bg"><div class="race-bar-fill" style="width:${progress}%"></div></div>
                     <div class="goal-status">${remaining > 0 ? '₹' + remaining + ' left' : '✅ Recovery Done'}</div>
                 </td>
-                <td>₹${d.won}</td>
-                <td>₹${d.paid}</td>
-                <td style="color:${d.due>0?'red':'green'}; font-weight:bold">₹${d.due}</td>
-                <td>${d.due > 0 ? `<input type="checkbox" class="pay-check" data-name="${d.name}" data-amount="${d.due}" ${isAdmin?'':'disabled'}>` : '✅'}</td>
+                <td>₹${won}</td>
+                <td>₹${paid}</td>
+                <td style="color:${due>0?'red':'green'}; font-weight:bold">₹${due}</td>
+                <td>${due > 0 ? `<input type="checkbox" class="pay-check" data-name="${name}" data-amount="${due}" ${isAdmin?'':'disabled'}>` : '✅'}</td>
             </tr>`;
         });
 
@@ -307,6 +312,7 @@
 
     function processSettlement() {
         const checks = document.querySelectorAll('.pay-check:checked');
+        if(checks.length === 0) return alert("Select someone to pay.");
         const now = new Date().toLocaleDateString();
         checks.forEach(c => paidHistory.push({ date: now, name: c.dataset.name, amount: parseFloat(c.dataset.amount) }));
         db.ref('leagueMaster').update({ paidHistory }).then(() => { fetchAllData(); });
