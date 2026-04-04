@@ -60,7 +60,9 @@
     <div>🌐 <span id="cloudStatus" class="status-pill">CONNECTING...</span></div>
     <div onclick="adminLogin()" style="cursor:pointer;">🔒 <small id="adminText">Member View (Tap to Edit)</small></div>
 </div>
-
+<div id="liveBanner" style="background: #fffbeb; border-bottom: 3px solid var(--gold); padding: 12px; display: none; text-align: center; font-size: 0.9em; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    <div id="bannerContent"></div>
+</div>
 <div class="container">
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 Handbook</button>
@@ -267,19 +269,70 @@
         });
     }
 
-    function renderSchedule() {
-        const sBody = document.getElementById('scheduleBody');
-        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        sBody.innerHTML = IPL_DATA.map(m => `
-            <tr class="${m.d === todayStr ? 'today-highlight' : ''}">
+   function renderSchedule() {
+    const sBody = document.getElementById('scheduleBody');
+    const banner = document.getElementById('liveBanner');
+    const bannerContent = document.getElementById('bannerContent');
+    
+    // Get today's date in "Apr 4" format
+    const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
+
+    // 1. Update Top Banner
+    if (todayMatches.length > 0) {
+        banner.style.display = "block";
+        let bannerHTML = `<b>🏏 TODAY'S MATCHES:</b> `;
+        todayMatches.forEach((m, i) => {
+            const status = winnersList["match_" + m.m] ? "✅ Result Out" : "⏳ Upcoming";
+            bannerHTML += `<span style="cursor:pointer; color:var(--secondary); text-decoration:underline;" onclick="jumpToMatch(${m.m})">
+                M${m.m}: ${m.f} (${m.t})</span> <small>[${status}]</small>${i < todayMatches.length - 1 ? ' | ' : ''}`;
+        });
+        bannerContent.innerHTML = bannerHTML;
+    }
+
+    // 2. Render Schedule Table
+    sBody.innerHTML = IPL_DATA.map(m => {
+        const isToday = m.d === todayStr;
+        const hasResult = winnersList["match_" + m.m];
+        return `
+            <tr class="${isToday ? 'today-highlight' : ''}">
                 <td>${m.d}</td>
-                <td>M${m.m}</td>
+                <td><b style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}</b></td>
                 <td><b>${m.f}</b></td>
                 <td>${m.v}</td>
-                <td><span class="amt-tag" style="background:#e0f2fe; color:#0369a1;">${m.t}</span></td>
+                <td>
+                    <span class="amt-tag" style="background:${hasResult ? '#dcfce7' : '#e0f2fe'}; color:${hasResult ? '#166534' : '#0369a1'};">
+                        ${hasResult ? '✅ Completed' : m.t}
+                    </span>
+                </td>
             </tr>
-        `).join('');
+        `;
+    }).join('');
+}
+
+// 3. Smart Navigation Logic
+function jumpToMatch(matchNum) {
+    // Switch to Tracker Tab
+    openTab({ currentTarget: document.querySelectorAll('.tab-btn')[1] }, 'tracker');
+    
+    // Find the match in the history table
+    const rows = document.querySelectorAll('#historyTable tbody tr');
+    let found = false;
+    
+    rows.forEach(row => {
+        if (row.cells[0].innerText.includes('M' + matchNum)) {
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            row.style.transition = "background 0.5s";
+            row.style.background = "#fff3cd";
+            setTimeout(() => { row.style.background = "transparent"; }, 3000);
+            found = true;
+        }
+    });
+
+    if (!found) {
+        alert("Match " + matchNum + " result hasn't been uploaded by the volunteer yet!");
     }
+}
 
     function renderTables() {
         const hBody = document.getElementById('historyBody');
