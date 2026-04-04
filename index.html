@@ -20,21 +20,19 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        /* Rank Cards */
         .rank-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }
         .rank-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: center; border-top: 4px solid var(--secondary); }
         .rank-card h4 { margin: 0 0 8px 0; font-size: 0.9em; color: var(--primary); }
         .rank-item { display: flex; justify-content: space-between; font-size: 0.75em; padding: 4px 0; border-bottom: 1px solid #f8f9fa; }
         .rank-count { font-weight: bold; color: var(--success); }
 
-        /* FIXED PODIUM BOXES */
-        .podium-container { display: flex; flex-wrap: nowrap; justify-content: space-around; gap: 5px; margin-bottom: 40px; width: 100%; overflow-x: auto; }
+        .podium-container { display: flex; flex-wrap: nowrap; justify-content: space-around; gap: 5px; margin-bottom: 40px; width: 100%; }
         .podium-box { flex: 1; min-width: 90px; text-align: center; }
         .podium { display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 180px; margin-top: 10px; }
         .podium-place { width: 31%; max-width: 95px; text-align: center; color: white; border-radius: 8px 8px 0 0; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 10px; font-weight: bold; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); }
         .place-1 { background: var(--gold); height: 150px; }
         .place-2 { background: var(--silver); height: 110px; }
-        .place-3 { background: var(--bronze); height: 96px; }
+        .place-3 { background: var(--bronze); height: 85px; }
 
         .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dash-card { padding: 15px; border-radius: 8px; color: white; text-align: center; }
@@ -45,7 +43,7 @@
         td { border-bottom: 1px solid #f1f5f9; padding: 12px; text-align: center; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
         .amt-tag { display: block; font-size: 0.8em; color: #166534; font-weight: bold; background: #dcfce7; border-radius: 4px; padding: 2px 4px; margin-top: 2px;}
-        .sim-btn { flex: 1; min-width: 65px; padding: 12px 5px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; }
+        .today-highlight { background: #fffbeb !important; border: 2px solid var(--gold) !important; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -80,11 +78,11 @@
         <div style="background: linear-gradient(135deg, #1a3a5f, #2b6cb0); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
             <h3 style="margin-top:0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">🔮 Hall of Fame Finder</h3>
             <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
-                <button onclick="simulatePrize(0)" class="sim-btn" style="background:var(--gold); color:#000;">🥇 1st</button>
-                <button onclick="simulatePrize(1)" class="sim-btn" style="background:var(--silver); color:#000;">🥈 2nd</button>
-                <button onclick="simulatePrize(2)" class="sim-btn" style="background:var(--bronze);">🥉 3rd</button>
-                <button onclick="simulatePrize(3)" class="sim-btn" style="background:#4a5568;">🏅 4th</button>
-                <button onclick="simulatePrize(4)" class="sim-btn" style="background:#718096;">🏅 5th</button>
+                <button onclick="simulatePrize(0)" style="flex:1; background:var(--gold); border:none; padding:10px; border-radius:8px; cursor:pointer;">🥇 1st</button>
+                <button onclick="simulatePrize(1)" style="flex:1; background:var(--silver); border:none; padding:10px; border-radius:8px; cursor:pointer;">🥈 2nd</button>
+                <button onclick="simulatePrize(2)" style="flex:1; background:var(--bronze); border:none; padding:10px; border-radius:8px; cursor:pointer; color:white;">🥉 3rd</button>
+                <button onclick="simulatePrize(3)" style="flex:1; background:#4a5568; border:none; padding:10px; border-radius:8px; cursor:pointer; color:white;">🏅 4th</button>
+                <button onclick="simulatePrize(4)" style="flex:1; background:#718096; border:none; padding:10px; border-radius:8px; cursor:pointer; color:white;">🏅 5th</button>
             </div>
             <div id="simResult" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; display:none; border: 1px dashed rgba(255,255,255,0.3);">
                 <div id="simPrize" style="font-size: 1.1em; font-weight: bold; color: var(--gold); text-align: center; margin-bottom: 10px;"></div>
@@ -129,37 +127,19 @@
                 <div class="podium" id="topPodium"></div>
             </div>
         </div>
-        <div style="background:white; border-radius:15px; border:1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow:hidden;">
-            <div style="padding:15px; background:#f8f9fa; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; font-size:1em; color:var(--primary);">💳 Recovery & Settlement</h3>
-                <div style="display:flex; gap:10px;">
-                    <button id="waBtn" class="btn" style="background:#25D366; display:none; padding:6px 12px; font-size:0.75em;" onclick="generateWhatsAppReport()">📱 Report</button>
-                    <label style="font-size:0.8em;"><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Paid</label>
-                </div>
-            </div>
-            <div style="overflow-x:auto;">
-                <table style="margin:0; width:100%;">
-                    <thead>
-                        <tr>
-                            <th style="text-align:left;">Member</th>
-                            <th>Status</th>
-                            <th>Total Won</th>
-                            <th style="color:var(--success)">Paid</th>
-                            <th>Due</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="summaryBody"></tbody>
-                </table>
-            </div>
-            <div style="padding:15px;">
-                <button class="btn" style="background:var(--success); width:100%; height:50px; font-size:1.1em; border-radius:10px;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Payments</button>
-            </div>
+        <div style="background:white; border-radius:15px; border:1px solid #e2e8f0; overflow:hidden;">
+            <table style="width:100%;">
+                <thead>
+                    <tr><th style="text-align:left;">Member</th><th>Status</th><th>Won</th><th style="color:var(--success)">Paid</th><th>Due</th><th>Action</th></tr>
+                </thead>
+                <tbody id="summaryBody"></tbody>
+            </table>
+            <div style="padding:15px;"><button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Payments</button></div>
         </div>
     </div>
 
     <div id="scheduleTab" class="content-section">
-        <h2 style="text-align:center; color:var(--primary);">🗓️ Official Fixtures</h2>
+        <h2 style="text-align:center; color:var(--primary);">🗓️ Official IPL 2026 Fixtures</h2>
         <table id="iplScheduleTable">
             <thead><tr><th>Date</th><th>Match</th><th>Fixture</th><th>Venue</th><th>Time/Status</th></tr></thead>
             <tbody id="scheduleBody"></tbody>
@@ -193,7 +173,72 @@
         {m:6, d:"Apr 2", f:"KKR vs SRH", v:"Kolkata", t:"7:30 PM"},
         {m:7, d:"Apr 3", f:"CSK vs PBKS", v:"Chennai", t:"7:30 PM"},
         {m:8, d:"Apr 4", f:"DC vs MI", v:"Delhi", t:"3:30 PM"},
-        {m:9, d:"Apr 4", f:"GT vs RR", v:"Ahmedabad", t:"7:30 PM"}
+        {m:9, d:"Apr 4", f:"GT vs RR", v:"Ahmedabad", t:"7:30 PM"},
+        {m:10, d:"Apr 5", f:"SRH vs LSG", v:"Hyderabad", t:"3:30 PM"},
+        {m:11, d:"Apr 5", f:"RCB vs CSK", v:"Bengaluru", t:"7:30 PM"},
+        {m:12, d:"Apr 6", f:"KKR vs PBKS", v:"Kolkata", t:"7:30 PM"},
+        {m:13, d:"Apr 7", f:"RR vs MI", v:"Guwahati", t:"7:30 PM"},
+        {m:14, d:"Apr 8", f:"DC vs GT", v:"Delhi", t:"7:30 PM"},
+        {m:15, d:"Apr 9", f:"KKR vs LSG", v:"Kolkata", t:"7:30 PM"},
+        {m:16, d:"Apr 10", f:"RR vs RCB", v:"Guwahati", t:"7:30 PM"},
+        {m:17, d:"Apr 11", f:"PBKS vs SRH", v:"Mullanpur", t:"3:30 PM"},
+        {m:18, d:"Apr 11", f:"CSK vs DC", v:"Chennai", t:"7:30 PM"},
+        {m:19, d:"Apr 12", f:"LSG vs GT", v:"Lucknow", t:"3:30 PM"},
+        {m:20, d:"Apr 12", f:"MI vs RCB", v:"Mumbai", t:"7:30 PM"},
+        {m:21, d:"Apr 13", f:"SRH vs RR", v:"Hyderabad", t:"7:30 PM"},
+        {m:22, d:"Apr 14", f:"CSK vs KKR", v:"Chennai", t:"7:30 PM"},
+        {m:23, d:"Apr 15", f:"RCB vs LSG", v:"Bengaluru", t:"7:30 PM"},
+        {m:24, d:"Apr 16", f:"MI vs PBKS", v:"Mumbai", t:"7:30 PM"},
+        {m:25, d:"Apr 17", f:"GT vs KKR", v:"Ahmedabad", t:"7:30 PM"},
+        {m:26, d:"Apr 18", f:"RCB vs DC", v:"Bengaluru", t:"3:30 PM"},
+        {m:27, d:"Apr 18", f:"SRH vs CSK", v:"Hyderabad", t:"7:30 PM"},
+        {m:28, d:"Apr 19", f:"KKR vs RR", v:"Kolkata", t:"3:30 PM"},
+        {m:29, d:"Apr 19", f:"PBKS vs LSG", v:"Mullanpur", t:"7:30 PM"},
+        {m:30, d:"Apr 20", f:"GT vs MI", v:"Ahmedabad", t:"7:30 PM"},
+        {m:31, d:"Apr 21", f:"SRH vs DC", v:"Hyderabad", t:"7:30 PM"},
+        {m:32, d:"Apr 22", f:"LSG vs RR", v:"Lucknow", t:"7:30 PM"},
+        {m:33, d:"Apr 23", f:"MI vs CSK", v:"Mumbai", t:"7:30 PM"},
+        {m:34, d:"Apr 24", f:"RCB vs GT", v:"Bengaluru", t:"7:30 PM"},
+        {m:35, d:"Apr 25", f:"DC vs PBKS", v:"Delhi", t:"3:30 PM"},
+        {m:36, d:"Apr 25", f:"RR vs SRH", v:"Jaipur", t:"7:30 PM"},
+        {m:37, d:"Apr 26", f:"GT vs CSK", v:"Ahmedabad", t:"3:30 PM"},
+        {m:38, d:"Apr 26", f:"LSG vs KKR", v:"Lucknow", t:"7:30 PM"},
+        {m:39, d:"Apr 27", f:"DC vs RCB", v:"Delhi", t:"7:30 PM"},
+        {m:40, d:"Apr 28", f:"PBKS vs RR", v:"Mullanpur", t:"7:30 PM"},
+        {m:41, d:"Apr 29", f:"MI vs SRH", v:"Mumbai", t:"7:30 PM"},
+        {m:42, d:"Apr 30", f:"KKR vs GT", v:"Kolkata", t:"7:30 PM"},
+        {m:43, d:"May 1", f:"CSK vs RR", v:"Chennai", t:"7:30 PM"},
+        {m:44, d:"May 2", f:"DC vs LSG", v:"Delhi", t:"3:30 PM"},
+        {m:45, d:"May 2", f:"RCB vs PBKS", v:"Bengaluru", t:"7:30 PM"},
+        {m:46, d:"May 3", f:"SRH vs MI", v:"Hyderabad", t:"3:30 PM"},
+        {m:47, d:"May 3", f:"RR vs KKR", v:"Jaipur", t:"7:30 PM"},
+        {m:48, d:"May 4", f:"GT vs CSK", v:"Ahmedabad", t:"7:30 PM"},
+        {m:49, d:"May 5", f:"LSG vs RCB", v:"Lucknow", t:"7:30 PM"},
+        {m:50, d:"May 6", f:"PBKS vs DC", v:"Mullanpur", t:"7:30 PM"},
+        {m:51, d:"May 7", f:"KKR vs MI", v:"Kolkata", t:"7:30 PM"},
+        {m:52, d:"May 8", f:"CSK vs SRH", v:"Chennai", t:"7:30 PM"},
+        {m:53, d:"May 9", f:"RCB vs RR", v:"Bengaluru", t:"3:30 PM"},
+        {m:54, d:"May 9", f:"GT vs LSG", v:"Ahmedabad", t:"7:30 PM"},
+        {m:55, d:"May 10", f:"MI vs DC", v:"Mumbai", t:"3:30 PM"},
+        {m:56, d:"May 10", f:"PBKS vs KKR", v:"Mullanpur", t:"7:30 PM"},
+        {m:57, d:"May 11", f:"SRH vs GT", v:"Hyderabad", t:"7:30 PM"},
+        {m:58, d:"May 12", f:"RR vs LSG", v:"Jaipur", t:"7:30 PM"},
+        {m:59, d:"May 13", f:"DC vs CSK", v:"Delhi", t:"7:30 PM"},
+        {m:60, d:"May 14", f:"SRH vs RCB", v:"Hyderabad", t:"7:30 PM"},
+        {m:61, d:"May 15", f:"PBKS vs MI", v:"Mullanpur", t:"7:30 PM"},
+        {m:62, d:"May 16", f:"LSG vs CSK", v:"Lucknow", t:"3:30 PM"},
+        {m:63, d:"May 16", f:"GT vs RCB", v:"Ahmedabad", t:"7:30 PM"},
+        {m:64, d:"May 17", f:"RR vs PBKS", v:"Jaipur", t:"3:30 PM"},
+        {m:65, d:"May 17", f:"DC vs SRH", v:"Delhi", t:"7:30 PM"},
+        {m:66, d:"May 18", f:"MI vs GT", v:"Mumbai", t:"7:30 PM"},
+        {m:67, d:"May 19", f:"KKR vs LSG", v:"Kolkata", t:"7:30 PM"},
+        {m:68, d:"May 20", f:"RR vs DC", v:"Jaipur", t:"7:30 PM"},
+        {m:69, d:"May 21", f:"SRH vs PBKS", v:"Hyderabad", t:"7:30 PM"},
+        {m:70, d:"May 22", f:"CSK vs MI", v:"Chennai", t:"7:30 PM"},
+        {m:71, d:"May 24", f:"Qualifier 1", v:"TBD", t:"7:30 PM"},
+        {m:72, d:"May 25", f:"Eliminator", v:"TBD", t:"7:30 PM"},
+        {m:73, d:"May 27", f:"Qualifier 2", v:"TBD", t:"7:30 PM"},
+        {m:74, d:"May 31", f:"GRAND FINAL", v:"TBD", t:"7:30 PM"}
     ];
 
     let winnersList = {};
@@ -220,22 +265,6 @@
                 }
             });
         }, 100);
-    }
-
-    function simulatePrize(rankIndex) {
-        const ranks = ["1st", "2nd", "3rd", "4th", "5th"];
-        const resBox = document.getElementById('simResult');
-        const winnersEl = document.getElementById('simWinners');
-        resBox.style.display = 'block';
-        document.getElementById('simPrize').innerText = `${ranks[rankIndex]} Rank: ₹${PRIZES[rankIndex]}`;
-        let list = [];
-        Object.keys(winnersList).forEach(k => {
-            const m = k.split('_')[1];
-            if(winnersList[k].winners[rankIndex]) {
-                list.push(`<span style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m})">M${m}</span>: ${winnersList[k].winners[rankIndex]}`);
-            }
-        });
-        winnersEl.innerHTML = list.length > 0 ? list.join(' | ') : "No winners yet!";
     }
 
     function renderTables() {
@@ -276,46 +305,68 @@
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
-        // Frequency Board
+        // Frequency Leaderboard
         const rNames = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
         rankBoard.innerHTML = rNames.map((lbl, idx) => {
             const sorted = Object.entries(rankCounts[idx]).sort((a,b) => b[1] - a[1]);
             return `<div class="rank-card"><h4>${lbl}</h4><div>${sorted.map(e => `<div class="rank-item"><span>${e[0]}</span><span class="rank-count">${e[1]}x</span></div>`).join('') || '<small>None</small>'}</div></div>`;
         }).join('');
 
+        // Podium Earners
         const sortedE = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
         if(sortedE.length > 0) {
             document.getElementById('topPodium').innerHTML = `<div class="podium-place place-2"><span>${sortedE[1]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[1]?.[1] || 0}</div><h2>2</h2></div><div class="podium-place place-1"><span>${sortedE[0][0]}</span><div class="podium-amt">₹${sortedE[0][1]}</div><h2>1</h2></div><div class="podium-place place-3"><span>${sortedE[2]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[2]?.[1] || 0}</div><h2>3</h2></div>`;
         }
 
+        // Payout Table
         const playerPaidTotal = {};
         paidHistory.forEach(h => playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount);
-        
         sortedE.forEach(([name, won]) => {
             const paid = playerPaidTotal[name] || 0;
             const due = won - paid;
             if (hideSettled && due <= 0) return;
             const rem = Math.max(DEPOSIT_GOAL - won, 0);
             const isRec = won >= DEPOSIT_GOAL;
-            
             let statusBadge = isRec 
                 ? `<div style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-size:0.7em; font-weight:bold;">FULLY RECOVERED</div>` 
                 : `<div style="background:#fef3c7; color:#92400e; padding:4px 8px; border-radius:12px; font-size:0.7em; font-weight:bold;">🏃 ₹${rem} LEFT</div>`;
 
-            sBody.innerHTML += `
-                <tr>
-                    <td style="text-align:left"><b>${name}</b></td>
-                    <td>${statusBadge}</td>
-                    <td style="font-weight:bold;">₹${won}</td>
-                    <td style="color:var(--success); font-weight:bold;">₹${paid}</td>
-                    <td style="color:${due > 0 ? 'red' : 'var(--success)'}; font-weight:bold;">₹${due}</td>
-                    <td>${due > 0 ? `<input type="checkbox" class="pay-check" style="transform:scale(1.3);" data-name="${name}" data-amount="${due}" ${isAdmin ? '' : 'disabled'}>` : '✅'}</td>
-                </tr>`;
+            sBody.innerHTML += `<tr><td style="text-align:left"><b>${name}</b></td><td>${statusBadge}</td><td>₹${won}</td><td style="color:var(--success); font-weight:bold;">₹${paid}</td><td style="color:${due > 0 ? 'red' : 'var(--success)'}; font-weight:bold;">₹${due}</td><td>${due > 0 ? `<input type="checkbox" class="pay-check" style="transform:scale(1.3);" data-name="${name}" data-amount="${due}" ${isAdmin ? '' : 'disabled'}>` : '✅'}</td></tr>`;
         });
 
         document.getElementById('dashTotalWon').innerText = `₹${Math.round(Object.values(currentStats).reduce((a,b)=>a+b,0))}`;
         document.getElementById('dashPaid').innerText = `₹${paidHistory.reduce((a,b)=>a+b.amount,0)}`;
         document.getElementById('cloudStatus').innerText = "LIVE ✅";
+    }
+
+    function renderSchedule() {
+        const sBody = document.getElementById('scheduleBody');
+        const banner = document.getElementById('liveBanner');
+        const bannerContent = document.getElementById('bannerContent');
+        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
+
+        if (todayMatches.length > 0) {
+            banner.style.display = "block";
+            let bannerHTML = `<b>🏏 TODAY:</b> `;
+            todayMatches.forEach((m, i) => {
+                const hasRes = winnersList["match_" + m.m];
+                if (hasRes) bannerHTML += `<span style="cursor:pointer; color:var(--secondary); text-decoration:underline; font-weight:bold;" onclick="jumpToMatch(${m.m})">M${m.m}: ${m.f} (✅ Result)</span>`;
+                else bannerHTML += `<span>M${m.m}: ${m.f} (⏳ ${m.t})</span>`;
+                if (i < todayMatches.length - 1) bannerHTML += ' | ';
+            });
+            bannerContent.innerHTML = bannerHTML;
+        }
+
+        sBody.innerHTML = IPL_DATA.map(m => {
+            const isToday = m.d === todayStr;
+            const hasResult = winnersList["match_" + m.m];
+            let statusDisplay = m.t;
+            if (todayMatches.length > 1 && hasResult) statusDisplay = "Completed ✅";
+            else if (hasResult) statusDisplay = "Finished ✅";
+            const matchLink = hasResult ? `<b style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}</b>` : `<b>M${m.m}</b>`;
+            return `<tr class="${isToday ? 'today-highlight' : ''}"><td>${m.d}</td><td>${matchLink}</td><td><b>${m.f}</b></td><td>${m.v}</td><td><span class="amt-tag">${statusDisplay}</span></td></tr>`;
+        }).join('');
     }
 
     function fetchAllData() {
@@ -364,37 +415,26 @@
         db.ref('leagueMaster').update({ paidHistory }).then(() => { fetchAllData(); });
     }
 
-    function renderSchedule() {
-        const sBody = document.getElementById('scheduleBody');
-        const banner = document.getElementById('liveBanner');
-        const bannerContent = document.getElementById('bannerContent');
-        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
+    function simulatePrize(rankIndex) {
+        const ranks = ["1st", "2nd", "3rd", "4th", "5th"];
+        const resBox = document.getElementById('simResult');
+        const winnersEl = document.getElementById('simWinners');
+        resBox.style.display = 'block';
+        document.getElementById('simPrize').innerText = `${ranks[rankIndex]} Rank: ₹${PRIZES[rankIndex]}`;
+        let list = [];
+        Object.keys(winnersList).forEach(k => {
+            const m = k.split('_')[1];
+            if(winnersList[k].winners[rankIndex]) {
+                list.push(`<span style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m})">M${m}</span>: ${winnersList[k].winners[rankIndex]}`);
+            }
+        });
+        winnersEl.innerHTML = list.length > 0 ? list.join(' | ') : "No winners yet!";
+    }
 
-        if (todayMatches.length > 0) {
-            banner.style.display = "block";
-            let bannerHTML = `<b>🏏 TODAY:</b> `;
-            todayMatches.forEach((m, i) => {
-                const hasRes = winnersList["match_" + m.m];
-                if (hasRes) {
-                    bannerHTML += `<span style="cursor:pointer; color:var(--secondary); text-decoration:underline; font-weight:bold;" onclick="jumpToMatch(${m.m})">M${m.m}: ${m.f} (✅ Result)</span>`;
-                } else {
-                    bannerHTML += `<span>M${m.m}: ${m.f} (⏳ ${m.t})</span>`;
-                }
-                if (i < todayMatches.length - 1) bannerHTML += ' | ';
-            });
-            bannerContent.innerHTML = bannerHTML;
-        }
-
-        sBody.innerHTML = IPL_DATA.map(m => {
-            const isToday = m.d === todayStr;
-            const hasResult = winnersList["match_" + m.m];
-            let statusDisplay = m.t;
-            if (todayMatches.length > 1 && hasResult) statusDisplay = "Completed ✅";
-            else if (hasResult) statusDisplay = "Finished ✅";
-            const matchLink = hasResult ? `<b style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}</b>` : `<b>M${m.m}</b>`;
-            return `<tr class="${isToday ? 'today-highlight' : ''}"><td>${m.d}</td><td>${matchLink}</td><td><b>${m.f}</b></td><td>${m.v}</td><td><span class="amt-tag">${statusDisplay}</span></td></tr>`;
-        }).join('');
+    function updateMatchDropdown() {
+        const sel = document.getElementById('matchSelect');
+        sel.innerHTML = "";
+        for (let i = 1; i <= 74; i++) { if (!winnersList["match_" + i]) { const opt = document.createElement("option"); opt.value = i; opt.text = "Match " + i; sel.add(opt); } }
     }
 
     function generateWhatsAppReport() {
@@ -412,27 +452,15 @@
         const totalWon = Object.values(currentWinnings).reduce((a,b) => a+b, 0);
         const totalDist = paidHistory.reduce((sum, h) => sum + h.amount, 0);
         let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n━━━━━━━━━━━━━━━━━━\n\n📢 *LATEST RESULT: Match ${lastMatchData.num}*\n`;
-        const medals = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
-        lastMatchData.winners.forEach((winner, i) => { text += `${medals[i]}: ${winner || '-'}\n`; });
+        const meds = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
+        lastMatchData.winners.forEach((w, i) => { text += `${meds[i]}: ${w || '-'}\n`; });
         text += `\n🏆 *TOP EARNERS PODIUM*\n`;
         earners.slice(0, 3).forEach((e, i) => { text += `${i+1}. ${e[0]} — ₹${e[1]}\n`; });
-        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
-        if(todayMatches.length > 0) { 
-            text += `\n📅 *TODAY'S FIXTURES (${todayStr})*\n`; 
-            todayMatches.forEach(m => { 
-                const hasRes = winnersList["match_" + m.m]; 
-                text += `🏏 ${m.t}: ${m.f}${hasRes ? ' -Completed' : ''}\n`; 
-            }); 
-        }
+        const tStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const tMtch = IPL_DATA.filter(m => m.d === tStr);
+        if(tMtch.length > 0) { text += `\n📅 *TODAY'S FIXTURES (${tStr})*\n`; tMtch.forEach(m => { const res = winnersList["match_" + m.m]; text += `🏏 ${m.t}: ${m.f}${res ? ' -Completed' : ''}\n`; }); }
         text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDist}\n⏳ Pending: ₹${Math.round(totalWon - totalDist)}\n\n🌐 *Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/\n━━━━━━━━━━━━━━━━━━\n_Generated by Neeraj Jaggi_`;
         navigator.clipboard.writeText(text).then(() => alert("🚀 Smart Report Copied!"));
-    }
-
-    function updateMatchDropdown() {
-        const sel = document.getElementById('matchSelect');
-        sel.innerHTML = "";
-        for (let i = 1; i <= 74; i++) { if (!winnersList["match_" + i]) { const opt = document.createElement("option"); opt.value = i; opt.text = "Match " + i; sel.add(opt); } }
     }
 
     window.onload = () => { initMultiSelects(); fetchAllData(); };
