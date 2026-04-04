@@ -20,12 +20,6 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        .rank-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }
-        .rank-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: center; border-top: 4px solid var(--secondary); }
-        .rank-card h4 { margin: 0 0 8px 0; font-size: 0.9em; color: var(--primary); }
-        .rank-item { display: flex; justify-content: space-between; font-size: 0.75em; padding: 4px 0; border-bottom: 1px solid #f8f9fa; }
-        .rank-count { font-weight: bold; color: var(--success); }
-
         .podium-container { display: flex; flex-wrap: nowrap; justify-content: space-around; gap: 5px; margin-bottom: 40px; width: 100%; }
         .podium-box { flex: 1; min-width: 90px; text-align: center; }
         .podium { display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 180px; margin-top: 10px; }
@@ -59,54 +53,22 @@
 
 <div class="container">
     <div class="tabs">
-        <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 The Playbook</button>
+        <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 Playbook</button>
         <button class="tab-btn" onclick="openTab(event, 'tracker')">🏏 Tracker</button>
         <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Payouts</button>
         <button class="tab-btn" onclick="openTab(event, 'scheduleTab')">📅 Schedule</button>
     </div>
 
     <div id="rules" class="content-section active">
-        <h1 style="text-align:center; color:var(--primary); margin-bottom:5px;">🏆 Official Playbook</h1>
-        <div style="margin-bottom: 25px; text-align: center;">
-            <div style="font-size: 0.75em; color: #666; margin-bottom: 5px;">PROGRESS: <span id="tourneyCount">0</span>/74 MATCHES</div>
-            <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; width: 80%; margin: auto;">
-                <div id="tourneyBar" style="background: var(--secondary); height: 100%; width: 0%; transition: width 1s;"></div>
-            </div>
-        </div>
-        <h3 style="color:var(--primary); font-size:1.1em; border-left: 4px solid var(--gold); padding-left:10px; margin-bottom:15px;">🏅 Rank Frequency</h3>
-        <div class="rank-grid" id="rankLeaderboard"></div>
-        <div style="background: linear-gradient(135deg, #1a3a5f, #2b6cb0); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
-            <h3 style="margin-top:0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">🔮 Hall of Fame Finder</h3>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
-                <button onclick="simulatePrize(0)" style="flex:1; background:var(--gold); border:none; padding:10px; border-radius:8px; cursor:pointer;">🥇 1st</button>
-                <button onclick="simulatePrize(1)" style="flex:1; background:var(--silver); border:none; padding:10px; border-radius:8px; cursor:pointer;">🥈 2nd</button>
-                <button onclick="simulatePrize(2)" style="flex:1; background:var(--bronze); border:none; padding:10px; border-radius:8px; cursor:pointer; color:white;">🥉 3rd</button>
-                <button onclick="simulatePrize(3)" style="flex:1; background:#4a5568; border:none; padding:10px; border-radius:8px; cursor:pointer; color:white;">🏅 4th</button>
-                <button onclick="simulatePrize(4)" style="flex:1; background:#718096; border:none; padding:10px; border-radius:8px; cursor:pointer; color:white;">🏅 5th</button>
-            </div>
-            <div id="simResult" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; display:none; border: 1px dashed rgba(255,255,255,0.3);">
-                <div id="simPrize" style="font-size: 1.1em; font-weight: bold; color: var(--gold); text-align: center; margin-bottom: 10px;"></div>
-                <div id="simWinners" style="font-size: 0.85em; line-height: 1.4; max-height:150px; overflow-y:auto;"></div>
-            </div>
-        </div>
+        <h1 style="text-align:center; color:var(--primary);">🏆 Official Playbook</h1>
+        <p>Welcome to the private league. Rules and Rank counts appear here.</p>
+        <div id="rankLeaderboard" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
     </div>
 
     <div id="tracker" class="content-section">
         <div id="adminEntry" style="display:none; background:#f8f9fa; padding:20px; border-radius:10px; border:2px solid var(--secondary); margin-bottom:20px;">
             <h3>➕ Add Match Result</h3>
             <select id="matchSelect" style="padding:8px; margin-bottom:10px;"></select>
-            <table>
-                <thead><tr><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td><select id="p1" style="width:100%; height:100px;" multiple></select></td>
-                        <td><select id="p2" style="width:100%; height:100px;" multiple></select></td>
-                        <td><select id="p3" style="width:100%; height:100px;" multiple></select></td>
-                        <td><select id="p4" style="width:100%; height:100px;" multiple></select></td>
-                        <td><select id="p5" style="width:100%; height:100px;" multiple></select></td>
-                    </tr>
-                </tbody>
-            </table>
             <button class="btn" style="background:var(--success); width:100%;" onclick="saveCurrentMatch()">💾 Save Match</button>
         </div>
         <table id="historyTable">
@@ -118,12 +80,12 @@
     <div id="summary" class="content-section">
         <div class="dash-grid">
             <div class="dash-card" style="background:var(--primary);"><h6>Deposit Goal</h6><p>₹1,480</p></div>
-            <div class="dash-card" style="background:var(--secondary);"><h6>League Winnings</h6><p id="dashTotalWon">₹0</p></div>
-            <div class="dash-card" style="background:var(--success);"><h6>Total Settled</h6><p id="dashPaid">₹0</p></div>
+            <div class="dash-card" style="background:var(--secondary);"><h6>Winnings</h6><p id="dashTotalWon">₹0</p></div>
+            <div class="dash-card" style="background:var(--success);"><h6>Settled</h6><p id="dashPaid">₹0</p></div>
         </div>
         <div class="podium-container">
             <div class="podium-box">
-                <h3 style="color:var(--primary); margin-bottom:15px; font-size:1.1em;">🏆 Profit Leaders</h3>
+                <h3 style="color:var(--primary);">🏆 Top Earners</h3>
                 <div class="podium" id="topPodium"></div>
             </div>
         </div>
@@ -139,9 +101,9 @@
     </div>
 
     <div id="scheduleTab" class="content-section">
-        <h2 style="text-align:center; color:var(--primary);">🗓️ Official IPL 2026 Fixtures</h2>
+        <h2 style="text-align:center; color:var(--primary);">🗓️ IPL 2026 Full Fixtures</h2>
         <table id="iplScheduleTable">
-            <thead><tr><th>Date</th><th>Match</th><th>Fixture</th><th>Venue</th><th>Time/Status</th></tr></thead>
+            <thead><tr><th>Date</th><th>Match</th><th>Fixture</th><th>Venue</th><th>Status</th></tr></thead>
             <tbody id="scheduleBody"></tbody>
         </table>
     </div>
@@ -244,7 +206,6 @@
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
-    let lastMatchData = { num: 0, winners: [] };
 
     function openTab(e, n) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -253,87 +214,43 @@
         e.currentTarget.classList.add('active');
     }
 
-    function jumpToMatch(matchNum) {
-        openTab({ currentTarget: document.querySelectorAll('.tab-btn')[1] }, 'tracker');
-        setTimeout(() => {
-            const rows = document.querySelectorAll('#historyTable tbody tr');
-            rows.forEach(row => {
-                if (row.cells[0].innerText.includes('M' + matchNum)) {
-                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    row.style.background = "#fff3cd";
-                    setTimeout(() => { row.style.background = "transparent"; }, 3000);
-                }
-            });
-        }, 100);
-    }
-
     function renderTables() {
         const hBody = document.getElementById('historyBody');
         const sBody = document.getElementById('summaryBody');
-        const rankBoard = document.getElementById('rankLeaderboard');
-        const hideSettled = document.getElementById('hideSettled').checked;
         hBody.innerHTML = ''; sBody.innerHTML = '';
-        
         let currentStats = {};
-        let rankCounts = [{}, {}, {}, {}, {}];
 
-        const sortedKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
-        const completedCount = sortedKeys.length;
-        document.getElementById('tourneyCount').innerText = completedCount;
-        document.getElementById('tourneyBar').style.width = (completedCount/74*100)+'%';
-
-        sortedKeys.forEach(key => {
-            const matchNum = key.split('_')[1];
+        Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]).forEach(key => {
+            const m = key.split('_')[1];
             const winners = winnersList[key].winners || [];
-            lastMatchData = { num: matchNum, winners: winners };
-            let rowHTML = `<td><b>M${matchNum}</b></td>`;
-
+            let rowHTML = `<td><b>M${m}</b></td>`;
             winners.forEach((box, idx) => {
                 if(box) {
                     const shared = box.split(', ').filter(n => n);
-                    const nPl = shared.length;
                     let pool = 0;
-                    for(let i=0; i<nPl; i++) if((idx+i) < PRIZES.length) pool += PRIZES[idx+i];
-                    const split = Math.round(pool/nPl);
-                    shared.forEach(p => {
-                        currentStats[p] = (currentStats[p] || 0) + split;
-                        rankCounts[idx][p] = (rankCounts[idx][p] || 0) + 1;
-                    });
-                    rowHTML += `<td>${box} <br><span class="amt-tag">₹${split}</span></td>`;
-                } else { rowHTML += `<td>-</td>`; }
+                    for(let i=0; i<shared.length; i++) if((idx+i)<PRIZES.length) pool += PRIZES[idx+i];
+                    const split = Math.round(pool/shared.length);
+                    shared.forEach(p => currentStats[p] = (currentStats[p] || 0) + split);
+                    rowHTML += `<td>${box} <br><small>₹${split}</small></td>`;
+                } else rowHTML += `<td>-</td>`;
             });
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
-        // Frequency Leaderboard
-        const rNames = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
-        rankBoard.innerHTML = rNames.map((lbl, idx) => {
-            const sorted = Object.entries(rankCounts[idx]).sort((a,b) => b[1] - a[1]);
-            return `<div class="rank-card"><h4>${lbl}</h4><div>${sorted.map(e => `<div class="rank-item"><span>${e[0]}</span><span class="rank-count">${e[1]}x</span></div>`).join('') || '<small>None</small>'}</div></div>`;
-        }).join('');
-
-        // Podium Earners
         const sortedE = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
         if(sortedE.length > 0) {
             document.getElementById('topPodium').innerHTML = `<div class="podium-place place-2"><span>${sortedE[1]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[1]?.[1] || 0}</div><h2>2</h2></div><div class="podium-place place-1"><span>${sortedE[0][0]}</span><div class="podium-amt">₹${sortedE[0][1]}</div><h2>1</h2></div><div class="podium-place place-3"><span>${sortedE[2]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[2]?.[1] || 0}</div><h2>3</h2></div>`;
         }
 
-        // Payout Table
-        const playerPaidTotal = {};
-        paidHistory.forEach(h => playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount);
+        const paidMap = {};
+        paidHistory.forEach(h => paidMap[h.name] = (paidMap[h.name] || 0) + h.amount);
         sortedE.forEach(([name, won]) => {
-            const paid = playerPaidTotal[name] || 0;
+            const paid = paidMap[name] || 0;
             const due = won - paid;
-            if (hideSettled && due <= 0) return;
             const rem = Math.max(DEPOSIT_GOAL - won, 0);
-            const isRec = won >= DEPOSIT_GOAL;
-            let statusBadge = isRec 
-                ? `<div style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-size:0.7em; font-weight:bold;">FULLY RECOVERED</div>` 
-                : `<div style="background:#fef3c7; color:#92400e; padding:4px 8px; border-radius:12px; font-size:0.7em; font-weight:bold;">🏃 ₹${rem} LEFT</div>`;
-
-            sBody.innerHTML += `<tr><td style="text-align:left"><b>${name}</b></td><td>${statusBadge}</td><td>₹${won}</td><td style="color:var(--success); font-weight:bold;">₹${paid}</td><td style="color:${due > 0 ? 'red' : 'var(--success)'}; font-weight:bold;">₹${due}</td><td>${due > 0 ? `<input type="checkbox" class="pay-check" style="transform:scale(1.3);" data-name="${name}" data-amount="${due}" ${isAdmin ? '' : 'disabled'}>` : '✅'}</td></tr>`;
+            const status = won >= DEPOSIT_GOAL ? `<small style="color:green">RECOVERED</small>` : `<small style="color:orange">₹${rem} Left</small>`;
+            sBody.innerHTML += `<tr><td style="text-align:left">${name}</td><td>${status}</td><td>₹${won}</td><td style="color:green">₹${paid}</td><td style="color:red">₹${due}</td><td><input type="checkbox" class="pay-check" data-name="${name}" data-amount="${due}" ${isAdmin?'':'disabled'}></td></tr>`;
         });
-
         document.getElementById('dashTotalWon').innerText = `₹${Math.round(Object.values(currentStats).reduce((a,b)=>a+b,0))}`;
         document.getElementById('dashPaid').innerText = `₹${paidHistory.reduce((a,b)=>a+b.amount,0)}`;
         document.getElementById('cloudStatus').innerText = "LIVE ✅";
@@ -348,24 +265,16 @@
 
         if (todayMatches.length > 0) {
             banner.style.display = "block";
-            let bannerHTML = `<b>🏏 TODAY:</b> `;
-            todayMatches.forEach((m, i) => {
-                const hasRes = winnersList["match_" + m.m];
-                if (hasRes) bannerHTML += `<span style="cursor:pointer; color:var(--secondary); text-decoration:underline; font-weight:bold;" onclick="jumpToMatch(${m.m})">M${m.m}: ${m.f} (✅ Result)</span>`;
-                else bannerHTML += `<span>M${m.m}: ${m.f} (⏳ ${m.t})</span>`;
-                if (i < todayMatches.length - 1) bannerHTML += ' | ';
-            });
-            bannerContent.innerHTML = bannerHTML;
+            bannerContent.innerHTML = `<b>🏏 TODAY:</b> ` + todayMatches.map(m => `M${m.m}: ${m.f} (${m.t})`).join(' | ');
         }
 
         sBody.innerHTML = IPL_DATA.map(m => {
             const isToday = m.d === todayStr;
             const hasResult = winnersList["match_" + m.m];
-            let statusDisplay = m.t;
-            if (todayMatches.length > 1 && hasResult) statusDisplay = "Completed ✅";
-            else if (hasResult) statusDisplay = "Finished ✅";
-            const matchLink = hasResult ? `<b style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}</b>` : `<b>M${m.m}</b>`;
-            return `<tr class="${isToday ? 'today-highlight' : ''}"><td>${m.d}</td><td>${matchLink}</td><td><b>${m.f}</b></td><td>${m.v}</td><td><span class="amt-tag">${statusDisplay}</span></td></tr>`;
+            let status = m.t;
+            if (todayMatches.length > 1 && hasResult) status = "Completed ✅";
+            else if (hasResult) status = "Finished ✅";
+            return `<tr class="${isToday ? 'today-highlight' : ''}"><td>${m.d}</td><td>M${m.m}</td><td>${m.f}</td><td>${m.v}</td><td>${status}</td></tr>`;
         }).join('');
     }
 
@@ -375,95 +284,16 @@
             db.ref('leagueRecords').on('value', snap => {
                 winnersList = snap.val() || {};
                 renderTables();
-                updateMatchDropdown();
                 renderSchedule();
             });
         });
     }
 
     function adminLogin() {
-        const pin = prompt("Volunteer PIN:");
-        if(pin === "2026") {
-            isAdmin = true;
-            document.getElementById('adminText').innerText = "🔓 Volunteer Mode";
-            document.getElementById('adminEntry').style.display = "block";
-            document.getElementById('settleBtn').disabled = false;
-            document.getElementById('waBtn').style.display = "block";
-            renderTables();
-        }
+        if(prompt("PIN:") === "2026") { isAdmin = true; document.getElementById('adminEntry').style.display = "block"; document.getElementById('settleBtn').disabled = false; renderTables(); }
     }
 
-    function initMultiSelects() {
-        ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(id => {
-            document.getElementById(id).innerHTML = ALL_PLAYERS.map(p => `<option value="${p}">${p}</option>`).join('');
-        });
-    }
-
-    function saveCurrentMatch() {
-        const matchNum = document.getElementById('matchSelect').value;
-        const results = [];
-        for(let i=1; i<=5; i++) {
-            results.push(Array.from(document.getElementById('p'+i).selectedOptions).map(o => o.value).join(', '));
-        }
-        db.ref('leagueRecords/match_' + matchNum).set({ winners: results }).then(() => { fetchAllData(); });
-    }
-
-    function processSettlement() {
-        const checks = document.querySelectorAll('.pay-check:checked');
-        const now = new Date().toLocaleDateString();
-        checks.forEach(c => paidHistory.push({ date: now, name: c.dataset.name, amount: parseFloat(c.dataset.amount) }));
-        db.ref('leagueMaster').update({ paidHistory }).then(() => { fetchAllData(); });
-    }
-
-    function simulatePrize(rankIndex) {
-        const ranks = ["1st", "2nd", "3rd", "4th", "5th"];
-        const resBox = document.getElementById('simResult');
-        const winnersEl = document.getElementById('simWinners');
-        resBox.style.display = 'block';
-        document.getElementById('simPrize').innerText = `${ranks[rankIndex]} Rank: ₹${PRIZES[rankIndex]}`;
-        let list = [];
-        Object.keys(winnersList).forEach(k => {
-            const m = k.split('_')[1];
-            if(winnersList[k].winners[rankIndex]) {
-                list.push(`<span style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m})">M${m}</span>: ${winnersList[k].winners[rankIndex]}`);
-            }
-        });
-        winnersEl.innerHTML = list.length > 0 ? list.join(' | ') : "No winners yet!";
-    }
-
-    function updateMatchDropdown() {
-        const sel = document.getElementById('matchSelect');
-        sel.innerHTML = "";
-        for (let i = 1; i <= 74; i++) { if (!winnersList["match_" + i]) { const opt = document.createElement("option"); opt.value = i; opt.text = "Match " + i; sel.add(opt); } }
-    }
-
-    function generateWhatsAppReport() {
-        let currentWinnings = {};
-        Object.keys(winnersList).forEach(k => {
-            winnersList[k].winners.forEach((box, idx) => {
-                if(!box) return;
-                const names = box.split(', ').filter(n => n);
-                let prize = 0;
-                for(let i=0; i<names.length; i++) if(PRIZES[idx+i]) prize += PRIZES[idx+i];
-                names.forEach(n => currentWinnings[n] = (currentWinnings[n] || 0) + Math.round(prize/names.length));
-            });
-        });
-        const earners = Object.entries(currentWinnings).sort((a,b) => b[1] - a[1]);
-        const totalWon = Object.values(currentWinnings).reduce((a,b) => a+b, 0);
-        const totalDist = paidHistory.reduce((sum, h) => sum + h.amount, 0);
-        let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n━━━━━━━━━━━━━━━━━━\n\n📢 *LATEST RESULT: Match ${lastMatchData.num}*\n`;
-        const meds = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
-        lastMatchData.winners.forEach((w, i) => { text += `${meds[i]}: ${w || '-'}\n`; });
-        text += `\n🏆 *TOP EARNERS PODIUM*\n`;
-        earners.slice(0, 3).forEach((e, i) => { text += `${i+1}. ${e[0]} — ₹${e[1]}\n`; });
-        const tStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const tMtch = IPL_DATA.filter(m => m.d === tStr);
-        if(tMtch.length > 0) { text += `\n📅 *TODAY'S FIXTURES (${tStr})*\n`; tMtch.forEach(m => { const res = winnersList["match_" + m.m]; text += `🏏 ${m.t}: ${m.f}${res ? ' -Completed' : ''}\n`; }); }
-        text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDist}\n⏳ Pending: ₹${Math.round(totalWon - totalDist)}\n\n🌐 *Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/\n━━━━━━━━━━━━━━━━━━\n_Generated by Neeraj Jaggi_`;
-        navigator.clipboard.writeText(text).then(() => alert("🚀 Smart Report Copied!"));
-    }
-
-    window.onload = () => { initMultiSelects(); fetchAllData(); };
+    window.onload = fetchAllData;
 </script>
 </body>
 </html>
