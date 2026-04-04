@@ -46,6 +46,11 @@
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
         .amt-tag { display: block; font-size: 0.8em; color: #166534; font-weight: bold; background: #dcfce7; border-radius: 4px; padding: 2px 4px; margin-top: 2px;}
         .today-highlight { background: #fffbeb !important; border: 2px solid var(--gold) !important; }
+
+        /* Handbook Custom Styles */
+        .rule-card { background: #fff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .sim-btn { flex: 1; padding: 12px 5px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: transform 0.2s; color: white; }
+        .sim-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
@@ -68,10 +73,40 @@
     </div>
 
     <div id="rules" class="content-section active">
-        <h2 style="text-align:center; color:var(--primary);">🏆 IPL 2026 PRIVATE LEAGUE</h2>
-        <div style="background:#f8f9fa; padding:15px; border-radius:8px; border-left:5px solid var(--primary);">
-            <p><b>Total Members:</b> 15 | <b>Deposit:</b> ₹1,480</p>
-            <p><b>Payout:</b> 1st: ₹110 | 2nd: ₹80 | 3rd: ₹50 | 4th: ₹35 | 5th: ₹25</p>
+        <h1 style="text-align:center; color:var(--primary); margin-bottom:5px;">🏆 IPL 2026 Family League</h1>
+        <p style="text-align:center; color:#666; margin-top:0;">Tournament Design & Official Rules</p>
+
+        <div style="background: linear-gradient(135deg, #1a3a5f, #2b6cb0); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+            <h3 style="margin-top:0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">💰 Prize Simulator</h3>
+            <p style="font-size: 0.85em; opacity: 0.9;">Click a rank to see your winnings per match:</p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
+                <button onclick="simulatePrize(0)" class="sim-btn" style="background:var(--gold); color:#000;">1st</button>
+                <button onclick="simulatePrize(1)" class="sim-btn" style="background:var(--silver); color:#000;">2nd</button>
+                <button onclick="simulatePrize(2)" class="sim-btn" style="background:var(--bronze);">3rd</button>
+                <button onclick="simulatePrize(3)" class="sim-btn" style="background:#4a5568;">4th</button>
+                <button onclick="simulatePrize(4)" class="sim-btn" style="background:#718096;">5th</button>
+            </div>
+            <div id="simResult" style="text-align: center; font-size: 1.1em; font-weight: bold; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; display:none; border: 1px dashed rgba(255,255,255,0.3);"></div>
+        </div>
+
+        <div class="dash-grid">
+            <div class="rule-card">
+                <h4 style="color:var(--primary); margin-top:0; border-bottom: 2px solid var(--gold); display:inline-block;">📊 League Structure</h4>
+                <ul style="padding-left: 20px; font-size: 0.9em; line-height: 1.6; margin-top:10px;">
+                    <li><b>Duration:</b> All 74 IPL matches.</li>
+                    <li><b>Entry Fee:</b> ₹20 per match.</li>
+                    <li><b>Total Deposit:</b> ₹1,480 per member.</li>
+                    <li><b>Platform:</b> My11Circle App only.</li>
+                </ul>
+            </div>
+            <div class="rule-card">
+                <h4 style="color:var(--primary); margin-top:0; border-bottom: 2px solid var(--gold); display:inline-block;">📜 Gameplay Rules</h4>
+                <ul style="padding-left: 20px; font-size: 0.9em; line-height: 1.6; margin-top:10px;">
+                    <li><b>Ranking:</b> Points decided by the app.</li>
+                    <li><b>Split Prizes:</b> In case of a tie, prizes for the tied ranks are combined and split equally.</li>
+                    <li><b>Duplicates:</b> One person cannot take two prizes in one match.</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -112,7 +147,7 @@
 
         <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:white;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">💳 Balances & Recovery</h3>
+                <h3 style="margin:0;">💳 Recovery Status & Balances</h3>
                 <div style="display:flex; gap:10px;">
                     <button id="waBtn" class="btn" style="background:#25D366; display:none; padding:8px 15px; font-size:0.85em;" onclick="generateWhatsAppReport()">📱 WhatsApp Report</button>
                     <label style="font-size:0.85em; color:#666;"><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Settled</label>
@@ -204,6 +239,15 @@
         ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(id => {
             document.getElementById(id).innerHTML = ALL_PLAYERS.map(p => `<option value="${p}">${p}</option>`).join('');
         });
+    }
+
+    function simulatePrize(index) {
+        const prizes = [110, 80, 50, 35, 25];
+        const ranks = ["1st", "2nd", "3rd", "4th", "5th"];
+        const res = document.getElementById('simResult');
+        res.style.display = 'block';
+        res.innerHTML = `Finishing ${ranks[index]} wins you <span style="color:var(--gold)">₹${prizes[index]}</span>! <br> 
+        <small style="font-size:0.65em; opacity:0.8;">Need ~${Math.ceil(DEPOSIT_GOAL/prizes[index])} wins at this rank to recover ₹${DEPOSIT_GOAL}.</small>`;
     }
 
     function openTab(e, n) {
@@ -343,7 +387,7 @@
                 <td style="text-align:left">
                     <b>${name}</b>
                     <div class="race-bar-bg"><div class="race-bar-fill" style="width:${progress}%"></div></div>
-                    <div class="goal-status">${remaining > 0 ? '₹' + remaining + ' left to recover' : '✅ Recovered'}</div>
+                    <div class="goal-status">${remaining > 0 ? '₹' + remaining + ' to recover' : '✅ Recovery Done!'}</div>
                 </td>
                 <td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}; font-weight:bold">₹${due}</td>
                 <td>${due > 0 ? `<input type="checkbox" class="pay-check" data-name="${name}" data-amount="${due}" ${isAdmin?'':'disabled'}>` : '✅'}</td>
