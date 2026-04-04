@@ -20,7 +20,7 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        /* Rank Cards Layout */
+        /* Rank Cards */
         .rank-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }
         .rank-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: center; border-top: 4px solid var(--secondary); }
         .rank-card h4 { margin: 0 0 8px 0; font-size: 0.9em; color: var(--primary); }
@@ -48,6 +48,7 @@
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
         .amt-tag { display: block; font-size: 0.8em; color: #166534; font-weight: bold; background: #dcfce7; border-radius: 4px; padding: 2px 4px; margin-top: 2px;}
+        .today-highlight { background: #fffbeb !important; border: 2px solid var(--gold) !important; }
         .sim-btn { flex: 1; min-width: 65px; padding: 12px 5px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; }
     </style>
 </head>
@@ -72,7 +73,6 @@
 
     <div id="rules" class="content-section active">
         <h1 style="text-align:center; color:var(--primary); margin-bottom:5px;">🏆 Official Playbook</h1>
-        
         <div style="margin-bottom: 25px; text-align: center;">
             <div style="font-size: 0.75em; color: #666; margin-bottom: 5px;">TOURNAMENT PROGRESS: <span id="tourneyCount">0</span>/74 MATCHES</div>
             <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; width: 80%; margin: auto;">
@@ -133,17 +133,16 @@
                 </div>
             </div>
         </div>
-
         <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:white;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">💳 Recovery Status & Balances</h3>
+                <h3 style="margin:0;">💳 Recovery Status</h3>
                 <div style="display:flex; gap:10px;">
                     <button id="waBtn" class="btn" style="background:#25D366; display:none; padding:8px 15px; font-size:0.85em;" onclick="generateWhatsAppReport()">📱 WhatsApp Report</button>
-                    <label style="font-size:0.85em; color:#666;"><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Settled</label>
+                    <label><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Settled</label>
                 </div>
             </div>
             <table id="pendingTable">
-                <thead><tr><th>Member & Recovery</th><th>Total Won</th><th>Paid</th><th>Due</th><th>Action</th></tr></thead>
+                <thead><tr><th>Member</th><th>Won</th><th>Paid</th><th>Due</th><th>Action</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
             </table>
             <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm & Settle</button>
@@ -231,6 +230,21 @@
         e.currentTarget.classList.add('active');
     }
 
+    // RESTORED JUMP LOGIC
+    function jumpToMatch(matchNum) {
+        openTab({ currentTarget: document.querySelectorAll('.tab-btn')[1] }, 'tracker');
+        setTimeout(() => {
+            const rows = document.querySelectorAll('#historyTable tbody tr');
+            rows.forEach(row => {
+                if (row.cells[0].innerText.includes('M' + matchNum)) {
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    row.style.background = "#fff3cd";
+                    setTimeout(() => { row.style.background = "transparent"; }, 3000);
+                }
+            });
+        }, 100);
+    }
+
     function initMultiSelects() {
         ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(id => {
             document.getElementById(id).innerHTML = ALL_PLAYERS.map(p => `<option value="${p}">${p}</option>`).join('');
@@ -267,7 +281,10 @@
         let list = [];
         Object.keys(winnersList).forEach(k => {
             const m = k.split('_')[1];
-            if(winnersList[k].winners[rankIndex]) list.push(`<b>M${m}</b>: ${winnersList[k].winners[rankIndex]}`);
+            if(winnersList[k].winners[rankIndex]) {
+                const names = winnersList[k].winners[rankIndex];
+                list.push(`<span style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m})">M${m}</span>: ${names}`);
+            }
         });
         winnersEl.innerHTML = list.length > 0 ? list.join(' | ') : "No winners yet!";
     }
@@ -310,17 +327,20 @@
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
+        // Frequency Leaderboard
         const rNames = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
         rankBoard.innerHTML = rNames.map((lbl, idx) => {
             const sorted = Object.entries(rankCounts[idx]).sort((a,b) => b[1] - a[1]);
             return `<div class="rank-card"><h4>${lbl}</h4><div>${sorted.map(e => `<div class="rank-item"><span>${e[0]}</span><span class="rank-count">${e[1]}x</span></div>`).join('') || '<small>None</small>'}</div></div>`;
         }).join('');
 
+        // Podium Earners
         const sortedE = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
         if(sortedE.length > 0) {
             document.getElementById('topPodium').innerHTML = `<div class="podium-place place-2"><span>${sortedE[1]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[1]?.[1] || 0}</div><h2>2</h2></div><div class="podium-place place-1"><span>${sortedE[0][0]}</span><div class="podium-amt">₹${sortedE[0][1]}</div><h2>1</h2></div><div class="podium-place place-3"><span>${sortedE[2]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[2]?.[1] || 0}</div><h2>3</h2></div>`;
         }
 
+        // Payout Balances
         const playerPaidTotal = {};
         paidHistory.forEach(h => playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount);
         sortedE.forEach(([name, won]) => {
@@ -329,7 +349,7 @@
             if (hideSettled && due <= 0) return;
             const prog = Math.min((won/DEPOSIT_GOAL)*100, 100);
             const rem = Math.max(DEPOSIT_GOAL - won, 0);
-            sBody.innerHTML += `<tr><td style="text-align:left"><b>${name}</b><div class="race-bar-bg"><div class="race-bar-fill" style="width:${prog}%"></div></div><div class="goal-status">${rem>0?'₹'+rem+' to go':'✅ Done'}</div></td><td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}; font-weight:bold">₹${due}</td><td><input type="checkbox" class="pay-check" data-name="${name}" data-amount="${due}" ${isAdmin?'':'disabled'}></td></tr>`;
+            sBody.innerHTML += `<tr><td style="text-align:left"><b>${name}</b><div class="race-bar-bg"><div class="race-bar-fill" style="width:${prog}%"></div></div><div class="goal-status">${rem>0?'₹'+rem+' to 1480':'✅ Done'}</div></td><td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}; font-weight:bold">₹${due}</td><td><input type="checkbox" class="pay-check" data-name="${name}" data-amount="${due}" ${isAdmin?'':'disabled'}></td></tr>`;
         });
 
         document.getElementById('dashPaid').innerText = `₹${paidHistory.reduce((a,b)=>a+b.amount,0)}`;
@@ -355,6 +375,7 @@
         db.ref('leagueMaster').update({ paidHistory }).then(() => { fetchAllData(); });
     }
 
+    // RESTORED SCHEDULE AND BANNER LOGIC
     function renderSchedule() {
         const sBody = document.getElementById('scheduleBody');
         const banner = document.getElementById('liveBanner');
@@ -366,8 +387,12 @@
             banner.style.display = "block";
             let bannerHTML = `<b>🏏 TODAY:</b> `;
             todayMatches.forEach((m, i) => {
-                const hasResult = winnersList["match_" + m.m];
-                bannerHTML += `<span>M${m.m}: ${m.f} ${hasResult ? '(✅ Done)' : '(⏳ '+m.t+')'}</span>`;
+                const hasRes = winnersList["match_" + m.m];
+                if (hasRes) {
+                    bannerHTML += `<span style="cursor:pointer; color:var(--secondary); text-decoration:underline; font-weight:bold;" onclick="jumpToMatch(${m.m})">M${m.m}: ${m.f} (✅ Result)</span>`;
+                } else {
+                    bannerHTML += `<span>M${m.m}: ${m.f} (⏳ ${m.t})</span>`;
+                }
                 if (i < todayMatches.length - 1) bannerHTML += ' | ';
             });
             bannerContent.innerHTML = bannerHTML;
@@ -379,7 +404,12 @@
             let statusDisplay = m.t;
             if (todayMatches.length > 1 && hasResult) statusDisplay = "Completed ✅";
             else if (hasResult) statusDisplay = "Finished ✅";
-            return `<tr class="${isToday ? 'today-highlight' : ''}"><td>${m.d}</td><td><b>M${m.m}</b></td><td><b>${m.f}</b></td><td>${m.v}</td><td><span class="amt-tag">${statusDisplay}</span></td></tr>`;
+            
+            const matchLink = hasResult 
+                ? `<b style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}</b>`
+                : `<b>M${m.m}</b>`;
+
+            return `<tr class="${isToday ? 'today-highlight' : ''}"><td>${m.d}</td><td>${matchLink}</td><td><b>${m.f}</b></td><td>${m.v}</td><td><span class="amt-tag">${statusDisplay}</span></td></tr>`;
         }).join('');
     }
 
@@ -396,28 +426,16 @@
         });
         const earners = Object.entries(currentWinnings).sort((a,b) => b[1] - a[1]);
         const totalWon = Object.values(currentWinnings).reduce((a,b) => a+b, 0);
-        const totalDistributed = paidHistory.reduce((sum, h) => sum + h.amount, 0);
-        
+        const totalDist = paidHistory.reduce((s, h) => s + h.amount, 0);
         let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n━━━━━━━━━━━━━━━━━━\n\n📢 *LATEST RESULT: Match ${lastMatchData.num}*\n`;
-        const medals = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
-        lastMatchData.winners.forEach((winner, i) => { text += `${medals[i]}: ${winner || '-'}\n`; });
-        
+        const meds = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
+        lastMatchData.winners.forEach((w, i) => { text += `${meds[i]}: ${w || '-'}\n`; });
         text += `\n🏆 *TOP EARNERS PODIUM*\n`;
-        earners.slice(0, 3).forEach((e, i) => {
-            text += `${i+1}. ${e[0]} — ₹${e[1]}\n`;
-        });
-        
-        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
-        if(todayMatches.length > 0) { 
-            text += `\n📅 *TODAY'S FIXTURES (${todayStr})*\n`; 
-            todayMatches.forEach(m => { 
-                const hasRes = winnersList["match_" + m.m]; 
-                text += `🏏 ${m.t}: ${m.f}${hasRes ? ' -Completed' : ''}\n`; 
-            }); 
-        }
-        
-        text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDistributed}\n⏳ Pending: ₹${Math.round(totalWon - totalDistributed)}\n\n🌐 *Live Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/\n━━━━━━━━━━━━━━━━━━\n_Generated by Neeraj Jaggi_`;
+        earners.slice(0, 3).forEach((e, i) => { text += `${i+1}. ${e[0]} — ₹${e[1]}\n`; });
+        const tStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const tMtch = IPL_DATA.filter(m => m.d === tStr);
+        if(tMtch.length > 0) { text += `\n📅 *TODAY'S FIXTURES (${tStr})*\n`; tMtch.forEach(m => { const res = winnersList["match_" + m.m]; text += `🏏 ${m.t}: ${m.f}${res ? ' -Completed' : ''}\n`; }); }
+        text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDist}\n⏳ Pending: ₹${Math.round(totalWon - totalDist)}\n\n🌐 *Live Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/\n━━━━━━━━━━━━━━━━━━\n_Generated by Neeraj Jaggi_`;
         navigator.clipboard.writeText(text).then(() => alert("🚀 Smart Report Copied!"));
     }
 
