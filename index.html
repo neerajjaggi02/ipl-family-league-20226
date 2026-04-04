@@ -20,7 +20,7 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        /* Rank Leaderboard Styles */
+        /* Rank Cards Layout */
         .rank-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }
         .rank-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: center; border-top: 4px solid var(--secondary); }
         .rank-card h4 { margin: 0 0 8px 0; font-size: 0.9em; color: var(--primary); }
@@ -58,7 +58,7 @@
     <div onclick="adminLogin()" style="cursor:pointer;">🔒 <small id="adminText">Member View (Tap to Edit)</small></div>
 </div>
 
-<div id="liveBanner" style="background: #fffbeb; border-bottom: 3px solid var(--gold); padding: 12px; display: none; text-align: center; font-size: 0.9em;">
+<div id="liveBanner" style="background: #fffbeb; border-bottom: 3px solid var(--gold); padding: 12px; display: none; text-align: center; font-size: 0.9em; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
     <div id="bannerContent"></div>
 </div>
 
@@ -72,6 +72,7 @@
 
     <div id="rules" class="content-section active">
         <h1 style="text-align:center; color:var(--primary); margin-bottom:5px;">🏆 Official Playbook</h1>
+        
         <div style="margin-bottom: 25px; text-align: center;">
             <div style="font-size: 0.75em; color: #666; margin-bottom: 5px;">TOURNAMENT PROGRESS: <span id="tourneyCount">0</span>/74 MATCHES</div>
             <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; width: 80%; margin: auto;">
@@ -132,16 +133,17 @@
                 </div>
             </div>
         </div>
+
         <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:white;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">💳 Recovery Status</h3>
+                <h3 style="margin:0;">💳 Recovery Status & Balances</h3>
                 <div style="display:flex; gap:10px;">
                     <button id="waBtn" class="btn" style="background:#25D366; display:none; padding:8px 15px; font-size:0.85em;" onclick="generateWhatsAppReport()">📱 WhatsApp Report</button>
-                    <label><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Settled</label>
+                    <label style="font-size:0.85em; color:#666;"><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Settled</label>
                 </div>
             </div>
             <table id="pendingTable">
-                <thead><tr><th>Member</th><th>Won</th><th>Paid</th><th>Due</th><th>Action</th></tr></thead>
+                <thead><tr><th>Member & Recovery</th><th>Total Won</th><th>Paid</th><th>Due</th><th>Action</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
             </table>
             <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm & Settle</button>
@@ -308,20 +310,17 @@
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
-        // Rank Board
         const rNames = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
         rankBoard.innerHTML = rNames.map((lbl, idx) => {
             const sorted = Object.entries(rankCounts[idx]).sort((a,b) => b[1] - a[1]);
             return `<div class="rank-card"><h4>${lbl}</h4><div>${sorted.map(e => `<div class="rank-item"><span>${e[0]}</span><span class="rank-count">${e[1]}x</span></div>`).join('') || '<small>None</small>'}</div></div>`;
         }).join('');
 
-        // Podium
         const sortedE = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
         if(sortedE.length > 0) {
             document.getElementById('topPodium').innerHTML = `<div class="podium-place place-2"><span>${sortedE[1]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[1]?.[1] || 0}</div><h2>2</h2></div><div class="podium-place place-1"><span>${sortedE[0][0]}</span><div class="podium-amt">₹${sortedE[0][1]}</div><h2>1</h2></div><div class="podium-place place-3"><span>${sortedE[2]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[2]?.[1] || 0}</div><h2>3</h2></div>`;
         }
 
-        // Payouts
         const playerPaidTotal = {};
         paidHistory.forEach(h => playerPaidTotal[h.name] = (playerPaidTotal[h.name] || 0) + h.amount);
         sortedE.forEach(([name, won]) => {
@@ -388,6 +387,7 @@
         let currentWinnings = {};
         Object.keys(winnersList).forEach(k => {
             winnersList[k].winners.forEach((box, idx) => {
+                if(!box) return;
                 const names = box.split(', ').filter(n => n);
                 let prize = 0;
                 for(let i=0; i<names.length; i++) if(PRIZES[idx+i]) prize += PRIZES[idx+i];
@@ -397,14 +397,26 @@
         const earners = Object.entries(currentWinnings).sort((a,b) => b[1] - a[1]);
         const totalWon = Object.values(currentWinnings).reduce((a,b) => a+b, 0);
         const totalDistributed = paidHistory.reduce((sum, h) => sum + h.amount, 0);
+        
         let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n━━━━━━━━━━━━━━━━━━\n\n📢 *LATEST RESULT: Match ${lastMatchData.num}*\n`;
         const medals = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
         lastMatchData.winners.forEach((winner, i) => { text += `${medals[i]}: ${winner || '-'}\n`; });
+        
         text += `\n🏆 *TOP EARNERS PODIUM*\n`;
-        earners.slice(0, 3).forEach((e, i) => text += `${i+1}. ${e[0]} — ₹${e[1]}\n`;
+        earners.slice(0, 3).forEach((e, i) => {
+            text += `${i+1}. ${e[0]} — ₹${e[1]}\n`;
+        });
+        
         const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
-        if(todayMatches.length > 0) { text += `\n📅 *TODAY'S FIXTURES (${todayStr})*\n`; todayMatches.forEach(m => { const hasRes = winnersList["match_" + m.m]; text += `🏏 ${m.t}: ${m.f}${hasRes ? ' -Completed' : ''}\n`; }); }
+        if(todayMatches.length > 0) { 
+            text += `\n📅 *TODAY'S FIXTURES (${todayStr})*\n`; 
+            todayMatches.forEach(m => { 
+                const hasRes = winnersList["match_" + m.m]; 
+                text += `🏏 ${m.t}: ${m.f}${hasRes ? ' -Completed' : ''}\n`; 
+            }); 
+        }
+        
         text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDistributed}\n⏳ Pending: ₹${Math.round(totalWon - totalDistributed)}\n\n🌐 *Live Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/\n━━━━━━━━━━━━━━━━━━\n_Generated by Neeraj Jaggi_`;
         navigator.clipboard.writeText(text).then(() => alert("🚀 Smart Report Copied!"));
     }
