@@ -36,7 +36,7 @@
         .race-bar-fill { background: var(--success); height: 100%; transition: width 0.5s; }
         .goal-status { font-size: 0.7em; font-weight: bold; color: #666; }
 
-        /* Handbook (Original) */
+        /* Handbook Styles */
         .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
         .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
@@ -50,6 +50,8 @@
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
         .amt-tag { display: block; font-size: 0.8em; color: #166534; font-weight: bold; background: #dcfce7; border-radius: 4px; padding: 2px 4px; margin-top: 2px;}
+        
+        .today-highlight { background: #fffbeb !important; border: 2px solid var(--gold) !important; }
     </style>
 </head>
 <body>
@@ -64,6 +66,7 @@
         <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 Handbook</button>
         <button class="tab-btn" onclick="openTab(event, 'tracker')">🏏 Tracker</button>
         <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Payouts</button>
+        <button class="tab-btn" onclick="openTab(event, 'scheduleTab')">📅 Schedule</button>
     </div>
 
     <div id="rules" class="content-section handbook active">
@@ -73,7 +76,7 @@
         <ul>
             <li><b>Total Members:</b> 15 | <b>Entry Fee:</b> ₹20 per match | <b>Deposit:</b> ₹1,480</li>
         </ul>
-        <h2>2. FINANCIAL MODEL</h2>
+        <h2>2. FINANCIAL MODEL (100% DAILY PAYOUT)</h2>
         <div class="scenario-box">
             <p>1st: <b>₹110</b> | 2nd: <b>₹80</b> | 3rd: <b>₹50</b> | 4th: <b>₹35</b> | 5th: <b>₹25</b></p>
             <p><i>*Ties result in split prize pools for the ranks absorbed.</i></p>
@@ -136,6 +139,19 @@
             <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm & Settle</button>
         </div>
     </div>
+
+    <div id="scheduleTab" class="content-section">
+        <h2 style="text-align:center; color:var(--primary);">🗓️ IPL 2026 Official Fixtures</h2>
+        <div style="overflow-x:auto;">
+            <table id="iplScheduleTable">
+                <thead>
+                    <tr><th>Date</th><th>Match</th><th>Fixture</th><th>Venue</th><th>Time</th></tr>
+                </thead>
+                <tbody id="scheduleBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -155,11 +171,55 @@
     const ALL_PLAYERS = ["Abha","Aju", "Anil", "Anju", "Ashu", "Atul", "Devansh", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
     const DEPOSIT_GOAL = 1480;
 
+    // IPL 2026 Part Schedule (Matches 1-40)
+    const IPL_DATA = [
+        {m:1, d:"Mar 28", f:"RCB vs SRH", v:"Bengaluru", t:"7:30 PM"},
+        {m:2, d:"Mar 29", f:"MI vs KKR", v:"Mumbai", t:"7:30 PM"},
+        {m:3, d:"Mar 30", f:"RR vs CSK", v:"Guwahati", t:"7:30 PM"},
+        {m:4, d:"Mar 31", f:"PBKS vs GT", v:"Mullanpur", t:"7:30 PM"},
+        {m:5, d:"Apr 1", f:"LSG vs DC", v:"Lucknow", t:"7:30 PM"},
+        {m:6, d:"Apr 2", f:"KKR vs SRH", v:"Kolkata", t:"7:30 PM"},
+        {m:7, d:"Apr 3", f:"CSK vs PBKS", v:"Chennai", t:"7:30 PM"},
+        {m:8, d:"Apr 4", f:"DC vs MI", v:"Delhi", t:"3:30 PM"},
+        {m:9, d:"Apr 4", f:"GT vs RR", v:"Ahmedabad", t:"7:30 PM"},
+        {m:10, d:"Apr 5", f:"SRH vs LSG", v:"Hyderabad", t:"3:30 PM"},
+        {m:11, d:"Apr 5", f:"RCB vs CSK", v:"Bengaluru", t:"7:30 PM"},
+        {m:12, d:"Apr 6", f:"KKR vs PBKS", v:"Kolkata", t:"7:30 PM"},
+        {m:13, d:"Apr 7", f:"RR vs MI", v:"Guwahati", t:"7:30 PM"},
+        {m:14, d:"Apr 8", f:"DC vs GT", v:"Delhi", t:"7:30 PM"},
+        {m:15, d:"Apr 9", f:"KKR vs LSG", v:"Kolkata", t:"7:30 PM"},
+        {m:16, d:"Apr 10", f:"RR vs RCB", v:"Guwahati", t:"7:30 PM"},
+        {m:17, d:"Apr 11", f:"PBKS vs SRH", v:"Mullanpur", t:"3:30 PM"},
+        {m:18, d:"Apr 11", f:"CSK vs DC", v:"Chennai", t:"7:30 PM"},
+        {m:19, d:"Apr 12", f:"LSG vs GT", v:"Lucknow", t:"3:30 PM"},
+        {m:20, d:"Apr 12", f:"MI vs RCB", v:"Mumbai", t:"7:30 PM"},
+        {m:21, d:"Apr 13", f:"SRH vs RR", v:"Hyderabad", t:"7:30 PM"},
+        {m:22, d:"Apr 14", f:"CSK vs KKR", v:"Chennai", t:"7:30 PM"},
+        {m:23, d:"Apr 15", f:"RCB vs LSG", v:"Bengaluru", t:"7:30 PM"},
+        {m:24, d:"Apr 16", f:"MI vs PBKS", v:"Mumbai", t:"7:30 PM"},
+        {m:25, d:"Apr 17", f:"GT vs KKR", v:"Ahmedabad", t:"7:30 PM"},
+        {m:26, d:"Apr 18", f:"RCB vs DC", v:"Bengaluru", t:"3:30 PM"},
+        {m:27, d:"Apr 18", f:"SRH vs CSK", v:"Hyderabad", t:"7:30 PM"},
+        {m:28, d:"Apr 19", f:"KKR vs RR", v:"Kolkata", t:"3:30 PM"},
+        {m:29, d:"Apr 19", f:"PBKS vs LSG", v:"Mullanpur", t:"7:30 PM"},
+        {m:30, d:"Apr 20", f:"GT vs MI", v:"Ahmedabad", t:"7:30 PM"},
+        {m:31, d:"Apr 21", f:"SRH vs DC", v:"Hyderabad", t:"7:30 PM"},
+        {m:32, d:"Apr 22", f:"LSG vs RR", v:"Lucknow", t:"7:30 PM"},
+        {m:33, d:"Apr 23", f:"MI vs CSK", v:"Mumbai", t:"7:30 PM"},
+        {m:34, d:"Apr 24", f:"RCB vs GT", v:"Bengaluru", t:"7:30 PM"},
+        {m:35, d:"Apr 25", f:"DC vs PBKS", v:"Delhi", t:"3:30 PM"},
+        {m:36, d:"Apr 25", f:"RR vs SRH", v:"Jaipur", t:"7:30 PM"},
+        {m:37, d:"Apr 26", f:"GT vs CSK", v:"Ahmedabad", t:"3:30 PM"},
+        {m:38, d:"Apr 26", f:"LSG vs KKR", v:"Lucknow", t:"7:30 PM"},
+        {m:39, d:"Apr 27", f:"DC vs RCB", v:"Delhi", t:"7:30 PM"},
+        {m:40, d:"Apr 28", f:"PBKS vs RR", v:"Mullanpur", t:"7:30 PM"}
+    ];
+
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
-    let lastMatchData = { num: 0, winners: [] };
     let racePodiumData = [];
+    let lastMatchData = { num: 0, winners: [] };
 
     function initMultiSelects() {
         ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(id => {
@@ -202,19 +262,23 @@
                 winnersList = snap.val() || {};
                 renderTables();
                 updateMatchDropdown();
+                renderSchedule();
             });
         });
     }
 
-    function updateMatchDropdown() {
-        const sel = document.getElementById('matchSelect');
-        sel.innerHTML = "";
-        for (let i = 1; i <= 74; i++) {
-            if (!winnersList["match_" + i]) {
-                const opt = document.createElement("option");
-                opt.value = i; opt.text = "Match " + i; sel.add(opt);
-            }
-        }
+    function renderSchedule() {
+        const sBody = document.getElementById('scheduleBody');
+        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        sBody.innerHTML = IPL_DATA.map(m => `
+            <tr class="${m.d === todayStr ? 'today-highlight' : ''}">
+                <td>${m.d}</td>
+                <td>M${m.m}</td>
+                <td><b>${m.f}</b></td>
+                <td>${m.v}</td>
+                <td><span class="amt-tag" style="background:#e0f2fe; color:#0369a1;">${m.t}</span></td>
+            </tr>
+        `).join('');
     }
 
     function renderTables() {
@@ -263,9 +327,9 @@
         }
 
         document.getElementById('racePodium').innerHTML = racePodiumData.length > 0 ? `
-            <div class="podium-place place-2" style="background:#6ee7b7"><span class="podium-name">${racePodiumData[1]?.name || '-'}</span><div class="podium-amt">${raceWinnersData[1]?'M'+racePodiumData[1].match:''}</div><h2>2</h2></div>
+            <div class="podium-place place-2" style="background:#6ee7b7"><span class="podium-name">${racePodiumData[1]?.name || '-'}</span><div class="podium-amt">${racePodiumData[1]?'M'+racePodiumData[1].match:''}</div><h2>2</h2></div>
             <div class="podium-place place-1" style="background:#10b981"><span class="podium-name">${racePodiumData[0].name}</span><div class="podium-amt">M${racePodiumData[0].match}</div><h2>1</h2></div>
-            <div class="podium-place place-3" style="background:#a7f3d0"><span class="podium-name">${racePodiumData[2]?.name || '-'}</span><div class="podium-amt">${raceWinnersData[2]?'M'+racePodiumData[2].match:''}</div><h2>3</h2></div>` : "<p>Race on!</p>";
+            <div class="podium-place place-3" style="background:#a7f3d0"><span class="podium-name">${racePodiumData[2]?.name || '-'}</span><div class="podium-amt">${racePodiumData[2]?'M'+racePodiumData[2].match:''}</div><h2>3</h2></div>` : "<p>Race on!</p>";
 
         let totalPaidOut = 0;
         const playerPaidTotal = {};
@@ -305,13 +369,6 @@
     }
 
     function generateWhatsAppReport() {
-        const stats = {};
-        let totalDistributed = 0;
-        paidHistory.forEach(h => { 
-            stats[h.name] = (stats[h.name] || 0); 
-            totalDistributed += h.amount;
-        });
-        
         let currentWinnings = {};
         Object.keys(winnersList).forEach(k => {
             winnersList[k].winners.forEach((box, idx) => {
@@ -324,28 +381,50 @@
 
         const earners = Object.entries(currentWinnings).sort((a,b) => b[1] - a[1]);
         const totalWon = Object.values(currentWinnings).reduce((a,b) => a+b, 0);
+        const totalDistributed = paidHistory.reduce((sum, h) => sum + h.amount, 0);
 
-        let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n\n`;
-        text += `📢 *Latest Result: Match ${lastMatchData.num}*\n`;
-       const medals = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
-lastMatchData.winners.forEach((winner, i) => {
-    text += `${medals[i]}: ${winner || '-'}\n`;
-});
-text += `\n`;
-        text += `🏆 *TOP EARNERS PODIUM*\n`;
-        earners.slice(0, 3).forEach((e, i) => text += `${i+1}. ${e[0]} (₹${e[1]})\n`);
+        let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n`;
+        text += `━━━━━━━━━━━━━━━━━━\n\n`;
+        
+        text += `📢 *LATEST RESULT: Match ${lastMatchData.num}*\n`;
+        const medals = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
+        lastMatchData.winners.forEach((winner, i) => {
+            text += `${medals[i]}: ${winner || '-'}\n`;
+        });
+
+        text += `\n🏆 *TOP EARNERS PODIUM*\n`;
+        earners.slice(0, 3).forEach((e, i) => text += `${i+1}. ${e[0]} — ₹${e[1]}\n`);
         
         text += `\n🏃 *RACE TO RECOVERY TOP 3*\n`;
-        racePodiumData.slice(0, 3).forEach((r, i) => text += `${i+1}. ${r.name} (Matched at M${r.match})\n`);
+        racePodiumData.slice(0, 3).forEach((r, i) => text += `${i+1}. ${r.name} (Goal met M${r.match})\n`);
+
+        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
+        if(todayMatches.length > 0) {
+            text += `\n📅 *TODAY'S FIXTURES (${todayStr})*\n`;
+            todayMatches.forEach(m => text += `🏏 ${m.t}: ${m.f}\n`);
+        }
 
         text += `\n💰 *FINANCIAL SUMMARY*\n`;
-        text += `✅ Total Settled: ₹${totalDistributed}\n`;
-        text += `⏳ Total Pending: ₹${Math.round(totalWon - totalDistributed)}\n\n`;
+        text += `✅ Settled: ₹${totalDistributed}\n`;
+        text += `⏳ Pending: ₹${Math.round(totalWon - totalDistributed)}\n\n`;
         
-        text += `🔗 *Check Full Details:* https://ipl-2026-family-league.web.app\n`;
-        text += `_Managed by Neeraj Jaggi_`;
+        text += `🌐 *Live Portal:* https://ipl-2026-family-league.web.app\n`;
+        text += `━━━━━━━━━━━━━━━━━━\n`;
+        text += `_Generated by Neeraj Jaggi_`;
 
-        navigator.clipboard.writeText(text).then(() => alert("Report Copied! Paste in WhatsApp."));
+        navigator.clipboard.writeText(text).then(() => alert("🚀 Smart Report Copied!"));
+    }
+
+    function updateMatchDropdown() {
+        const sel = document.getElementById('matchSelect');
+        sel.innerHTML = "";
+        for (let i = 1; i <= 74; i++) {
+            if (!winnersList["match_" + i]) {
+                const opt = document.createElement("option");
+                opt.value = i; opt.text = "Match " + i; sel.add(opt);
+            }
+        }
     }
 
     window.onload = () => { initMultiSelects(); fetchAllData(); };
