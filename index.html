@@ -327,8 +327,11 @@
 
         let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n\n`;
         text += `📢 *Latest Result: Match ${lastMatchData.num}*\n`;
-        text += `🥇 1st: ${lastMatchData.winners[0] || '-'}\n🥈 2nd: ${lastMatchData.winners[1] || '-'}\n🥉 3rd: ${lastMatchData.winners[2] || '-'}\n\n`;
-        
+       const medals = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
+lastMatchData.winners.forEach((winner, i) => {
+    text += `${medals[i]}: ${winner || '-'}\n`;
+});
+text += `\n`;
         text += `🏆 *TOP EARNERS PODIUM*\n`;
         earners.slice(0, 3).forEach((e, i) => text += `${i+1}. ${e[0]} (₹${e[1]})\n`);
         
