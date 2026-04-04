@@ -20,7 +20,6 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        /* Podium Fixes */
         .podium-container { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 15px; margin-bottom: 30px; }
         .podium-box { flex: 1; min-width: 300px; text-align: center; }
         .podium { display: flex; justify-content: center; align-items: flex-end; gap: 8px; height: 160px; margin-top: 10px; }
@@ -31,12 +30,10 @@
         .podium-name { font-size: 0.8em; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); padding: 0 2px; line-height: 1.1; min-height: 2.2em; display: flex; align-items: center; justify-content: center; }
         .podium-amt { font-size: 0.75em; opacity: 0.9; background: rgba(0,0,0,0.1); padding: 2px 0; width: 100%; margin-top: auto; }
 
-        /* Race Bar */
-        .race-bar-bg { background: #e2e8f0; height: 5px; border-radius: 3px; overflow: hidden; margin: 4px 0; width: 100%; max-width: 110px; }
+        .race-bar-bg { background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden; margin: 6px 0; width: 100%; max-width: 140px; }
         .race-bar-fill { background: var(--success); height: 100%; transition: width 0.5s; }
-        .goal-status { font-size: 0.7em; font-weight: bold; color: #666; }
+        .goal-status { font-size: 0.75em; font-weight: bold; color: #166534; }
 
-        /* Handbook Styles */
         .handbook h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .handbook h2 { color: var(--secondary); border-left: 5px solid var(--secondary); padding-left: 10px; margin-top: 30px; }
         .scenario-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
@@ -50,7 +47,6 @@
         td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
         .amt-tag { display: block; font-size: 0.8em; color: #166534; font-weight: bold; background: #dcfce7; border-radius: 4px; padding: 2px 4px; margin-top: 2px;}
-        
         .today-highlight { background: #fffbeb !important; border: 2px solid var(--gold) !important; }
     </style>
 </head>
@@ -60,9 +56,11 @@
     <div>🌐 <span id="cloudStatus" class="status-pill">CONNECTING...</span></div>
     <div onclick="adminLogin()" style="cursor:pointer;">🔒 <small id="adminText">Member View (Tap to Edit)</small></div>
 </div>
+
 <div id="liveBanner" style="background: #fffbeb; border-bottom: 3px solid var(--gold); padding: 12px; display: none; text-align: center; font-size: 0.9em; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
     <div id="bannerContent"></div>
 </div>
+
 <div class="container">
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 Handbook</button>
@@ -72,22 +70,16 @@
     </div>
 
     <div id="rules" class="content-section handbook active">
-        <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE: OFFICIAL HANDBOOK</h1>
-        <h2>1. LEAGUE OVERVIEW & STRUCTURE</h2>
-        <p>This private league is conducted on the <b>My11Circle</b> app for all <b>74 matches</b> of IPL 2026.</p>
+        <h1>🏆 IPL 2026 PRIVATE FANTASY LEAGUE</h1>
+        <h2>1. LEAGUE OVERVIEW</h2>
+        <p>This private league is conducted on <b>My11Circle</b> for all <b>74 matches</b>.</p>
         <ul>
             <li><b>Total Members:</b> 15 | <b>Entry Fee:</b> ₹20 per match | <b>Deposit:</b> ₹1,480</li>
         </ul>
-        <h2>2. FINANCIAL MODEL (100% DAILY PAYOUT)</h2>
+        <h2>2. DAILY PAYOUT</h2>
         <div class="scenario-box">
             <p>1st: <b>₹110</b> | 2nd: <b>₹80</b> | 3rd: <b>₹50</b> | 4th: <b>₹35</b> | 5th: <b>₹25</b></p>
-            <p><i>*Ties result in split prize pools for the ranks absorbed.</i></p>
         </div>
-        <h2>3. OPERATIONAL RULES</h2>
-        <ul>
-            <li><b>Volunteer:</b> Neeraj manages accounts and ranking transparency.</li>
-            <li><b>Duplicates:</b> One person cannot hold multiple winning ranks in the same match.</li>
-        </ul>
     </div>
 
     <div id="tracker" class="content-section">
@@ -116,26 +108,25 @@
 
     <div id="summary" class="content-section">
         <div class="podium-container">
-            <div class="podium-box"><h3 style="color:var(--primary); margin:0;">💰 Top Earners</h3><div class="podium" id="topPodium"></div></div>
-            <div class="podium-box"><h3 style="color:var(--success); margin:0;">🏃 Race to Recovery</h3><div class="podium" id="racePodium"></div></div>
-        </div>
-
-        <div class="dash-grid">
-            <div class="dash-card" style="background:var(--primary);"><h3>Total Pool</h3><p>₹22,200</p></div>
-            <div class="dash-card" style="background:var(--success);"><h3>Paid Out</h3><p id="dashPaid">₹0</p></div>
-            <div class="dash-card" style="background:var(--danger);"><h3>Pending Due</h3><p id="dashPending">₹0</p></div>
+            <div class="podium-box"><h3 style="color:var(--primary); margin:0;">💰 Winning Podium</h3><div class="podium" id="topPodium"></div></div>
+            <div class="podium-box">
+                <div class="dash-grid" style="margin-top:40px;">
+                    <div class="dash-card" style="background:var(--primary);"><h6>Total Pool</h6><p>₹22,200</p></div>
+                    <div class="dash-card" style="background:var(--success);"><h6>Paid Out</h6><p id="dashPaid">₹0</p></div>
+                </div>
+            </div>
         </div>
 
         <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:white;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">💳 Balances</h3>
+                <h3 style="margin:0;">💳 Balances & Recovery Status</h3>
                 <div style="display:flex; gap:10px;">
                     <button id="waBtn" class="btn" style="background:#25D366; display:none; padding:8px 15px; font-size:0.85em;" onclick="generateWhatsAppReport()">📱 WhatsApp Report</button>
                     <label style="font-size:0.85em; color:#666;"><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Settled</label>
                 </div>
             </div>
             <table id="pendingTable">
-                <thead><tr><th>Member</th><th>Total Won</th><th>Paid</th><th>Due</th><th>Action</th></tr></thead>
+                <thead><tr><th>Member & Recovery</th><th>Total Won</th><th>Paid</th><th>Due</th><th>Action</th></tr></thead>
                 <tbody id="summaryBody"></tbody>
             </table>
             <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm & Settle</button>
@@ -143,14 +134,11 @@
     </div>
 
     <div id="scheduleTab" class="content-section">
-        <h2 style="text-align:center; color:var(--primary);">🗓️ IPL 2026 Official Fixtures</h2>
+        <h2 style="text-align:center; color:var(--primary);">🗓️ IPL 2026 Fixtures</h2>
         <div style="overflow-x:auto;">
             <table id="iplScheduleTable">
-                <thead>
-                    <tr><th>Date</th><th>Match</th><th>Fixture</th><th>Venue</th><th>Time</th></tr>
-                </thead>
-                <tbody id="scheduleBody">
-                    </tbody>
+                <thead><tr><th>Date</th><th>Match</th><th>Fixture</th><th>Venue</th><th>Time/Status</th></tr></thead>
+                <tbody id="scheduleBody"></tbody>
             </table>
         </div>
     </div>
@@ -173,7 +161,6 @@
     const ALL_PLAYERS = ["Abha","Aju", "Anil", "Anju", "Ashu", "Atul", "Devansh", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
     const DEPOSIT_GOAL = 1480;
 
-    // IPL 2026 Part Schedule (Matches 1-40)
     const IPL_DATA = [
         {m:1, d:"Mar 28", f:"RCB vs SRH", v:"Bengaluru", t:"7:30 PM"},
         {m:2, d:"Mar 29", f:"MI vs KKR", v:"Mumbai", t:"7:30 PM"},
@@ -220,7 +207,6 @@
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
-    let racePodiumData = [];
     let lastMatchData = { num: 0, winners: [] };
 
     function initMultiSelects() {
@@ -269,106 +255,46 @@
         });
     }
 
-   function renderSchedule() {
-    const sBody = document.getElementById('scheduleBody');
-    const banner = document.getElementById('liveBanner');
-    const bannerContent = document.getElementById('bannerContent');
-    
-    // Today's Date
-    const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
+    function renderSchedule() {
+        const sBody = document.getElementById('scheduleBody');
+        const banner = document.getElementById('liveBanner');
+        const bannerContent = document.getElementById('bannerContent');
+        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
 
-    // 1. Update Top Banner
-    if (todayMatches.length > 0) {
-        banner.style.display = "block";
-        let bannerHTML = `<b>🏏 TODAY'S MATCHES:</b> `;
-        todayMatches.forEach((m, i) => {
-            const hasResult = winnersList["match_" + m.m];
-            if (hasResult) {
-                // Clickable link for completed today's matches
-                bannerHTML += `<span style="cursor:pointer; color:var(--secondary); text-decoration:underline; font-weight:bold;" onclick="jumpToMatch(${m.m})">
-                    M${m.m}: ${m.f} (✅ Result Out)</span>`;
-            } else {
-                // Plain text for upcoming today's matches
-                bannerHTML += `<span>M${m.m}: ${m.f} (⏳ Starts at ${m.t})</span>`;
-            }
-            if (i < todayMatches.length - 1) bannerHTML += ' | ';
-        });
-        bannerContent.innerHTML = bannerHTML;
-    }
-
-    // 2. Render Schedule Table
-    sBody.innerHTML = IPL_DATA.map(m => {
-        const isToday = m.d === todayStr;
-        const hasResult = winnersList["match_" + m.m];
-        
-        // Only make the Match # a link if the result is actually there
-        const matchDisplay = hasResult 
-            ? `<b style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}</b>`
-            : `<span>M${m.m}</span>`;
-
-        return `
-            <tr class="${isToday ? 'today-highlight' : ''}">
-                <td>${m.d}</td>
-                <td>${matchDisplay}</td>
-                <td><b>${m.f}</b> ${hasResult ? '✅' : ''}</td>
-                <td>${m.v}</td>
-                <td>
-                    <span class="amt-tag" style="background:${hasResult ? '#dcfce7' : '#e0f2fe'}; color:${hasResult ? '#166534' : '#0369a1'};">
-                        ${hasResult ? 'Completed' : m.t}
-                    </span>
-                </td>
-            </tr>
-        `;
-    }).join('');
-}
-
-function jumpToMatch(matchNum) {
-    // Safety Check: If result doesn't exist, stay on this page
-    if (!winnersList["match_" + matchNum]) {
-        return; // Do nothing
-    }
-
-    // Switch to Tracker Tab (Index 1)
-    const trackerBtn = document.querySelectorAll('.tab-btn')[1];
-    openTab({ currentTarget: trackerBtn }, 'tracker');
-    
-    // Find and Highlight the match row
-    setTimeout(() => {
-        const rows = document.querySelectorAll('#historyTable tbody tr');
-        rows.forEach(row => {
-            if (row.cells[0].innerText.includes('M' + matchNum)) {
-                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                row.style.background = "#fff3cd"; // Highlight yellow
-                setTimeout(() => { row.style.background = "transparent"; }, 2000);
-            }
-        });
-    }, 100); // Small delay to ensure tab is rendered
-}
-
-// 3. Smart Navigation Logic
-function jumpToMatch(matchNum) {
-    // Switch to Tracker Tab
-    openTab({ currentTarget: document.querySelectorAll('.tab-btn')[1] }, 'tracker');
-    
-    // Find the match in the history table
-    const rows = document.querySelectorAll('#historyTable tbody tr');
-    let found = false;
-    
-    rows.forEach(row => {
-        if (row.cells[0].innerText.includes('M' + matchNum)) {
-            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            row.style.transition = "background 0.5s";
-            row.style.background = "#fff3cd";
-            setTimeout(() => { row.style.background = "transparent"; }, 3000);
-            found = true;
+        if (todayMatches.length > 0) {
+            banner.style.display = "block";
+            let bannerHTML = `<b>🏏 TODAY:</b> `;
+            todayMatches.forEach((m, i) => {
+                const hasResult = winnersList["match_" + m.m];
+                bannerHTML += `<span>M${m.m}: ${m.f} ${hasResult ? '(✅ Done)' : '(⏳ '+m.t+')'}</span>`;
+                if (i < todayMatches.length - 1) bannerHTML += ' | ';
+            });
+            bannerContent.innerHTML = bannerHTML;
         }
-    });
 
-    if (!found) {
-        alert("Match " + matchNum + " result hasn't been uploaded by the volunteer yet!");
+        sBody.innerHTML = IPL_DATA.map(m => {
+            const isToday = m.d === todayStr;
+            const hasResult = winnersList["match_" + m.m];
+            
+            // Logic: Show "Completed" for double headers if result is recorded
+            let statusDisplay = m.t;
+            if (todayMatches.length > 1 && hasResult) {
+                statusDisplay = "Completed ✅";
+            } else if (hasResult) {
+                statusDisplay = "Finished ✅";
+            }
+
+            return `
+                <tr class="${isToday ? 'today-highlight' : ''}">
+                    <td>${m.d}</td>
+                    <td><b>M${m.m}</b></td>
+                    <td><b>${m.f}</b></td>
+                    <td>${m.v}</td>
+                    <td><span class="amt-tag" style="background:${hasResult ? '#dcfce7' : '#e0f2fe'};">${statusDisplay}</span></td>
+                </tr>`;
+        }).join('');
     }
-}
 
     function renderTables() {
         const hBody = document.getElementById('historyBody');
@@ -376,7 +302,6 @@ function jumpToMatch(matchNum) {
         const hideSettled = document.getElementById('hideSettled').checked;
         hBody.innerHTML = ''; sBody.innerHTML = '';
         let currentStats = {};
-        racePodiumData = [];
 
         const sortedMatchKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
 
@@ -397,9 +322,7 @@ function jumpToMatch(matchNum) {
                     const splitPrize = Math.round(pooledPrize / numPlayers);
 
                     shared.forEach(p => {
-                        const oldTotal = currentStats[p] || 0;
-                        currentStats[p] = oldTotal + splitPrize;
-                        if (oldTotal < DEPOSIT_GOAL && currentStats[p] >= DEPOSIT_GOAL) racePodiumData.push({name: p, match: matchNum});
+                        currentStats[p] = (currentStats[p] || 0) + splitPrize;
                     });
                     rowHTML += `<td>${shared.map(p => `<div>${p} <span class="amt-tag">₹${splitPrize}</span></div>`).join('')}</td>`;
                 } else { rowHTML += `<td>-</td>`; }
@@ -415,11 +338,6 @@ function jumpToMatch(matchNum) {
                 <div class="podium-place place-3"><span class="podium-name">${sortedEarners[2]?.[0] || '-'}</span><div class="podium-amt">₹${sortedEarners[2]?.[1] || 0}</div><h2>3</h2></div>`;
         }
 
-        document.getElementById('racePodium').innerHTML = racePodiumData.length > 0 ? `
-            <div class="podium-place place-2" style="background:#6ee7b7"><span class="podium-name">${racePodiumData[1]?.name || '-'}</span><div class="podium-amt">${racePodiumData[1]?'M'+racePodiumData[1].match:''}</div><h2>2</h2></div>
-            <div class="podium-place place-1" style="background:#10b981"><span class="podium-name">${racePodiumData[0].name}</span><div class="podium-amt">M${racePodiumData[0].match}</div><h2>1</h2></div>
-            <div class="podium-place place-3" style="background:#a7f3d0"><span class="podium-name">${racePodiumData[2]?.name || '-'}</span><div class="podium-amt">${racePodiumData[2]?'M'+racePodiumData[2].match:''}</div><h2>3</h2></div>` : "<p>Race on!</p>";
-
         let totalPaidOut = 0;
         const playerPaidTotal = {};
         paidHistory.forEach(h => {
@@ -427,8 +345,7 @@ function jumpToMatch(matchNum) {
             totalPaidOut += h.amount;
         });
 
-        const winnersOnly = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
-        winnersOnly.forEach(([name, wonValue]) => {
+        Object.entries(currentStats).sort((a,b) => b[1] - a[1]).forEach(([name, wonValue]) => {
             const won = Math.round(wonValue);
             const paid = playerPaidTotal[name] || 0;
             const due = won - paid;
@@ -436,17 +353,20 @@ function jumpToMatch(matchNum) {
 
             const progress = Math.min((won / DEPOSIT_GOAL) * 100, 100);
             const remaining = Math.max(DEPOSIT_GOAL - won, 0);
+            const goalStatus = remaining > 0 ? `₹${remaining} left to recover ₹${DEPOSIT_GOAL}` : `✅ Recovery Done!`;
 
             sBody.innerHTML += `<tr>
-                <td style="text-align:left"><b>${name}</b><div class="race-bar-bg"><div class="race-bar-fill" style="width:${progress}%"></div></div>
-                    <div class="goal-status">${remaining > 0 ? '₹' + remaining + ' left' : '✅ Recovery Done'}</div></td>
+                <td style="text-align:left">
+                    <b>${name}</b>
+                    <div class="race-bar-bg"><div class="race-bar-fill" style="width:${progress}%"></div></div>
+                    <div class="goal-status">${goalStatus}</div>
+                </td>
                 <td>₹${won}</td><td>₹${paid}</td><td style="color:${due>0?'red':'green'}; font-weight:bold">₹${due}</td>
                 <td>${due > 0 ? `<input type="checkbox" class="pay-check" data-name="${name}" data-amount="${due}" ${isAdmin?'':'disabled'}>` : '✅'}</td>
             </tr>`;
         });
 
         document.getElementById('dashPaid').innerText = `₹${totalPaidOut}`;
-        document.getElementById('dashPending').innerText = `₹${Math.round(Object.values(currentStats).reduce((a,b)=>a+b,0) - totalPaidOut)}`;
         document.getElementById('cloudStatus').innerText = "LIVE ✅";
     }
 
@@ -458,47 +378,13 @@ function jumpToMatch(matchNum) {
     }
 
     function generateWhatsAppReport() {
-        let currentWinnings = {};
-        Object.keys(winnersList).forEach(k => {
-            winnersList[k].winners.forEach((box, idx) => {
-                const names = box.split(', ').filter(n => n);
-                let prize = 0;
-                for(let i=0; i<names.length; i++) if(PRIZES[idx+i]) prize += PRIZES[idx+i];
-                names.forEach(n => currentWinnings[n] = (currentWinnings[n] || 0) + Math.round(prize/names.length));
-            });
-        });
-
-        const earners = Object.entries(currentWinnings).sort((a,b) => b[1] - a[1]);
-        const totalWon = Object.values(currentWinnings).reduce((a,b) => a+b, 0);
-        const totalDistributed = paidHistory.reduce((sum, h) => sum + h.amount, 0);
-
         let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n`;
         text += `━━━━━━━━━━━━━━━━━━\n\n`;
-        
         text += `📢 *LATEST RESULT: Match ${lastMatchData.num}*\n`;
-        const medals = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
-        lastMatchData.winners.forEach((winner, i) => {
-            text += `${medals[i]}: ${winner || '-'}\n`;
-        });
+        const medals = ["🥇", "🥈", "🥉", "🏅", "🏅"];
+        lastMatchData.winners.forEach((winner, i) => { if(winner) text += `${medals[i]} ${winner}\n`; });
 
-        text += `\n🏆 *TOP EARNERS PODIUM*\n`;
-        earners.slice(0, 3).forEach((e, i) => text += `${i+1}. ${e[0]} — ₹${e[1]}\n`);
-        
-        text += `\n🏃 *RACE TO RECOVERY TOP 3*\n`;
-        racePodiumData.slice(0, 3).forEach((r, i) => text += `${i+1}. ${r.name} (Goal met M${r.match})\n`);
-
-        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
-        if(todayMatches.length > 0) {
-            text += `\n📅 *TODAY'S FIXTURES (${todayStr})*\n`;
-            todayMatches.forEach(m => text += `🏏 ${m.t}: ${m.f}\n`);
-        }
-
-        text += `\n💰 *FINANCIAL SUMMARY*\n`;
-        text += `✅ Settled: ₹${totalDistributed}\n`;
-        text += `⏳ Pending: ₹${Math.round(totalWon - totalDistributed)}\n\n`;
-        
-        text += `🌐 *Live Portal:* https://ipl-2026-family-league.web.app\n`;
+        text += `\n🌐 *Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/\n`;
         text += `━━━━━━━━━━━━━━━━━━\n`;
         text += `_Generated by Neeraj Jaggi_`;
 
