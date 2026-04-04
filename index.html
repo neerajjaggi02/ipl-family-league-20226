@@ -274,7 +274,7 @@
     const banner = document.getElementById('liveBanner');
     const bannerContent = document.getElementById('bannerContent');
     
-    // Get today's date in "Apr 4" format
+    // Today's Date
     const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
 
@@ -283,9 +283,16 @@
         banner.style.display = "block";
         let bannerHTML = `<b>🏏 TODAY'S MATCHES:</b> `;
         todayMatches.forEach((m, i) => {
-            const status = winnersList["match_" + m.m] ? "✅ Result Out" : "⏳ Upcoming";
-            bannerHTML += `<span style="cursor:pointer; color:var(--secondary); text-decoration:underline;" onclick="jumpToMatch(${m.m})">
-                M${m.m}: ${m.f} (${m.t})</span> <small>[${status}]</small>${i < todayMatches.length - 1 ? ' | ' : ''}`;
+            const hasResult = winnersList["match_" + m.m];
+            if (hasResult) {
+                // Clickable link for completed today's matches
+                bannerHTML += `<span style="cursor:pointer; color:var(--secondary); text-decoration:underline; font-weight:bold;" onclick="jumpToMatch(${m.m})">
+                    M${m.m}: ${m.f} (✅ Result Out)</span>`;
+            } else {
+                // Plain text for upcoming today's matches
+                bannerHTML += `<span>M${m.m}: ${m.f} (⏳ Starts at ${m.t})</span>`;
+            }
+            if (i < todayMatches.length - 1) bannerHTML += ' | ';
         });
         bannerContent.innerHTML = bannerHTML;
     }
@@ -294,20 +301,49 @@
     sBody.innerHTML = IPL_DATA.map(m => {
         const isToday = m.d === todayStr;
         const hasResult = winnersList["match_" + m.m];
+        
+        // Only make the Match # a link if the result is actually there
+        const matchDisplay = hasResult 
+            ? `<b style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}</b>`
+            : `<span>M${m.m}</span>`;
+
         return `
             <tr class="${isToday ? 'today-highlight' : ''}">
                 <td>${m.d}</td>
-                <td><b style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}</b></td>
-                <td><b>${m.f}</b></td>
+                <td>${matchDisplay}</td>
+                <td><b>${m.f}</b> ${hasResult ? '✅' : ''}</td>
                 <td>${m.v}</td>
                 <td>
                     <span class="amt-tag" style="background:${hasResult ? '#dcfce7' : '#e0f2fe'}; color:${hasResult ? '#166534' : '#0369a1'};">
-                        ${hasResult ? '✅ Completed' : m.t}
+                        ${hasResult ? 'Completed' : m.t}
                     </span>
                 </td>
             </tr>
         `;
     }).join('');
+}
+
+function jumpToMatch(matchNum) {
+    // Safety Check: If result doesn't exist, stay on this page
+    if (!winnersList["match_" + matchNum]) {
+        return; // Do nothing
+    }
+
+    // Switch to Tracker Tab (Index 1)
+    const trackerBtn = document.querySelectorAll('.tab-btn')[1];
+    openTab({ currentTarget: trackerBtn }, 'tracker');
+    
+    // Find and Highlight the match row
+    setTimeout(() => {
+        const rows = document.querySelectorAll('#historyTable tbody tr');
+        rows.forEach(row => {
+            if (row.cells[0].innerText.includes('M' + matchNum)) {
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                row.style.background = "#fff3cd"; // Highlight yellow
+                setTimeout(() => { row.style.background = "transparent"; }, 2000);
+            }
+        });
+    }, 100); // Small delay to ensure tab is rendered
 }
 
 // 3. Smart Navigation Logic
