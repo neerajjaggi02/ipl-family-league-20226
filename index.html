@@ -124,40 +124,53 @@
     </div>
 
     <div id="summary" class="content-section">
-        <div class="podium-container">
-            <div class="podium-box"><h3 style="color:var(--primary); margin:0;">💰 Top Earners</h3><div class="podium" id="topPodium"></div></div>
-            <div class="podium-box">
-                <div class="dash-grid" style="margin-top:40px;">
-                    <div class="dash-card" style="background:var(--primary);"><h6>Total Pool</h6><p>₹22,200</p></div>
-                    <div class="dash-card" style="background:var(--success);"><h6>Paid Out</h6><p id="dashPaid">₹0</p></div>
-                </div>
-            </div>
+    <div class="dash-grid">
+        <div class="dash-card" style="background:var(--primary);">
+            <h6>Tournament Prize Pool</h6>
+            <p>₹22,200</p>
         </div>
-        <div style="border:2px solid var(--success); padding:20px; border-radius:10px; background:white;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">💳 Recovery Status</h3>
-                <div style="display:flex; gap:10px;">
-                    <button id="waBtn" class="btn" style="background:#25D366; display:none; padding:8px 15px; font-size:0.85em;" onclick="generateWhatsAppReport()">📱 WhatsApp Report</button>
-                    <label><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Settled</label>
-                </div>
-            </div>
-            <table id="pendingTable">
-                <thead><tr><th>Member</th><th>Won</th><th>Paid</th><th>Due</th><th>Action</th></tr></thead>
-                <tbody id="summaryBody"></tbody>
-            </table>
-            <button class="btn" style="background:var(--success); width:100%;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm & Settle</button>
+        <div class="dash-card" style="background:var(--success);">
+            <h6>Total Paid Out</h6>
+            <p id="dashPaid">₹0</p>
+        </div>
+        <div class="dash-card" style="background:#6366f1;">
+            <h6>Target Recovery</h6>
+            <p>₹1,480</p>
         </div>
     </div>
 
-    <div id="scheduleTab" class="content-section">
-        <h2 style="text-align:center; color:var(--primary);">🗓️ Official Fixtures</h2>
-        <table id="iplScheduleTable">
-            <thead><tr><th>Date</th><th>Match</th><th>Fixture</th><th>Venue</th><th>Time/Status</th></tr></thead>
-            <tbody id="scheduleBody"></tbody>
+    <div class="podium-container">
+        <div class="podium-box">
+            <h3 style="color:var(--primary); margin:0;">🏆 Top Earners (Profit Leaders)</h3>
+            <div class="podium" id="topPodium"></div>
+        </div>
+    </div>
+
+    <div style="border:1px solid #e2e8f0; padding:20px; border-radius:15px; background:white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #f8f9fa; padding-bottom:10px;">
+            <h3 style="margin:0; color:var(--primary);">💳 Member Settlement & Recovery</h3>
+            <div style="display:flex; gap:10px;">
+                <button id="waBtn" class="btn" style="background:#25D366; display:none; padding:8px 15px; font-size:0.85em;" onclick="generateWhatsAppReport()">📱 WhatsApp Report</button>
+                <label style="font-size:0.85em;"><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Settled</label>
+            </div>
+        </div>
+
+        <table id="pendingTable" style="margin-top:0;">
+            <thead>
+                <tr style="background:#f8f9fa;">
+                    <th style="text-align:left; color:#4a5568;">Member</th>
+                    <th style="color:#4a5568;">Status</th>
+                    <th style="color:#4a5568;">Remaining to Recover</th>
+                    <th style="color:#4a5568;">Total Won</th>
+                    <th style="color:#4a5568;">Due (Neeraj to Pay)</th>
+                    <th style="color:#4a5568;">Settle</th>
+                </tr>
+            </thead>
+            <tbody id="summaryBody"></tbody>
         </table>
+        <button class="btn" style="background:var(--success); width:100%; margin-top:15px; box-shadow: 0 4px 14px 0 rgba(40,167,69,0.39);" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Payments</button>
     </div>
 </div>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyCX2R1cJ1O6KWEqP-WQVrSOcRiUnh7L4OE",
