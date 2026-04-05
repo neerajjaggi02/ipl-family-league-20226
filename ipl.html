@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,7 +34,6 @@
         .place-2 { background: var(--silver); height: 110px; }
         .place-3 { background: var(--bronze); height: 96px; }
 
-        /* Updated Dashboard Grid for Payouts */
         .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dash-card { padding: 15px; border-radius: 12px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .dash-card h6 { margin: 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
@@ -130,10 +128,10 @@
 
     <div id="summary" class="content-section">
         <div class="dash-grid">
-            <div class="dash-card" style="background:var(--primary);"><h6>Total Received</h6><p id="dashTotalWon">₹0</p></div>
+            <div class="dash-card" style="background:var(--primary);"><h6>Total Received</h6><p id="dashTotalWon">₹22,200</p></div>
             <div class="dash-card" style="background:var(--success);"><h6>Settled Amount</h6><p id="dashPaid">₹0</p></div>
             <div class="dash-card" style="background:var(--danger);"><h6>Current Pending Due</h6><p id="dashPending">₹0</p></div>
-            <div class="dash-card" style="background:#4a5568;"><h6>Balance Left</h6><p id="dashBalance">₹0</p></div>
+            <div class="dash-card" style="background:#2d3748;"><h6>Balance Left</h6><p id="dashBalance">₹22,200</p></div>
         </div>
         <div class="podium-container">
             <div class="podium-box">
@@ -195,6 +193,7 @@
     const PRIZES = [110, 80, 50, 35, 25]; 
     const ALL_PLAYERS = ["Abha","Aju", "Anil", "Anju", "Ashu", "Atul", "Devansh", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
     const DEPOSIT_GOAL = 1480;
+    const TOTAL_POOL = DEPOSIT_GOAL * ALL_PLAYERS.length; // ₹22,200
 
     const IPL_DATA = [
         {m:1, d:"Mar 28", f:"RCB vs SRH", v:"Bengaluru", t:"7:30 PM"},
@@ -353,7 +352,6 @@
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
-        // Frequency Leaders
         const rNames = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
         rankBoard.innerHTML = rNames.map((lbl, idx) => {
             const sorted = Object.entries(rankCounts[idx]).sort((a,b) => b[1] - a[1]);
@@ -387,14 +385,15 @@
             sBody.innerHTML += `<tr><td style="text-align:left"><b>${name}</b></td><td>${statusBadge}</td><td>₹${won}</td><td style="color:var(--success); font-weight:bold;">₹${paid}</td><td style="color:${due > 0 ? 'red' : 'var(--success)'}; font-weight:bold;">₹${due}</td><td>${due > 0 ? `<input type="checkbox" class="pay-check" style="transform:scale(1.2);" data-name="${name}" data-amount="${due}" ${isAdmin ? '' : 'disabled'}>` : '✅'}</td></tr>`;
         });
 
-        // --- CALCULATION UPDATES FOR PAYOUT TAB ---
+        // --- CORRECTED CALCULATION UPDATES ---
+        const totalReceived = TOTAL_POOL; // Fixed at ₹22,200
         const pendingDueVal = totalWinningsVal - totalSettledVal;
-        const balanceLeftVal = Math.max(DEPOSIT_GOAL - totalWinningsVal, 0);
+        const balanceRemainingVal = totalReceived - totalSettledVal; // Bank cash remaining
 
-        document.getElementById('dashTotalWon').innerText = `₹${Math.round(totalWinningsVal)}`;
+        document.getElementById('dashTotalWon').innerText = `₹${totalReceived}`;
         document.getElementById('dashPaid').innerText = `₹${Math.round(totalSettledVal)}`;
         document.getElementById('dashPending').innerText = `₹${Math.round(pendingDueVal)}`;
-        document.getElementById('dashBalance').innerText = `₹${Math.round(balanceLeftVal)}`;
+        document.getElementById('dashBalance').innerText = `₹${Math.round(balanceRemainingVal)}`;
         
         document.getElementById('cloudStatus').innerText = "LIVE ✅";
     }
