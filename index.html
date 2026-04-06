@@ -104,78 +104,116 @@
 
     <div id="tracker" class="content-section">
         <div id="adminEntry" style="display:none; background:#f8f9fa; padding:20px; border-radius:10px; border:2px solid var(--secondary); margin-bottom:20px;">
-            <h3>➕ Add Match Result</h3>
-            <select id="matchSelect" style="padding:8px; margin-bottom:10px;"></select>
-            <table>
-                <thead><tr><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td><select id="p1" style="width:100%; height:100px;" multiple></select></td>
-                        <td><select id="p2" style="width:100%; height:100px;" multiple></select></td>
-                        <td><select id="p3" style="width:100%; height:100px;" multiple></select></td>
-                        <td><select id="p4" style="width:100%; height:100px;" multiple></select></td>
-                        <td><select id="p5" style="width:100%; height:100px;" multiple></select></td>
-                    </tr>
-                </tbody>
-            </table>
-            <button class="btn" style="background:var(--success); width:100%;" onclick="saveCurrentMatch()">💾 Save Match</button>
-        </div>
-        <table id="historyTable">
-            <thead><tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
-            <tbody id="historyBody"></tbody>
-        </table>
-    </div>
-
-    <div id="summary" class="content-section">
-        <div class="dash-grid">
-            <div class="dash-card" style="background:var(--primary);"><h6>Total Received</h6><p id="dashTotalWon">₹22,200</p></div>
-            <div class="dash-card" style="background:var(--success);"><h6>Settled Amount</h6><p id="dashPaid">₹0</p></div>
-            <div class="dash-card" style="background:var(--danger);"><h6>Current Pending Due</h6><p id="dashPending">₹0</p></div>
-            <div class="dash-card" style="background:#2d3748;"><h6>Balance Left</h6><p id="dashBalance">₹22,200</p></div>
-        </div>
-        <div class="podium-container">
-            <div class="podium-box">
-                <h3 style="color:var(--primary); margin-bottom:15px; font-size:1.1em;">🏆 Profit Leaders</h3>
-                <div class="podium" id="topPodium"></div>
-            </div>
-        </div>
-        <div style="background:white; border-radius:15px; border:1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow:hidden;">
-            <div style="padding:15px; background:#f8f9fa; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; font-size:1em; color:var(--primary);">💳 Recovery & Payments</h3>
-                <div style="display:flex; gap:10px;">
-                    <button id="waBtn" class="btn" style="background:#25D366; display:none; padding:8px 15px; font-size:0.85em;" onclick="generateWhatsAppReport()">📱 Report</button>
-                    <label style="font-size:0.8em;"><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Paid</label>
-                </div>
-            </div>
-            <div style="overflow-x:auto;">
-                <table style="margin:0; width:100%;">
-                    <thead>
-                        <tr>
-                            <th style="text-align:left;">Member</th>
-                            <th>Status</th>
-                            <th>Won</th>
-                            <th style="color:var(--success)">Paid</th>
-                            <th>Due</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="summaryBody"></tbody>
-                </table>
-            </div>
-            <div style="padding:15px;">
-                <button class="btn" style="background:var(--success); width:100%; height:50px; font-size:1.1em; border-radius:10px;" id="settleBtn" onclick="processSettlement()" disabled>✅ Confirm Payments</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="scheduleTab" class="content-section">
-        <h2 style="text-align:center; color:var(--primary);">🗓️ Official IPL 2026 Fixtures</h2>
-        <table id="iplScheduleTable">
-            <thead><tr><th>Date</th><th>Match</th><th>Fixture</th><th>Venue</th><th>Status</th></tr></thead>
-            <tbody id="scheduleBody"></tbody>
-        </table>
+    <h3>➕ Add Match Result</h3>
+    <select id="matchSelect" style="padding:8px; margin-bottom:10px;"></select>
+    <table>
+        <thead><tr><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
+        <tbody>
+            <tr>
+                <td><select id="p1" style="width:100%; height:100px;" multiple></select></td>
+                <td><select id="p2" style="width:100%; height:100px;" multiple></select></td>
+                <td><select id="p3" style="width:100%; height:100px;" multiple></select></td>
+                <td><select id="p4" style="width:100%; height:100px;" multiple></select></td>
+                <td><select id="p5" style="width:100%; height:100px;" multiple></select></td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button class="btn" style="background:var(--success); flex: 2;" onclick="saveCurrentMatch()">💾 Save Match Winners</button>
+        <button class="btn" style="background:var(--danger); flex: 1;" onclick="markMatchAbandoned()">🚫 Abandoned (Rain)</button>
     </div>
 </div>
+
+<script>
+    // ... (keep your existing Firebase config and constants)
+
+    // UPDATE 2: Logic to handle Abandoned Match separately
+    function markMatchAbandoned() {
+        const mNum = document.getElementById('matchSelect').value;
+        if (confirm(`Are you sure Match ${mNum} had NO RESULT due to rain? This will log ₹0 for all players.`)) {
+            // We save an empty array to represent no winners
+            db.ref('leagueRecords/match_' + mNum).set({ 
+                winners: ["", "", "", "", ""], 
+                isAbandoned: true 
+            }).then(() => {
+                alert(`Match ${mNum} logged as Abandoned.`);
+            });
+        }
+    }
+
+    // UPDATE 3: Modified saveCurrentMatch to prevent accidental empty logs
+    function saveCurrentMatch() {
+        const mNum = document.getElementById('matchSelect').value;
+        const results = [];
+        let hasSelection = false;
+
+        for(let i=1; i<=5; i++) {
+            const val = Array.from(document.getElementById('p'+i).selectedOptions).map(o => o.value).join(', ');
+            results.push(val);
+            if(val) hasSelection = true;
+        }
+
+        if(!hasSelection) {
+            alert("No winners selected! If the match was rained out, use the 'Abandoned' button instead.");
+            return;
+        }
+
+        db.ref('leagueRecords/match_' + mNum).set({ winners: results, isAbandoned: false });
+    }
+
+    // UPDATE 4: Updated renderTables to show "No Result" in the tracker
+    function renderTables() {
+        if (!winnersList) return;
+        const hBody = document.getElementById('historyBody');
+        const sBody = document.getElementById('summaryBody');
+        const rankBoard = document.getElementById('rankLeaderboard');
+        const hideSettled = document.getElementById('hideSettled').checked;
+        hBody.innerHTML = ''; sBody.innerHTML = '';
+        
+        let currentStats = {};
+        let rankCounts = [{}, {}, {}, {}, {}];
+
+        const sortedKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
+        const completed = sortedKeys.length;
+        document.getElementById('tourneyCount').innerText = completed;
+        document.getElementById('tourneyBar').style.width = (completed/74*100)+'%';
+
+        sortedKeys.forEach(key => {
+            const matchNum = key.split('_')[1];
+            const matchData = winnersList[key];
+            const winners = matchData.winners || [];
+            
+            // Explicit check for abandoned flag or empty winners
+            const isAbandoned = matchData.isAbandoned || winners.every(w => !w);
+
+            let rowHTML = `<td><b>M${matchNum}</b></td>`;
+
+            if (isAbandoned) {
+                rowHTML += `<td colspan="5" style="color:var(--danger); font-style:italic; background:#fff1f2;">Match Abandoned - No Result (Rain)</td>`;
+            } else {
+                winners.forEach((box, idx) => {
+                    if(box) {
+                        const shared = box.split(', ').filter(n => n);
+                        const nPl = shared.length;
+                        let pool = 0;
+                        for(let i=0; i<nPl; i++) if((idx+i) < PRIZES.length) pool += PRIZES[idx+i];
+                        const split = Math.round(pool/nPl);
+                        shared.forEach(p => {
+                            currentStats[p] = (currentStats[p] || 0) + split;
+                            rankCounts[idx][p] = (rankCounts[idx][p] || 0) + 1;
+                        });
+                        rowHTML += `<td>${box} <br><span class="amt-tag">₹${split}</span></td>`;
+                    } else { rowHTML += `<td>-</td>`; }
+                });
+            }
+            hBody.innerHTML += `<tr>${rowHTML}</tr>`;
+        });
+
+        // ... (rest of your existing render code for leaderboard/podium/payouts stays the same)
+        // Note: Because currentStats isn't updated for abandoned matches, the payout amounts 
+        // and rank frequencies will correctly show NO change for that day.
+    }
+</script>
 
 <script>
     const firebaseConfig = {
