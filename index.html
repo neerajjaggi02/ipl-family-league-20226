@@ -37,7 +37,7 @@
         .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dash-card { padding: 15px; border-radius: 12px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .dash-card h6 { margin: 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
-        .dash-card p { margin: 8px 0 0; font-size: 1.6em; font-weight: bold; }
+        .dash-card p { margin: 8px 0 0; font-size: 1.4em; font-weight: bold; }
 
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; }
         th { background: #f8f9fa; color: #4a5568; padding: 12px; border-bottom: 2px solid #edf2f7; }
@@ -129,11 +129,12 @@
 
     <div id="summary" class="content-section">
         <div class="dash-grid">
-    <div class="dash-card" style="background:var(--primary);"><h6>Total Received</h6><p id="dashTotalWon">₹22,200</p></div>
-    <div class="dash-card" style="background:var(--success);"><h6>Settled Amount</h6><p id="dashPaid">₹0</p></div>
-    <div class="dash-card" style="background:var(--danger);"><h6>Current Pending Due</h6><p id="dashPending">₹0</p></div>
-    <div class="dash-card" style="background:#4a5568;"><h6>Abandoned Pool</h6><p id="dashAbandoned">₹0</p></div> <div class="dash-card" style="background:#2d3748;"><h6>Balance in Bank</h6><p id="dashBalance">₹22,200</p></div>
-</div>
+            <div class="dash-card" style="background:var(--primary);"><h6>Total Received</h6><p id="dashTotalWon">₹22,200</p></div>
+            <div class="dash-card" style="background:var(--success);"><h6>Settled Amount</h6><p id="dashPaid">₹0</p></div>
+            <div class="dash-card" style="background:var(--danger);"><h6>Current Pending Due</h6><p id="dashPending">₹0</p></div>
+            <div class="dash-card" style="background:#4a5568;"><h6>Abandoned Pool</h6><p id="dashAbandoned">₹0</p></div>
+            <div class="dash-card" style="background:#2d3748;"><h6>Balance in Bank</h6><p id="dashBalance">₹22,200</p></div>
+        </div>
         <div class="podium-container">
             <div class="podium-box">
                 <h3 style="color:var(--primary); margin-bottom:15px; font-size:1.1em;">🏆 Profit Leaders</h3>
@@ -152,7 +153,7 @@
                 <table style="margin:0; width:100%;">
                     <thead>
                         <tr>
-                            <th style="text-align:left;">Member / Event</th>
+                            <th style="text-align:left;">Member</th>
                             <th>Status</th>
                             <th>Won</th>
                             <th style="color:var(--success)">Paid</th>
@@ -276,7 +277,6 @@
     let winnersList = {};
     let paidHistory = [];
     let isAdmin = false;
-    let lastMatchData = { num: 0, winners: [] };
 
     function openTab(e, n) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -322,83 +322,96 @@
         db.ref('leagueRecords/match_' + mNum).set({ winners: results, isAbandoned: false });
     }
 
-   function renderTables() {
-    if (!winnersList) return;
-    const hBody = document.getElementById('historyBody');
-    const sBody = document.getElementById('summaryBody');
-    const rankBoard = document.getElementById('rankLeaderboard');
-    const hideSettled = document.getElementById('hideSettled').checked;
-    hBody.innerHTML = ''; sBody.innerHTML = '';
-    
-    let currentStats = {};
-    let rankCounts = [{}, {}, {}, {}, {}];
-    let abandonedMatchCount = 0; // Track number of rain-outs
+    function renderTables() {
+        if (!winnersList) return;
+        const hBody = document.getElementById('historyBody');
+        const sBody = document.getElementById('summaryBody');
+        const rankBoard = document.getElementById('rankLeaderboard');
+        const hideSettled = document.getElementById('hideSettled').checked;
+        hBody.innerHTML = ''; sBody.innerHTML = '';
+        
+        let currentStats = {};
+        let rankCounts = [{}, {}, {}, {}, {}];
+        let abandonedMatchCount = 0;
 
-    const sortedKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
-    document.getElementById('tourneyCount').innerText = sortedKeys.length;
-    document.getElementById('tourneyBar').style.width = (sortedKeys.length/74*100)+'%';
+        const sortedKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
+        document.getElementById('tourneyCount').innerText = sortedKeys.length;
+        document.getElementById('tourneyBar').style.width = (sortedKeys.length/74*100)+'%';
 
-    sortedKeys.forEach(key => {
-        const matchNum = key.split('_')[1];
-        const matchData = winnersList[key];
-        const winners = matchData.winners || [];
-        const isAbandoned = matchData.isAbandoned === true;
+        sortedKeys.forEach(key => {
+            const matchNum = key.split('_')[1];
+            const matchData = winnersList[key];
+            const winners = matchData.winners || [];
+            const isAbandoned = matchData.isAbandoned === true;
 
-        let rowHTML = `<td><b>M${matchNum}</b></td>`;
-        if (isAbandoned) {
-            abandonedMatchCount++; // Increment for the top dashboard
-            rowHTML += `<td colspan="5" style="color:var(--danger); font-weight:bold; background:#fff1f2;">🌧️ NO RESULT - MATCH ABANDONED</td>`;
-        } else {
-            winners.forEach((box, idx) => {
-                if(box) {
-                    const shared = box.split(', ').filter(n => n);
-                    const nPl = shared.length;
-                    let pool = 0;
-                    for(let i=0; i<nPl; i++) if((idx+i) < PRIZES.length) pool += PRIZES[idx+i];
-                    const split = Math.round(pool/nPl);
-                    shared.forEach(p => {
-                        currentStats[p] = (currentStats[p] || 0) + split;
-                        rankCounts[idx][p] = (rankCounts[idx][p] || 0) + 1;
-                    });
-                    rowHTML += `<td>${box} <br><span class="amt-tag">₹${split}</span></td>`;
-                } else { rowHTML += `<td>-</td>`; }
-            });
+            let rowHTML = `<td><b>M${matchNum}</b></td>`;
+            if (isAbandoned) {
+                abandonedMatchCount++;
+                rowHTML += `<td colspan="5" style="color:var(--danger); font-weight:bold; background:#fff1f2;">🌧️ NO RESULT - MATCH ABANDONED</td>`;
+            } else {
+                winners.forEach((box, idx) => {
+                    if(box) {
+                        const shared = box.split(', ').filter(n => n);
+                        const nPl = shared.length;
+                        let pool = 0;
+                        for(let i=0; i<nPl; i++) if((idx+i) < PRIZES.length) pool += PRIZES[idx+i];
+                        const split = Math.round(pool/nPl);
+                        shared.forEach(p => {
+                            currentStats[p] = (currentStats[p] || 0) + split;
+                            rankCounts[idx][p] = (rankCounts[idx][p] || 0) + 1;
+                        });
+                        rowHTML += `<td>${box} <br><span class="amt-tag">₹${split}</span></td>`;
+                    } else { rowHTML += `<td>-</td>`; }
+                });
+            }
+            hBody.innerHTML += `<tr>${rowHTML}</tr>`;
+        });
+
+        // LEADERBOARD RENDERING (RESTORED)
+        const rNames = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
+        rankBoard.innerHTML = rNames.map((lbl, idx) => {
+            const sorted = Object.entries(rankCounts[idx]).sort((a,b) => b[1] - a[1]);
+            return `<div class="rank-card"><h4>${lbl}</h4><div>${sorted.map(e => `<div class="rank-item"><span>${e[0]}</span><span class="rank-count">${e[1]}x</span></div>`).join('') || '<small>None</small>'}</div></div>`;
+        }).join('');
+
+        // PODIUM RENDERING (RESTORED)
+        const sortedE = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
+        if(sortedE.length > 0) {
+            document.getElementById('topPodium').innerHTML = `<div class="podium-place place-2"><span>${sortedE[1]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[1]?.[1] || 0}</div><h2>2</h2></div><div class="podium-place place-1"><span>${sortedE[0][0]}</span><div class="podium-amt">₹${sortedE[0][1]}</div><h2>1</h2></div><div class="podium-place place-3"><span>${sortedE[2]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[2]?.[1] || 0}</div><h2>3</h2></div>`;
         }
-        hBody.innerHTML += `<tr>${rowHTML}</tr>`;
-    });
 
-    // Payout Table Logic (Clean - No abandoned rows here anymore)
-    const paidMap = {};
-    paidHistory.forEach(h => paidMap[h.name] = (paidMap[h.name] || 0) + h.amount);
-    let totalWinningsVal = 0;
-    let totalSettledVal = 0;
+        // PAYOUT TABLE
+        const paidMap = {};
+        paidHistory.forEach(h => paidMap[h.name] = (paidMap[h.name] || 0) + h.amount);
+        let totalWinningsVal = 0;
+        let totalSettledVal = 0;
 
-    const sortedE = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
-    sortedE.forEach(([name, won]) => {
-        const paid = paidMap[name] || 0;
-        const due = won - paid;
-        totalWinningsVal += won;
-        totalSettledVal += paid;
-        if (hideSettled && due <= 0) return;
-        const rem = Math.max(DEPOSIT_GOAL - won, 0);
-        const isRec = won >= DEPOSIT_GOAL;
-        let statusBadge = isRec ? `<div style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-size:0.7em; font-weight:bold;">RECOVERED</div>` : `<div style="background:#fef3c7; color:#92400e; padding:4px 8px; border-radius:12px; font-size:0.7em; font-weight:bold;">₹${rem} LEFT</div>`;
-        sBody.innerHTML += `<tr><td style="text-align:left"><b>${name}</b></td><td>${statusBadge}</td><td>₹${won}</td><td style="color:var(--success); font-weight:bold;">₹${paid}</td><td style="color:${due > 0 ? 'red' : 'var(--success)'}; font-weight:bold;">₹${due}</td><td>${due > 0 ? `<input type="checkbox" class="pay-check" style="transform:scale(1.2);" data-name="${name}" data-amount="${due}" ${isAdmin ? '' : 'disabled'}>` : '✅'}</td></tr>`;
-    });
+        sortedE.forEach(([name, won]) => {
+            const paid = paidMap[name] || 0;
+            const due = won - paid;
+            totalWinningsVal += won;
+            totalSettledVal += paid;
+            if (hideSettled && due <= 0) return;
+            const rem = Math.max(DEPOSIT_GOAL - won, 0);
+            const isRec = won >= DEPOSIT_GOAL;
+            let statusBadge = isRec ? `<div style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-size:0.7em; font-weight:bold;">RECOVERED</div>` : `<div style="background:#fef3c7; color:#92400e; padding:4px 8px; border-radius:12px; font-size:0.7em; font-weight:bold;">₹${rem} LEFT</div>`;
+            sBody.innerHTML += `<tr><td style="text-align:left"><b>${name}</b></td><td>${statusBadge}</td><td>₹${won}</td><td style="color:var(--success); font-weight:bold;">₹${paid}</td><td style="color:${due > 0 ? 'red' : 'var(--success)'}; font-weight:bold;">₹${due}</td><td>${due > 0 ? `<input type="checkbox" class="pay-check" style="transform:scale(1.2);" data-name="${name}" data-amount="${due}" ${isAdmin ? '' : 'disabled'}>` : '✅'}</td></tr>`;
+        });
 
-    // Final Dashboard Updates
-    const prizeSumPerMatch = PRIZES.reduce((a, b) => a + b, 0); // ₹300
-    const abandonedValue = abandonedMatchCount * prizeSumPerMatch;
-    
-    document.getElementById('dashTotalWon').innerText = `₹${TOTAL_POOL}`;
-    document.getElementById('dashPaid').innerText = `₹${Math.round(totalSettledVal)}`;
-    document.getElementById('dashPending').innerText = `₹${Math.round(totalWinningsVal - totalSettledVal)}`;
-    document.getElementById('dashAbandoned').innerText = `₹${abandonedValue}`; // Shows top money for rain
-    document.getElementById('dashBalance').innerText = `₹${Math.round(TOTAL_POOL - totalSettledVal)}`;
-    
-    // Update Leaderboard & Podium...
-    // (Rest of the function remains the same as previous)
-}
+        // DASHBOARD CALCULATIONS
+        const prizeSumPerMatch = PRIZES.reduce((a, b) => a + b, 0); // ₹300
+        const abandonedPool = abandonedMatchCount * prizeSumPerMatch;
+        const totalReceived = TOTAL_POOL;
+        const pendingDueVal = totalWinningsVal - totalSettledVal;
+
+        document.getElementById('dashTotalWon').innerText = `₹${totalReceived}`;
+        document.getElementById('dashPaid').innerText = `₹${Math.round(totalSettledVal)}`;
+        document.getElementById('dashPending').innerText = `₹${Math.round(pendingDueVal)}`;
+        document.getElementById('dashAbandoned').innerText = `₹${abandonedPool}`;
+        document.getElementById('dashBalance').innerText = `₹${Math.round(totalReceived - totalSettledVal)}`;
+        document.getElementById('cloudStatus').innerText = "LIVE ✅";
+    }
+
     function renderSchedule() {
         const sBody = document.getElementById('scheduleBody');
         const banner = document.getElementById('liveBanner');
@@ -422,6 +435,21 @@
             const matchLink = hasResult ? `<b style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}</b>` : `<b>M${m.m}</b>`;
             return `<tr class="${isToday ? 'today-highlight' : ''}"><td>${m.d}</td><td>${matchLink}</td><td>${m.f}</td><td>${m.v}</td><td><span class="amt-tag">${status}</span></td></tr>`;
         }).join('');
+    }
+
+    function simulatePrize(rankIndex) {
+        const ranks = ["1st", "2nd", "3rd", "4th", "5th"];
+        const resBox = document.getElementById('simResult');
+        resBox.style.display = 'block';
+        document.getElementById('simPrize').innerText = `${ranks[rankIndex]} Rank: ₹${PRIZES[rankIndex]}`;
+        let list = [];
+        Object.keys(winnersList).forEach(k => {
+            const m = k.split('_')[1];
+            if(winnersList[k].winners && winnersList[k].winners[rankIndex]) {
+                list.push(`<span style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m})">M${m}</span>: ${winnersList[k].winners[rankIndex]}`);
+            }
+        });
+        document.getElementById('simWinners').innerHTML = list.length > 0 ? list.join(' | ') : "No winners yet!";
     }
 
     function fetchAllData() {
@@ -477,9 +505,30 @@
             });
         });
         const totalDist = paidHistory.reduce((s, h) => s + h.amount, 0);
-        let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n━━━━━━━━━━━━━━━━━━\n\n📢 *LATEST: Match ${Object.keys(winnersList).length}*\n`;
-        text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDist}\n⏳ Pending: ₹${Math.round(Object.values(currentWinnings).reduce((a,b)=>a+b,0) - totalDist)}\n\n🌐 *Portal:* [Your GitHub URL]`;
+        let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n━━━━━━━━━━━━━━━━━━\n✅ Settled: ₹${totalDist}\n⏳ Pending: ₹${Math.round(Object.values(currentWinnings).reduce((a,b)=>a+b,0) - totalDist)}\n\n🌐 *Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/`;
         navigator.clipboard.writeText(text).then(() => alert("🚀 Smart Report Copied!"));
+    }
+
+    function copyHallOfFameMessage() {
+        let currentWinnings = {};
+        let rankCounts = [{}, {}, {}, {}, {}];
+        Object.keys(winnersList).forEach(k => {
+            if(winnersList[k].isAbandoned) return;
+            winnersList[k].winners.forEach((box, idx) => {
+                if(!box) return;
+                const names = box.split(', ').filter(n => n);
+                let prize = 0;
+                for(let i=0; i<names.length; i++) if(PRIZES[idx+i]) prize += PRIZES[idx+i];
+                const split = Math.round(prize/names.length);
+                names.forEach(n => {
+                    currentWinnings[n] = (currentWinnings[n] || 0) + split;
+                    rankCounts[idx][n] = (rankCounts[idx][n] || 0) + 1;
+                });
+            });
+        });
+        const sortedEarners = Object.entries(currentWinnings).sort((a,b) => b[1] - a[1]);
+        const text = `🏆 *HALL OF FAME* 🏆\n🌟 Top: ${sortedEarners[0]?.[0] || 'TBD'} (₹${sortedEarners[0]?.[1] || 0})`;
+        navigator.clipboard.writeText(text).then(() => alert("Hall of Fame copied!"));
     }
 
     window.onload = () => { initMultiSelects(); fetchAllData(); };
