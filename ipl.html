@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,14 +20,12 @@
         .content-section { padding: 25px; display: none; }
         .content-section.active { display: block; }
         
-        /* Rank Cards Layout */
         .rank-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }
         .rank-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: center; border-top: 4px solid var(--secondary); }
         .rank-card h4 { margin: 0 0 8px 0; font-size: 0.9em; color: var(--primary); }
         .rank-item { display: flex; justify-content: space-between; font-size: 0.75em; padding: 4px 0; border-bottom: 1px solid #f8f9fa; }
         .rank-count { font-weight: bold; color: var(--success); }
 
-        /* Fixed Podium */
         .podium-container { display: flex; flex-wrap: nowrap; justify-content: space-around; gap: 5px; margin-bottom: 40px; width: 100%; }
         .podium-box { flex: 1; min-width: 90px; text-align: center; }
         .podium { display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 180px; margin-top: 10px; }
@@ -37,16 +34,18 @@
         .place-2 { background: var(--silver); height: 110px; }
         .place-3 { background: var(--bronze); height: 96px; }
 
-        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .dash-card { padding: 15px; border-radius: 8px; color: white; text-align: center; }
-        .dash-card p { margin: 5px 0 0; font-size: 1.5em; font-weight: bold; }
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .dash-card { padding: 15px; border-radius: 12px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .dash-card h6 { margin: 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+        .dash-card p { margin: 8px 0 0; font-size: 1.6em; font-weight: bold; }
 
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85rem; }
         th { background: #f8f9fa; color: #4a5568; padding: 12px; border-bottom: 2px solid #edf2f7; }
         td { border-bottom: 1px solid #f1f5f9; padding: 12px; text-align: center; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
         .amt-tag { display: block; font-size: 0.8em; color: #166534; font-weight: bold; background: #dcfce7; border-radius: 4px; padding: 2px 4px; margin-top: 2px;}
-        .today-highlight { background: #fffbeb !important; border: 2px solid var(--gold) !important; font-weight: bold; }
+        .del-btn { color: var(--danger); cursor: pointer; font-size: 1.2em; border:none; background:none; padding:5px; }
+        .del-btn:hover { background: #fee2e2; border-radius: 4px; }
         .sim-btn { flex: 1; min-width: 65px; padding: 12px 5px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; }
     </style>
 </head>
@@ -63,7 +62,7 @@
 
 <div class="container">
     <div class="tabs">
-        <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 The Playbook</button>
+        <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 Playbook</button>
         <button class="tab-btn" onclick="openTab(event, 'tracker')">🏏 Tracker</button>
         <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Payouts</button>
         <button class="tab-btn" onclick="openTab(event, 'scheduleTab')">📅 Schedule</button>
@@ -71,23 +70,19 @@
 
     <div id="rules" class="content-section active">
         <h1 style="text-align:center; color:var(--primary); margin-bottom:5px;">🏆 Official Playbook</h1>
-        
         <div style="text-align: center; margin-bottom: 20px;">
             <button onclick="copyHallOfFameMessage()" style="background: #25D366; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.95em;">
                 📱 Share Hall of Fame on WhatsApp
             </button>
         </div>
-        
         <div style="margin-bottom: 25px; text-align: center;">
             <div style="font-size: 0.75em; color: #666; margin-bottom: 5px;">TOURNAMENT PROGRESS: <span id="tourneyCount">0</span>/74 MATCHES</div>
             <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; width: 80%; margin: auto;">
                 <div id="tourneyBar" style="background: var(--secondary); height: 100%; width: 0%; transition: width 1s;"></div>
             </div>
         </div>
-
         <h3 style="color:var(--primary); font-size:1.1em; border-left: 4px solid var(--gold); padding-left:10px; margin-bottom:15px;">🏅 Rank Frequency (Leaderboard)</h3>
         <div class="rank-grid" id="rankLeaderboard"></div>
-
         <div style="background: linear-gradient(135deg, #1a3a5f, #2b6cb0); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
             <h3 style="margin-top:0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">🔮 Hall of Fame Finder</h3>
             <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
@@ -120,19 +115,24 @@
                     </tr>
                 </tbody>
             </table>
-            <button class="btn" style="background:var(--success); width:100%;" onclick="saveCurrentMatch()">💾 Save Match</button>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn" style="background:var(--success); flex: 2;" onclick="saveCurrentMatch()">💾 Save Winners</button>
+                <button class="btn" style="background:var(--danger); flex: 1;" onclick="markMatchAbandoned()">🚫 Mark Abandoned</button>
+            </div>
         </div>
         <table id="historyTable">
-            <thead><tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr></thead>
+            <thead><tr><th>M#</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th><th id="delHeader" style="display:none;">Action</th></tr></thead>
             <tbody id="historyBody"></tbody>
         </table>
     </div>
 
     <div id="summary" class="content-section">
         <div class="dash-grid">
-            <div class="dash-card" style="background:var(--primary);"><h6>Goal</h6><p>₹1,480</p></div>
-            <div class="dash-card" style="background:var(--secondary);"><h6>Winnings</h6><p id="dashTotalWon">₹0</p></div>
+            <div class="dash-card" style="background:var(--primary);"><h6>Total Pool</h6><p id="dashTotalWon">₹0</p></div>
             <div class="dash-card" style="background:var(--success);"><h6>Settled</h6><p id="dashPaid">₹0</p></div>
+            <div class="dash-card" style="background:var(--danger);"><h6>Pending Due</h6><p id="dashPending">₹0</p></div>
+            <div class="dash-card" style="background:#4a5568;"><h6>Abandoned Pool</h6><p id="dashAbandoned">₹0</p></div>
+            <div class="dash-card" style="background:#2d3748;"><h6>Bank Balance</h6><p id="dashBalance">₹0</p></div>
         </div>
         <div class="podium-container">
             <div class="podium-box">
@@ -194,370 +194,37 @@
     const PRIZES = [110, 80, 50, 35, 25]; 
     const ALL_PLAYERS = ["Abha","Aju", "Anil", "Anju", "Ashu", "Atul", "Devansh", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
     const DEPOSIT_GOAL = 1480;
+    const TOTAL_POOL = DEPOSIT_GOAL * ALL_PLAYERS.length; 
 
     const IPL_DATA = [
-        {m:1, d:"Mar 28", f:"RCB vs SRH", v:"Bengaluru", t:"7:30 PM"},
-        {m:2, d:"Mar 29", f:"MI vs KKR", v:"Mumbai", t:"7:30 PM"},
-        {m:3, d:"Mar 30", f:"RR vs CSK", v:"Guwahati", t:"7:30 PM"},
-        {m:4, d:"Mar 31", f:"PBKS vs GT", v:"Mullanpur", t:"7:30 PM"},
-        {m:5, d:"Apr 1", f:"LSG vs DC", v:"Lucknow", t:"7:30 PM"},
-        {m:6, d:"Apr 2", f:"KKR vs SRH", v:"Kolkata", t:"7:30 PM"},
-        {m:7, d:"Apr 3", f:"CSK vs PBKS", v:"Chennai", t:"7:30 PM"},
-        {m:8, d:"Apr 4", f:"DC vs MI", v:"Delhi", t:"3:30 PM"},
-        {m:9, d:"Apr 4", f:"GT vs RR", v:"Ahmedabad", t:"7:30 PM"},
-        {m:10, d:"Apr 5", f:"SRH vs LSG", v:"Hyderabad", t:"3:30 PM"},
-        {m:11, d:"Apr 5", f:"RCB vs CSK", v:"Bengaluru", t:"7:30 PM"},
-        {m:12, d:"Apr 6", f:"KKR vs PBKS", v:"Kolkata", t:"7:30 PM"},
-        {m:13, d:"Apr 7", f:"RR vs MI", v:"Guwahati", t:"7:30 PM"},
-        {m:14, d:"Apr 8", f:"DC vs GT", v:"Delhi", t:"7:30 PM"},
-        {m:15, d:"Apr 9", f:"KKR vs LSG", v:"Kolkata", t:"7:30 PM"},
-        {m:16, d:"Apr 10", f:"RR vs RCB", v:"Guwahati", t:"7:30 PM"},
-        {m:17, d:"Apr 11", f:"PBKS vs SRH", v:"Mullanpur", t:"3:30 PM"},
-        {m:18, d:"Apr 11", f:"CSK vs DC", v:"Chennai", t:"7:30 PM"},
-        {m:19, d:"Apr 12", f:"LSG vs GT", v:"Lucknow", t:"3:30 PM"},
-        {m:20, d:"Apr 12", f:"MI vs RCB", v:"Mumbai", t:"7:30 PM"},
-        {m:21, d:"Apr 13", f:"SRH vs RR", v:"Hyderabad", t:"7:30 PM"},
-        {m:22, d:"Apr 14", f:"CSK vs KKR", v:"Chennai", t:"7:30 PM"},
-        {m:23, d:"Apr 15", f:"RCB vs LSG", v:"Bengaluru", t:"7:30 PM"},
-        {m:24, d:"Apr 16", f:"MI vs PBKS", v:"Mumbai", t:"7:30 PM"},
-        {m:25, d:"Apr 17", f:"GT vs KKR", v:"Ahmedabad", t:"7:30 PM"},
-        {m:26, d:"Apr 18", f:"RCB vs DC", v:"Bengaluru", t:"3:30 PM"},
-        {m:27, d:"Apr 18", f:"SRH vs CSK", v:"Hyderabad", t:"7:30 PM"},
-        {m:28, d:"Apr 19", f:"KKR vs RR", v:"Kolkata", t:"3:30 PM"},
-        {m:29, d:"Apr 19", f:"PBKS vs LSG", v:"Mullanpur", t:"7:30 PM"},
-        {m:30, d:"Apr 20", f:"GT vs MI", v:"Ahmedabad", t:"7:30 PM"},
-        {m:31, d:"Apr 21", f:"SRH vs DC", v:"Hyderabad", t:"7:30 PM"},
-        {m:32, d:"Apr 22", f:"LSG vs RR", v:"Lucknow", t:"7:30 PM"},
-        {m:33, d:"Apr 23", f:"MI vs CSK", v:"Mumbai", t:"7:30 PM"},
-        {m:34, d:"Apr 24", f:"RCB vs GT", v:"Bengaluru", t:"7:30 PM"},
-        {m:35, d:"Apr 25", f:"DC vs PBKS", v:"Delhi", t:"3:30 PM"},
-        {m:36, d:"Apr 25", f:"RR vs SRH", v:"Jaipur", t:"7:30 PM"},
-        {m:37, d:"Apr 26", f:"GT vs CSK", v:"Ahmedabad", t:"3:30 PM"},
-        {m:38, d:"Apr 26", f:"LSG vs KKR", v:"Lucknow", t:"7:30 PM"},
-        {m:39, d:"Apr 27", f:"DC vs RCB", v:"Delhi", t:"7:30 PM"},
-        {m:40, d:"Apr 28", f:"PBKS vs RR", v:"Mullanpur", t:"7:30 PM"},
-        {m:41, d:"Apr 29", f:"MI vs SRH", v:"Mumbai", t:"7:30 PM"},
-        {m:42, d:"Apr 30", f:"KKR vs GT", v:"Kolkata", t:"7:30 PM"},
-        {m:43, d:"May 1", f:"CSK vs RR", v:"Chennai", t:"7:30 PM"},
-        {m:44, d:"May 2", f:"DC vs LSG", v:"Delhi", t:"3:30 PM"},
-        {m:45, d:"May 2", f:"RCB vs PBKS", v:"Bengaluru", t:"7:30 PM"},
-        {m:46, d:"May 3", f:"SRH vs MI", v:"Hyderabad", t:"3:30 PM"},
-        {m:47, d:"May 3", f:"RR vs KKR", v:"Jaipur", t:"7:30 PM"},
-        {m:48, d:"May 4", f:"GT vs CSK", v:"Ahmedabad", t:"7:30 PM"},
-        {m:49, d:"May 5", f:"LSG vs RCB", v:"Lucknow", t:"7:30 PM"},
-        {m:50, d:"May 6", f:"PBKS vs DC", v:"Mullanpur", t:"7:30 PM"},
-        {m:51, d:"May 7", f:"KKR vs MI", v:"Kolkata", t:"7:30 PM"},
-        {m:52, d:"May 8", f:"CSK vs SRH", v:"Chennai", t:"7:30 PM"},
-        {m:53, d:"May 9", f:"RCB vs RR", v:"Bengaluru", t:"3:30 PM"},
-        {m:54, d:"May 9", f:"GT vs LSG", v:"Ahmedabad", t:"7:30 PM"},
-        {m:55, d:"May 10", f:"MI vs DC", v:"Mumbai", t:"3:30 PM"},
-        {m:56, d:"May 10", f:"PBKS vs KKR", v:"Mullanpur", t:"7:30 PM"},
-        {m:57, d:"May 11", f:"SRH vs GT", v:"Hyderabad", t:"7:30 PM"},
-        {m:58, d:"May 12", f:"RR vs LSG", v:"Jaipur", t:"7:30 PM"},
-        {m:59, d:"May 13", f:"DC vs CSK", v:"Delhi", t:"7:30 PM"},
-        {m:60, d:"May 14", f:"SRH vs RCB", v:"Hyderabad", t:"7:30 PM"},
-        {m:61, d:"May 15", f:"PBKS vs MI", v:"Mullanpur", t:"7:30 PM"},
-        {m:62, d:"May 16", f:"LSG vs CSK", v:"Lucknow", t:"3:30 PM"},
-        {m:63, d:"May 16", f:"GT vs RCB", v:"Ahmedabad", t:"7:30 PM"},
-        {m:64, d:"May 17", f:"RR vs PBKS", v:"Jaipur", t:"3:30 PM"},
-        {m:65, d:"May 17", f:"DC vs SRH", v:"Delhi", t:"7:30 PM"},
-        {m:66, d:"May 18", f:"MI vs GT", v:"Mumbai", t:"7:30 PM"},
-        {m:67, d:"May 19", f:"KKR vs LSG", v:"Kolkata", t:"7:30 PM"},
-        {m:68, d:"May 20", f:"RR vs DC", v:"Jaipur", t:"7:30 PM"},
-        {m:69, d:"May 21", f:"SRH vs PBKS", v:"Hyderabad", t:"7:30 PM"},
-        {m:70, d:"May 22", f:"CSK vs MI", v:"Chennai", t:"7:30 PM"},
-        {m:71, d:"May 24", f:"Qualifier 1", v:"TBD", t:"7:30 PM"},
-        {m:72, d:"May 25", f:"Eliminator", v:"TBD", t:"7:30 PM"},
-        {m:73, d:"May 27", f:"Qualifier 2", v:"TBD", t:"7:30 PM"},
-        {m:74, d:"May 31", f:"GRAND FINAL", v:"TBD", t:"7:30 PM"}
-    ];
-
-    let winnersList = {};
-    let paidHistory = [];
-    let isAdmin = false;
-    let lastMatchData = { num: 0, winners: [] };
-
-    function openTab(e, n) {
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(n).classList.add('active');
-        e.currentTarget.classList.add('active');
-    }
-
-    function jumpToMatch(matchNum) {
-        openTab({ currentTarget: document.querySelectorAll('.tab-btn')[1] }, 'tracker');
-        setTimeout(() => {
-            const rows = document.querySelectorAll('#historyTable tbody tr');
-            rows.forEach(row => {
-                if (row.cells[0].innerText.includes('M' + matchNum)) {
-                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    row.style.background = "#fff3cd";
-                    setTimeout(() => { row.style.background = "transparent"; }, 3000);
-                }
-            });
-        }, 100);
-    }
-
-    function simulatePrize(rankIndex) {
-        const ranks = ["1st", "2nd", "3rd", "4th", "5th"];
-        const resBox = document.getElementById('simResult');
-        resBox.style.display = 'block';
-        document.getElementById('simPrize').innerText = `${ranks[rankIndex]} Rank: ₹${PRIZES[rankIndex]}`;
-        let list = [];
-        Object.keys(winnersList).forEach(k => {
-            const m = k.split('_')[1];
-            if(winnersList[k].winners && winnersList[k].winners[rankIndex]) {
-                list.push(`<span style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m})">M${m}</span>: ${winnersList[k].winners[rankIndex]}`);
-            }
-        });
-        document.getElementById('simWinners').innerHTML = list.length > 0 ? list.join(' | ') : "No winners yet!";
-    }
-
-    function renderTables() {
-        if (!winnersList) return;
-        const hBody = document.getElementById('historyBody');
-        const sBody = document.getElementById('summaryBody');
-        const rankBoard = document.getElementById('rankLeaderboard');
-        const hideSettled = document.getElementById('hideSettled').checked;
-        hBody.innerHTML = ''; sBody.innerHTML = '';
-        
-        let currentStats = {};
-        let rankCounts = [{}, {}, {}, {}, {}];
-
-        const sortedKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
-        const completed = sortedKeys.length;
-        document.getElementById('tourneyCount').innerText = completed;
-        document.getElementById('tourneyBar').style.width = (completed/74*100)+'%';
-
-        sortedKeys.forEach(key => {
-            const matchNum = key.split('_')[1];
-            const winners = winnersList[key].winners || [];
-            lastMatchData = { num: matchNum, winners: winners };
-            let rowHTML = `<td><b>M${matchNum}</b></td>`;
-
-            winners.forEach((box, idx) => {
-                if(box) {
-                    const shared = box.split(', ').filter(n => n);
-                    const nPl = shared.length;
-                    let pool = 0;
-                    for(let i=0; i<nPl; i++) if((idx+i) < PRIZES.length) pool += PRIZES[idx+i];
-                    const split = Math.round(pool/nPl);
-                    shared.forEach(p => {
-                        currentStats[p] = (currentStats[p] || 0) + split;
-                        rankCounts[idx][p] = (rankCounts[idx][p] || 0) + 1;
-                    });
-                    rowHTML += `<td>${box} <br><span class="amt-tag">₹${split}</span></td>`;
-                } else { rowHTML += `<td>-</td>`; }
-            });
-            hBody.innerHTML += `<tr>${rowHTML}</tr>`;
-        });
-
-        // Frequency Leaders
-        const rNames = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
-        rankBoard.innerHTML = rNames.map((lbl, idx) => {
-            const sorted = Object.entries(rankCounts[idx]).sort((a,b) => b[1] - a[1]);
-            return `<div class="rank-card"><h4>${lbl}</h4><div>${sorted.map(e => `<div class="rank-item"><span>${e[0]}</span><span class="rank-count">${e[1]}x</span></div>`).join('') || '<small>None</small>'}</div></div>`;
-        }).join('');
-
-        const sortedE = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
-        if(sortedE.length > 0) {
-            document.getElementById('topPodium').innerHTML = `<div class="podium-place place-2"><span>${sortedE[1]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[1]?.[1] || 0}</div><h2>2</h2></div><div class="podium-place place-1"><span>${sortedE[0][0]}</span><div class="podium-amt">₹${sortedE[0][1]}</div><h2>1</h2></div><div class="podium-place place-3"><span>${sortedE[2]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[2]?.[1] || 0}</div><h2>3</h2></div>`;
-        }
-
-        const paidMap = {};
-        paidHistory.forEach(h => paidMap[h.name] = (paidMap[h.name] || 0) + h.amount);
-        sortedE.forEach(([name, won]) => {
-            const paid = paidMap[name] || 0;
-            const due = won - paid;
-            if (hideSettled && due <= 0) return;
-            const rem = Math.max(DEPOSIT_GOAL - won, 0);
-            const isRec = won >= DEPOSIT_GOAL;
-            let statusBadge = isRec 
-                ? `<div style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-size:0.7em; font-weight:bold;">RECOVERED</div>` 
-                : `<div style="background:#fef3c7; color:#92400e; padding:4px 8px; border-radius:12px; font-size:0.7em; font-weight:bold;">₹${rem} LEFT</div>`;
-
-            sBody.innerHTML += `<tr><td style="text-align:left"><b>${name}</b></td><td>${statusBadge}</td><td>₹${won}</td><td style="color:var(--success); font-weight:bold;">₹${paid}</td><td style="color:${due > 0 ? 'red' : 'var(--success)'}; font-weight:bold;">₹${due}</td><td>${due > 0 ? `<input type="checkbox" class="pay-check" style="transform:scale(1.2);" data-name="${name}" data-amount="${due}" ${isAdmin ? '' : 'disabled'}>` : '✅'}</td></tr>`;
-        });
-
-        document.getElementById('dashTotalWon').innerText = `₹${Math.round(Object.values(currentStats).reduce((a,b)=>a+b,0))}`;
-        document.getElementById('dashPaid').innerText = `₹${paidHistory.reduce((a,b)=>a+b.amount,0)}`;
-        document.getElementById('cloudStatus').innerText = "LIVE ✅";
-    }
-
-    function renderSchedule() {
-        const sBody = document.getElementById('scheduleBody');
-        const banner = document.getElementById('liveBanner');
-        const bannerContent = document.getElementById('bannerContent');
-        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
-
-        if (todayMatches.length > 0) {
-            banner.style.display = "block";
-            bannerContent.innerHTML = `<b>🏏 TODAY:</b> ` + todayMatches.map(m => {
-                const hasRes = winnersList["match_" + m.m];
-                return hasRes ? `<span style="cursor:pointer; color:var(--secondary); text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}: ${m.f} (✅ Result)</span>` : `<span>M${m.m}: ${m.f} (⏳ ${m.t})</span>`;
-            }).join(' | ');
-        }
-
-        sBody.innerHTML = IPL_DATA.map(m => {
-            const isToday = m.d === todayStr;
-            const hasResult = winnersList["match_" + m.m];
-            let status = m.t;
-            if (todayMatches.length > 1 && hasResult) status = "Completed ✅";
-            else if (hasResult) status = "Finished ✅";
-            const matchLink = hasResult ? `<b style="color:var(--secondary); cursor:pointer; text-decoration:underline;" onclick="jumpToMatch(${m.m})">M${m.m}</b>` : `<b>M${m.m}</b>`;
-            return `<tr class="${isToday ? 'today-highlight' : ''}"><td>${m.d}</td><td>${matchLink}</td><td>${m.f}</td><td>${m.v}</td><td><span class="amt-tag">${status}</span></td></tr>`;
-        }).join('');
-    }
-
-    function fetchAllData() {
-        db.ref('leagueMaster').on('value', snap => {
-            paidHistory = (snap.val() || {}).paidHistory || [];
-            db.ref('leagueRecords').on('value', snap => {
-                winnersList = snap.val() || {};
-                renderTables();
-                updateMatchDropdown();
-                renderSchedule();
-            });
-        });
-    }
-
-    function adminLogin() {
-        if(prompt("Volunteer PIN:") === "2026") { isAdmin = true; document.getElementById('adminText').innerText = "🔓 Volunteer Mode"; document.getElementById('adminEntry').style.display = "block"; document.getElementById('waBtn').style.display = "block"; document.getElementById('settleBtn').disabled = false; renderTables(); }
-    }
-
-    function saveCurrentMatch() {
-        const mNum = document.getElementById('matchSelect').value;
-        const results = [];
-        for(let i=1; i<=5; i++) results.push(Array.from(document.getElementById('p'+i).selectedOptions).map(o => o.value).join(', '));
-        db.ref('leagueRecords/match_' + mNum).set({ winners: results });
-    }
-
-    function processSettlement() {
-        const checks = document.querySelectorAll('.pay-check:checked');
-        checks.forEach(c => paidHistory.push({ date: new Date().toLocaleDateString(), name: c.dataset.name, amount: parseFloat(c.dataset.amount) }));
-        db.ref('leagueMaster').update({ paidHistory });
-    }
-
-    function updateMatchDropdown() {
-        const sel = document.getElementById('matchSelect'); sel.innerHTML = "";
-        for (let i = 1; i <= 74; i++) if (!winnersList["match_" + i]) { const opt = document.createElement("option"); opt.value = i; opt.text = "Match " + i; sel.add(opt); }
-    }
-
-    function initMultiSelects() {
-        ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(id => {
-            document.getElementById(id).innerHTML = ALL_PLAYERS.map(p => `<option value="${p}">${p}</option>`).join('');
-        });
-    }
-
-    function generateWhatsAppReport() {
-        let currentWinnings = {};
-        Object.keys(winnersList).forEach(k => {
-            winnersList[k].winners.forEach((box, idx) => {
-                if(!box) return;
-                const names = box.split(', ').filter(n => n);
-                let prize = 0;
-                for(let i=0; i<names.length; i++) if(PRIZES[idx+i]) prize += PRIZES[idx+i];
-                names.forEach(n => currentWinnings[n] = (currentWinnings[n] || 0) + Math.round(prize/names.length));
-            });
-        });
-        const earners = Object.entries(currentWinnings).sort((a,b) => b[1] - a[1]);
-        const totalDist = paidHistory.reduce((s, h) => s + h.amount, 0);
-        let text = `🏏 *IPL 2026 LEAGUE UPDATE* 🏏\n━━━━━━━━━━━━━━━━━━\n\n📢 *LATEST RESULT: Match ${lastMatchData.num}*\n`;
-        const meds = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
-        lastMatchData.winners.forEach((w, i) => { text += `${meds[i]}: ${w || '-'}\n`; });
-        text += `\n🏆 *TOP EARNERS PODIUM*\n`;
-        earners.slice(0, 3).forEach((e, i) => { text += `${i+1}. ${e[0]} — ₹${e[1]}\n`; });
-        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const todayMatches = IPL_DATA.filter(m => m.d === todayStr);
-        if(todayMatches.length > 0) { 
-            text += `\n📅 *TODAY'S FIXTURES (${todayStr})*\n`; 
-            todayMatches.forEach(m => { const hasRes = winnersList["match_" + m.m]; text += `🏏 ${m.t}: ${m.f}${hasRes ? ' -Completed' : ''}\n`; }); 
-        }
-        text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDist}\n⏳ Pending: ₹${Math.round(Object.values(currentWinnings).reduce((a,b)=>a+b,0) - totalDist)}\n\n🌐 *Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/\n━━━━━━━━━━━━━━━━━━\n_Generated by Neeraj Jaggi_`;
-        navigator.clipboard.writeText(text).then(() => alert("🚀 Smart Report Copied!"));
-    }
-
-    // --- UPDATED FUNCTION WITH TIE-BREAKERS ---
-    function copyHallOfFameMessage() {
-        if (!winnersList || Object.keys(winnersList).length === 0) {
-            alert("League data is currently loading or empty. Please try again in a few seconds.");
-            return;
-        }
-
-        let currentWinnings = {};
-        let rankCounts = [{}, {}, {}, {}, {}];
-
-        // Process data to find earnings and rank frequencies
-        Object.keys(winnersList).forEach(k => {
-            if (!winnersList[k].winners) return;
-            winnersList[k].winners.forEach((box, idx) => {
-                if(!box) return;
-                const names = box.split(', ').filter(n => n);
-                let prize = 0;
-                for(let i=0; i<names.length; i++) if(PRIZES[idx+i]) prize += PRIZES[idx+i];
-                const split = Math.round(prize/names.length);
-                names.forEach(n => {
-                    currentWinnings[n] = (currentWinnings[n] || 0) + split;
-                    rankCounts[idx][n] = (rankCounts[idx][n] || 0) + 1;
-                });
-            });
-        });
-
-        // Get Overall Leader(s)
-        const sortedEarners = Object.entries(currentWinnings).sort((a,b) => b[1] - a[1]);
-        let overallLeaderName = "TBD";
-        let overallLeaderAmt = 0;
-        
-        if (sortedEarners.length > 0) {
-            overallLeaderAmt = sortedEarners[0][1];
-            // Find ALL people who match the exact highest earning amount
-            const topEarners = sortedEarners.filter(e => e[1] === overallLeaderAmt).map(e => e[0]);
-            overallLeaderName = topEarners.join(" & ");
-        }
-
-        // Get Category Toppers(s)
-        const meds = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
-        let categoryLeadersText = "";
-
-        rankCounts.forEach((counts, idx) => {
-            const sortedCounts = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-            if (sortedCounts.length > 0) {
-                const topCount = sortedCounts[0][1];
-                // Find ALL people who match the exact highest count for this rank
-                const topPeople = sortedCounts.filter(c => c[1] === topCount).map(c => c[0]);
-                const namesStr = topPeople.join(", ");
-                categoryLeadersText += `${meds[idx]} Most Times: *${namesStr}* (${topCount}x)\n`;
-            } else {
-                categoryLeadersText += `${meds[idx]} Most Times: -\n`;
-            }
-        });
-
-        // Construct Smart Message
-        const text = `🏆 *IPL 2026 LEAGUE - HALL OF FAME* 🏆
-━━━━━━━━━━━━━━━━━━
-
-👑 *OVERALL LEADER* 👑
-🌟 *${overallLeaderName}* is currently leading the pack with total winnings of *₹${overallLeaderAmt}*!
-
-🏅 *CATEGORY TOPPERS* 🏅
-${categoryLeadersText}
-🌐 *Check the full live stats & playbook here:*
-https://neerajjaggi02.github.io/ipl-family-league-20226/
-
-━━━━━━━━━━━━━━━━━━
-_May the best predictions win!_ 🏏`;
-
-        // Copy to clipboard
-        navigator.clipboard.writeText(text).then(() => {
-            alert("🚀 Hall of Fame message has been copied to your clipboard. Ready to paste in WhatsApp!");
-        }).catch(err => {
-            console.error('Could not copy text: ', err);
-            alert("Failed to copy. Please check browser permissions.");
-        });
-    }
-
-    window.onload = () => { initMultiSelects(); fetchAllData(); };
-</script>
-</body>
-</html>
+        {m:1, d:"Mar 28", f:"RCB vs SRH", v:"Bengaluru", t:"7:30 PM"}, {m:2, d:"Mar 29", f:"MI vs KKR", v:"Mumbai", t:"7:30 PM"},
+        {m:3, d:"Mar 30", f:"RR vs CSK", v:"Guwahati", t:"7:30 PM"}, {m:4, d:"Mar 31", f:"PBKS vs GT", v:"Mullanpur", t:"7:30 PM"},
+        {m:5, d:"Apr 1", f:"LSG vs DC", v:"Lucknow", t:"7:30 PM"}, {m:6, d:"Apr 2", f:"KKR vs SRH", v:"Kolkata", t:"7:30 PM"},
+        {m:7, d:"Apr 3", f:"CSK vs PBKS", v:"Chennai", t:"7:30 PM"}, {m:8, d:"Apr 4", f:"DC vs MI", v:"Delhi", t:"3:30 PM"},
+        {m:9, d:"Apr 4", f:"GT vs RR", v:"Ahmedabad", t:"7:30 PM"}, {m:10, d:"Apr 5", f:"SRH vs LSG", v:"Hyderabad", t:"3:30 PM"},
+        {m:11, d:"Apr 5", f:"RCB vs CSK", v:"Bengaluru", t:"7:30 PM"}, {m:12, d:"Apr 6", f:"KKR vs PBKS", v:"Kolkata", t:"7:30 PM"},
+        {m:13, d:"Apr 7", f:"RR vs MI", v:"Guwahati", t:"7:30 PM"}, {m:14, d:"Apr 8", f:"DC vs GT", v:"Delhi", t:"7:30 PM"},
+        {m:15, d:"Apr 9", f:"KKR vs LSG", v:"Kolkata", t:"7:30 PM"}, {m:16, d:"Apr 10", f:"RR vs RCB", v:"Guwahati", t:"7:30 PM"},
+        {m:17, d:"Apr 11", f:"PBKS vs SRH", v:"Mullanpur", t:"3:30 PM"}, {m:18, d:"Apr 11", f:"CSK vs DC", v:"Chennai", t:"7:30 PM"},
+        {m:19, d:"Apr 12", f:"LSG vs GT", v:"Lucknow", t:"3:30 PM"}, {m:20, d:"Apr 12", f:"MI vs RCB", v:"Mumbai", t:"7:30 PM"},
+        {m:21, d:"Apr 13", f:"SRH vs RR", v:"Hyderabad", t:"7:30 PM"}, {m:22, d:"Apr 14", f:"CSK vs KKR", v:"Chennai", t:"7:30 PM"},
+        {m:23, d:"Apr 15", f:"RCB vs LSG", v:"Bengaluru", t:"7:30 PM"}, {m:24, d:"Apr 16", f:"MI vs PBKS", v:"Mumbai", t:"7:30 PM"},
+        {m:25, d:"Apr 17", f:"GT vs KKR", v:"Ahmedabad", t:"7:30 PM"}, {m:26, d:"Apr 18", f:"RCB vs DC", v:"Bengaluru", t:"3:30 PM"},
+        {m:27, d:"Apr 18", f:"SRH vs CSK", v:"Hyderabad", t:"7:30 PM"}, {m:28, d:"Apr 19", f:"KKR vs RR", v:"Kolkata", t:"3:30 PM"},
+        {m:29, d:"Apr 19", f:"PBKS vs LSG", v:"Mullanpur", t:"7:30 PM"}, {m:30, d:"Apr 20", f:"GT vs MI", v:"Ahmedabad", t:"7:30 PM"},
+        {m:31, d:"Apr 21", f:"SRH vs DC", v:"Hyderabad", t:"7:30 PM"}, {m:32, d:"Apr 22", f:"LSG vs RR", v:"Lucknow", t:"7:30 PM"},
+        {m:33, d:"Apr 23", f:"MI vs CSK", v:"Mumbai", t:"7:30 PM"}, {m:34, d:"Apr 24", f:"RCB vs GT", v:"Bengaluru", t:"7:30 PM"},
+        {m:35, d:"Apr 25", f:"DC vs PBKS", v:"Delhi", t:"3:30 PM"}, {m:36, d:"Apr 25", f:"RR vs SRH", v:"Jaipur", t:"7:30 PM"},
+        {m:37, d:"Apr 26", f:"GT vs CSK", v:"Ahmedabad", t:"3:30 PM"}, {m:38, d:"Apr 26", f:"LSG vs KKR", v:"Lucknow", t:"7:30 PM"},
+        {m:39, d:"Apr 27", f:"DC vs RCB", v:"Delhi", t:"7:30 PM"}, {m:40, d:"Apr 28", f:"PBKS vs RR", v:"Mullanpur", t:"7:30 PM"},
+        {m:41, d:"Apr 29", f:"MI vs SRH", v:"Mumbai", t:"7:30 PM"}, {m:42, d:"Apr 30", f:"KKR vs GT", v:"Kolkata", t:"7:30 PM"},
+        {m:43, d:"May 1", f:"CSK vs RR", v:"Chennai", t:"7:30 PM"}, {m:44, d:"May 2", f:"DC vs LSG", v:"Delhi", t:"3:30 PM"},
+        {m:45, d:"May 2", f:"RCB vs PBKS", v:"Bengaluru", t:"7:30 PM"}, {m:46, d:"May 3", f:"SRH vs MI", v:"Hyderabad", t:"3:30 PM"},
+        {m:47, d:"May 3", f:"RR vs KKR", v:"Jaipur", t:"7:30 PM"}, {m:48, d:"May 4", f:"GT vs CSK", v:"Ahmedabad", t:"7:30 PM"},
+        {m:49, d:"May 5", f:"LSG vs RCB", v:"Lucknow", t:"7:30 PM"}, {m:50, d:"May 6", f:"PBKS vs DC", v:"Mullanpur", t:"7:30 PM"},
+        {m:51, d:"May 7", f:"KKR vs MI", v:"Kolkata", t:"7:30 PM"}, {m:52, d:"May 8", f:"CSK vs SRH", v:"Chennai", t:"7:30 PM"},
+        {m:53, d:"May 9", f:"RCB vs RR", v:"Bengaluru", t:"3:30 PM"}, {m:54, d:"May 9", f:"GT vs LSG", v:"Ahmedabad", t:"7:30 PM"},
+        {m:55, d:"May 10", f:"MI vs DC", v:"Mumbai", t:"3:30 PM"}, {m:56, d:"May 10", f:"PBKS vs KKR", v:"Mullanpur", t:"7:30 PM"},
+        {m:57, d:"May 11", f:"SRH vs GT", v:"Hyderabad", t:"7:30 PM"}, {m:58, d:"May 12", f:"RR vs LSG", v:"Jaipur", t:"7:30 PM"},
+        {m:59, d:"May 13", f:"DC vs CSK", v:"Delhi", t:"7:30 PM"}, {m:60, d:"May 14", f:"SRH vs RCB", v:"Hyderabad", t:"7:30 PM"},
+        {m:61, d:"May 15", f:"PBKS vs MI", v:"Mullanpur", t:"7:30 PM"}, {m:62, d:"May 16", f:"LSG vs
