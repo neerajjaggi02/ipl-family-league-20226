@@ -411,7 +411,7 @@
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
-        // Add trivia winnings to master overview sheets dynamically
+        // Loop to add Trivia Top 5 calculations onto core balance arrays
         Object.keys(currentTriviaPools).forEach(tid => {
             const item = currentTriviaPools[tid];
             if(item.settledWinners && Array.isArray(item.settledWinners)) {
@@ -605,17 +605,25 @@ _May the best predictions win!_ 🏏`;
         document.getElementById('simWinners').innerText = list.length ? list.join(' | ') : "No winners.";
     }
 
-    // Consolidated Master Realtime Watch Handshake Loop
+    // Consolidated Master Realtime Loop With Isolated Standalone Observers
     function fetchAllData() {
-        db.ref('leagueMaster').on('value', snap => {
-            const masterData = snap.val() || {};
-            paidHistory = masterData.paidHistory || [];
-            currentTriviaPools = masterData.leagueTrivia || {}; 
-            
-            db.ref('leagueRecords').on('value', recordSnap => {
-                winnersList = recordSnap.val() || {};
-                renderTables(); updateMatchDropdown(); renderSchedule(); renderTriviaUI();
-            });
+        db.ref('leagueMaster/paidHistory').on('value', snap => {
+            paidHistory = snap.val() || [];
+            renderTables();
+        });
+
+        // Completely isolated observer stream loop for trivia storage trees
+        db.ref('leagueMaster/leagueTrivia').on('value', triviaSnap => {
+            currentTriviaPools = triviaSnap.val() || {};
+            renderTables();
+            renderTriviaUI();
+        });
+
+        db.ref('leagueRecords').on('value', recordSnap => {
+            winnersList = recordSnap.val() || {};
+            renderTables(); 
+            updateMatchDropdown(); 
+            renderSchedule();
         });
     }
 
@@ -655,7 +663,7 @@ _May the best predictions win!_ 🏏`;
         });
     }
 
-    /* Nested Trivia Component Data Controllers */
+    /* Core Trivia Data Controllers */
     function createNewTrivia() {
         const q = document.getElementById('triviaQ').value.trim();
         const pool = document.getElementById('triviaPoolVal').value.trim();
@@ -670,7 +678,10 @@ _May the best predictions win!_ 🏏`;
             settledWinners: ["", "", "", "", ""]
         }).then(() => {
             document.getElementById('triviaQ').value = "";
-            alert("New Trivia opened successfully under verified single stream!");
+            // Instant physical prompt added here for admin confirmation sync actions
+            alert("🚀 Success! Trivia question has been published to all users.");
+        }).catch(err => {
+            alert("Error publishing question: " + err.message);
         });
     }
 
@@ -696,7 +707,7 @@ _May the best predictions win!_ 🏏`;
             ms: Date.now()
         }).then(() => {
             document.getElementById('playerAnswerInput').value = "";
-            alert("⚡ Speed submission locked down inside cloud engine safely!");
+            alert("⚡ Speed prediction locked down into cloud engine safely!");
         });
     }
 
@@ -712,7 +723,7 @@ _May the best predictions win!_ 🏏`;
 
         if(confirm("Confirm and lock these Top 5 fastest correct answerers?")) {
             db.ref('leagueMaster/leagueTrivia/' + tid + '/settledWinners').set([w1, w2, w3, w4, w5]).then(() => {
-                alert("Top 5 Trivia winners recorded and balance sheets updated!");
+                alert("Top 5 Trivia winners recorded into unified bank balance sheet arrays!");
             });
         }
     }
@@ -721,7 +732,7 @@ _May the best predictions win!_ 🏏`;
         const tid = document.getElementById('adminSettleTriviaTarget').value;
         if(!tid) { alert("Select a target poll to clear."); return; }
 
-        if(confirm("🗑️ Are you sure you want to completely delete this trivia round and wipe out all user submissions? (This is permanent and perfect for resetting test rounds!)")) {
+        if(confirm("🗑️ Are you sure you want to completely delete this trivia round and wipe out all user submissions?")) {
             db.ref('leagueMaster/leagueTrivia/' + tid).remove().then(() => {
                 alert("Poll deleted successfully from cloud servers!");
             });
@@ -801,7 +812,7 @@ _May the best predictions win!_ 🏏`;
                 <div class="trivia-card">
                     <span class="trivia-pool-badge">🎟️ Finals Trivia Pool: ₹${item.poolVal}</span>
                     <h3 style='margin:5px 0 12px 0; color:var(--primary); font-size:1.15em;'>${item.question}</h3>
-                    <h4 style='margin:0 0 5px 0; font-size:0.85em; color:#555;'>Speed Log Entry Feed:</h4>
+                    <h4 style='margin:0; font-size:0.85em; color:#555;'>Speed Log Entry Feed:</h4>
                     ${answersHTML}
                     ${winnerStatusHTML}
                 </div>`;
