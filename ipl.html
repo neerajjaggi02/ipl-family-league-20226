@@ -176,10 +176,12 @@
         </div>
     </div>
 
+    <!-- Trivia Tab Layout Component -->
     <div id="triviaTab" class="content-section">
         <h2 style="text-align:center; color:var(--primary); margin-bottom:5px;">🧠 RCB vs GT Finals Speed Trivia</h2>
         <p style="text-align:center; color:#666; margin-bottom:25px;">Select your name, view active questions, and submit your answers as fast as possible!</p>
         
+        <!-- Live Family Submission Module Box -->
         <div class="player-zone">
             <h3 style="color:var(--success); margin-top:0; margin-bottom:15px;">⚡ Live Prediction Playground</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
@@ -199,6 +201,7 @@
             <button class="btn" style="background:var(--success); width:100%; font-size:1.05em;" onclick="submitPlayerAnswerLive()">🚀 Send Speed Prediction</button>
         </div>
 
+        <!-- Hidden Authorized Administrative Control Panel -->
         <div id="adminTriviaControl" style="display:none; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed var(--secondary); margin-bottom:25px;">
             <h3>➕ Create New Finals Trivia Pool</h3>
             <div style="margin-bottom:10px;">
@@ -405,7 +408,7 @@
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
-        // Loop to add Trivia Top 5 calculations onto core sheets on the fly
+        // Add trivia winnings to master overview sheets dynamically
         Object.keys(currentTriviaPools).forEach(tid => {
             const item = currentTriviaPools[tid];
             if(item.settledWinners && Array.isArray(item.settledWinners)) {
@@ -508,7 +511,7 @@
         else { const meds = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"]; lastMatchData.winners.forEach((w, i) => { text += `${meds[i]}: ${w || '-'}\n`; }); }
         text += `\n🏆 *TOP EARNERS PODIUM*\n`;
         sortedEarners.slice(0, 3).forEach((e, i) => { text += `${i+1}. ${e[0]} — ₹${e[1]}\n`; });
-        text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDist}\n⏳ Pending: ₹${Math.round(totalWon - totalDist)}\n\n🌐 *Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/\n━━━━━━━━━━━━━━━━━━\n_Managed by Neeraj Jaggi_`;
+        text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDist}\n⏳ Pending: ₹${Math.round(totalWon - totalDist)}\n\n🌐 *Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/n━━━━━━━━━━━━━━━━━━n_Managed by Neeraj Jaggi_`;
         navigator.clipboard.writeText(text).then(() => alert("🚀 Smart Report Copied!"));
     }
 
@@ -605,7 +608,7 @@ _May the best predictions win!_ 🏏`;
             db.ref('leagueRecords').on('value', snap => {
                 winnersList = snap.val() || {};
                 db.ref('leagueTrivia').on('value', triviaSnap => {
-                    currentTriviaPools = triviaSnap.val() || {};
+                    currentTriviaPools = triviaSnap.val() || {}; // Handled downstream gracefully
                     renderTables(); updateMatchDropdown(); renderSchedule(); renderTriviaUI();
                 });
             });
@@ -726,7 +729,10 @@ _May the best predictions win!_ 🏏`;
         adminTargetDropdown.innerHTML = '<option value="">-- Select Target Round --</option>';
 
         let globalTriviaScores = {};
-        const entries = Object.entries(currentTriviaPools);
+        
+        // Critical Null Safety Catch added here to keep user screens live on empty databases
+        const safePools = currentTriviaPools || {};
+        const entries = Object.entries(safePools);
 
         if(entries.length === 0) {
             container.innerHTML = "<p style='color:#888;'>No finals trivia polls launched yet.</p>";
