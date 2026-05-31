@@ -176,12 +176,10 @@
         </div>
     </div>
 
-    <!-- Trivia Tab Interface Module -->
     <div id="triviaTab" class="content-section">
         <h2 style="text-align:center; color:var(--primary); margin-bottom:5px;">🧠 RCB vs GT Finals Speed Trivia</h2>
         <p style="text-align:center; color:#666; margin-bottom:25px;">Select your name, choose active questions, and answer as fast as possible!</p>
         
-        <!-- Live Family Playground Panel -->
         <div class="player-zone">
             <h3 style="color:var(--success); margin-top:0; margin-bottom:15px;">⚡ Live Prediction Playground</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
@@ -201,7 +199,6 @@
             <button class="btn" style="background:var(--success); width:100%; font-size:1.05em;" onclick="submitPlayerAnswerLive()">🚀 Send Speed Prediction</button>
         </div>
 
-        <!-- Authorized Administrative Control Panel -->
         <div id="adminTriviaControl" style="display:none; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed var(--secondary); margin-bottom:25px;">
             <h3>➕ Create New Finals Trivia Pool</h3>
             <div style="margin-bottom:10px;">
@@ -221,6 +218,9 @@
                 <div>
                     <label><small><b>Target Trivia Pool:</b></small></label>
                     <select id="adminSettleTriviaTarget" class="input-field" style="margin-bottom:10px;"></select>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <button class="btn" style="background:#e28743; flex:1;" onclick="toggleTriviaLockState()">🔒 Lock / Unlock Accept Submissions</button>
                 </div>
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:10px;">
                     <div><label><small>🥇 1st (₹35)</small></label><select id="tWin1" class="input-field"></select></div>
@@ -297,7 +297,7 @@
         {m:31, d:"Apr 21", f:"SRH vs DC", v:"Hyderabad", t:"7:30 PM"}, {m:32, d:"Apr 22", f:"LSG vs RR", v:"Lucknow", t:"7:30 PM"},
         {m:33, d:"Apr 23", f:"MI vs CSK", v:"Mumbai", t:"7:30 PM"}, {m:34, d:"Apr 24", f:"RCB vs GT", v:"Bengaluru", t:"7:30 PM"},
         {m:35, d:"Apr 25", f:"DC vs PBKS", v:"Delhi", t:"3:30 PM"}, {m:36, d:"Apr 25", f:"RR vs SRH", v:"Jaipur", t:"7:30 PM"},
-        {m:37, d:"Apr 26", f:"GT vs CSK", v:"Ahmedabad", t:"3:30 PM"}, {m:38, d:"Apr 26", f:"LSG vs KKR", v:"Lucknow", t:"7:30 PM"},
+        {m:37, d:"May 3", f:"GT vs CSK", v:"Ahmedabad", t:"3:30 PM"}, {m:38, d:"Apr 26", f:"LSG vs KKR", v:"Lucknow", t:"7:30 PM"},
         {m:39, d:"Apr 27", f:"DC vs RCB", v:"Delhi", t:"7:30 PM"}, {m:40, d:"Apr 28", f:"PBKS vs RR", v:"Mullanpur", t:"7:30 PM"},
         {m:41, d:"Apr 29", f:"MI vs SRH", v:"Mumbai", t:"7:30 PM"}, {m:42, d:"Apr 30", f:"KKR vs GT", v:"Kolkata", t:"7:30 PM"},
         {m:43, d:"May 1", f:"CSK vs RR", v:"Chennai", t:"7:30 PM"}, {m:44, d:"May 2", f:"DC vs LSG", v:"Delhi", t:"3:30 PM"},
@@ -674,6 +674,7 @@ _May the best predictions win!_ 🏏`;
             id: newTriviaId,
             question: q,
             poolVal: pool,
+            isLocked: false,
             answers: {},
             settledWinners: ["", "", "", "", ""]
         }).then(() => {
@@ -682,6 +683,18 @@ _May the best predictions win!_ 🏏`;
             alert("🚀 Success! Trivia question has been published to all users.");
         }).catch(err => {
             alert("Error publishing question: " + err.message);
+        });
+    }
+
+    function toggleTriviaLockState() {
+        const tid = document.getElementById('adminSettleTriviaTarget').value;
+        if(!tid) { alert("Select a target pool context to modify lock status."); return; }
+        
+        const targetPool = currentTriviaPools[tid];
+        const currentLockStatus = targetPool.isLocked === true;
+        
+        db.ref('leagueMaster/leagueTrivia/' + tid + '/isLocked').set(!currentLockStatus).then(() => {
+            alert(currentLockStatus ? "🔓 Trivia pool unlocked! Users can submit answers again." : "🔒 Trivia pool locked! Last-minute submissions are now blocked.");
         });
     }
 
@@ -694,9 +707,17 @@ _May the best predictions win!_ 🏏`;
         if(!tid) { alert("Please select an active trivia topic round to submit."); return; }
         if(!answer) { alert("Type a valid response prediction before sending."); return; }
 
-        if(currentTriviaPools[tid] && currentTriviaPools[tid].answers) {
-            const alreadyPlayed = Object.values(currentTriviaPools[tid].answers).some(a => a.name === user);
-            if(alreadyPlayed) { alert("You have already recorded a speed response for this trivia round!"); return; }
+        const targetPool = currentTriviaPools[tid];
+        if(targetPool) {
+            if(targetPool.isLocked === true) { alert("🔒 Entry Blocked! This question has been locked by the admin to prevent late additions."); return; }
+            
+            const isAlreadySettled = targetPool.settledWinners && targetPool.settledWinners.some(w => w !== "");
+            if(isAlreadySettled) { alert("This round has already been finalized and settled."); return; }
+
+            if(targetPool.answers) {
+                const alreadyPlayed = Object.values(targetPool.answers).some(a => a.name === user);
+                if(alreadyPlayed) { alert("You have already recorded a speed response for this trivia round!"); return; }
+            }
         }
 
         const submissionId = 'sub_' + Date.now();
@@ -766,11 +787,14 @@ _May the best predictions win!_ 🏏`;
 
         entries.forEach(([id, item]) => {
             const isSettled = item.settledWinners && item.settledWinners.some(w => w !== "");
+            const isCurrentlyLocked = item.isLocked === true;
             
-            if(!isSettled) {
+            if(!isSettled && !isCurrentlyLocked) {
                 playerDropdown.innerHTML += `<option value="${id}">${item.question}</option>`;
+            } else if (isCurrentlyLocked && !isSettled) {
+                playerDropdown.innerHTML += `<option value="${id}">🔒 [LOCKED] ${item.question}</option>`;
             }
-            adminTargetDropdown.innerHTML += `<option value="${id}">${item.question} (${isSettled ? 'Settled' : 'Open'})</option>`;
+            adminTargetDropdown.innerHTML += `<option value="${id}">${item.question} (${isSettled ? 'Settled' : isCurrentlyLocked ? 'Locked' : 'Open'})</option>`;
 
             let answersHTML = "";
             const rawAnswers = item.answers ? Object.values(item.answers) : [];
@@ -804,6 +828,8 @@ _May the best predictions win!_ 🏏`;
                         globalTriviaScores[winnerName] = (globalTriviaScores[winnerName] || 0) + TRIVIA_SPLITS[idx];
                     }
                 });
+            } else if (isCurrentlyLocked) {
+                winnerStatusHTML = `<div style='margin-top:12px; background:#fef2f2; color:#b91c1c; font-size:0.85em; font-weight:bold; padding:8px; border-radius:6px; border:1px solid #fca5a5;'>🔒 Question Locked down by Admin. Submissions are no longer accepted. Awaiting Top 5 announcement.</div>`;
             } else {
                 winnerStatusHTML = `<div style='margin-top:12px; color:#e28743; font-size:0.85em; font-weight:bold;'>⏳ Live Open Round — Accepting answers. Top 5 speeds get pool cuts.</div>`;
             }
