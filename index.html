@@ -46,6 +46,13 @@
         .amt-tag { display: block; font-size: 0.8em; color: #166534; font-weight: bold; background: #dcfce7; border-radius: 4px; padding: 2px 4px; margin-top: 2px;}
         .today-highlight { background: #fffbeb !important; border: 2px solid var(--gold) !important; font-weight: bold; }
         .sim-btn { flex: 1; min-width: 65px; padding: 12px 5px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; }
+
+        /* Trivia UI Styles */
+        .trivia-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid var(--secondary); }
+        .trivia-pool-badge { background: #e0f2fe; color: #0369a1; font-weight: bold; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; display: inline-block; margin-bottom: 10px; }
+        .trivia-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .input-field { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 5px; box-sizing: border-box; }
+        .player-zone { background: linear-gradient(135deg, #ffffff, #f0fdf4); border: 2px solid var(--success); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
     </style>
 </head>
 <body>
@@ -64,6 +71,7 @@
         <button class="tab-btn active" onclick="openTab(event, 'rules')">📜 The Playbook</button>
         <button class="tab-btn" onclick="openTab(event, 'tracker')">🏏 Tracker</button>
         <button class="tab-btn" onclick="openTab(event, 'summary')">💰 Payouts</button>
+        <button class="tab-btn" onclick="openTab(event, 'triviaTab')">🧠 Match Trivia</button>
         <button class="tab-btn" onclick="openTab(event, 'scheduleTab')">📅 Schedule</button>
     </div>
 
@@ -168,6 +176,80 @@
         </div>
     </div>
 
+    <div id="triviaTab" class="content-section">
+        <h2 style="text-align:center; color:var(--primary); margin-bottom:5px;">🧠 RCB vs GT Finals Speed Trivia</h2>
+        <p style="text-align:center; color:#666; margin-bottom:25px;">Select your name, choose active questions, and answer as fast as possible!</p>
+        
+        <div class="player-zone">
+            <h3 style="color:var(--success); margin-top:0; margin-bottom:15px;">⚡ Live Prediction Playground</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label><b>Identify Yourself:</b></label>
+                    <select id="playerIdentitySelect" class="input-field"></select>
+                </div>
+                <div>
+                    <label><b>Select Active Poll Question:</b></label>
+                    <select id="playerActiveTriviaSelect" class="input-field"><option value="">-- Choose Active Poll --</option></select>
+                </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label><b>Your Answer Prediction:</b></label>
+                <input type="text" id="playerAnswerInput" class="input-field" placeholder="Type your prediction value here...">
+            </div>
+            <button class="btn" style="background:var(--success); width:100%; font-size:1.05em;" onclick="submitPlayerAnswerLive()">🚀 Send Speed Prediction</button>
+        </div>
+
+        <div id="adminTriviaControl" style="display:none; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed var(--secondary); margin-bottom:25px;">
+            <h3>➕ Create New Finals Trivia Pool</h3>
+            <div style="margin-bottom:10px;">
+                <label><b>Question Context:</b></label>
+                <input type="text" id="triviaQ" class="input-field" placeholder="e.g., [TEST] Practice Round Question or Official Match Question">
+            </div>
+            <div style="margin-bottom:15px;">
+                <label><b>Trivia Pool Value (from ₹300):</b></label>
+                <input type="number" id="triviaPoolVal" class="input-field" value="100">
+            </div>
+            <button class="btn" style="background:var(--secondary);" onclick="createNewTrivia()">🚀 Launch Live Poll Trivia</button>
+            
+            <hr style="margin:20px 0; border:0; border-top:1px solid #cbd5e1;">
+            <h3>🎯 Admin Settle Center (Top 5 Allocation & Clear)</h3>
+            <p style="font-size:0.8em; color:#555; margin-top:-5px;">Pick winners to reward them or delete the poll data completely if it was a test.</p>
+            <div style="display:flex; flex-direction:column; gap:10px; background:white; padding:15px; border-radius:8px; border:1px solid #cbd5e1;">
+                <div>
+                    <label><small><b>Target Trivia Pool:</b></small></label>
+                    <select id="adminSettleTriviaTarget" class="input-field" style="margin-bottom:10px;"></select>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <button class="btn" style="background:#e28743; flex:1;" onclick="toggleTriviaLockState()">🔒 Lock / Unlock Accept Submissions</button>
+                </div>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:10px;">
+                    <div><label><small>🥇 1st (₹35)</small></label><select id="tWin1" class="input-field"></select></div>
+                    <div><label><small>🥈 2nd (₹25)</small></label><select id="tWin2" class="input-field"></select></div>
+                    <div><label><small>🥉 3rd (₹20)</small></label><select id="tWin3" class="input-field"></select></div>
+                    <div><label><small>🏅 4th (₹12)</small></label><select id="tWin4" class="input-field"></select></div>
+                    <div><label><small>🏅 5th (₹8)</small></label><select id="tWin5" class="input-field"></select></div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="btn" style="background:var(--success); flex:2;" onclick="saveTriviaTopFiveWinners()">🔒 Lock Top 5 Winners & Payouts</button>
+                    <button class="btn" style="background:var(--danger); flex:1;" onclick="clearTriviaQuestionEntirely()">🗑️ Delete & Wipe Selected Poll Data</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="trivia-grid">
+            <div style="flex:2;">
+                <h3 style="color:var(--primary); border-left:4px solid var(--secondary); padding-left:10px;">🔥 Live Open Trivia Polls</h3>
+                <div id="openTriviaList"></div>
+            </div>
+            <div style="flex:1;">
+                <h3 style="color:var(--primary); border-left:4px solid var(--gold); padding-left:10px;">📈 Active Trivia Leaderboard</h3>
+                <div id="triviaScoresCard" class="trivia-card" style="background:#fffbeb;">
+                    <div id="triviaLeaderboardContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="scheduleTab" class="content-section">
         <h2 style="text-align:center; color:var(--primary);">🗓️ Official IPL 2026 Fixtures</h2>
         <table id="iplScheduleTable">
@@ -191,6 +273,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const PRIZES = [110, 80, 50, 35, 25]; 
+    const TRIVIA_SPLITS = [35, 25, 20, 12, 8]; 
     const ALL_PLAYERS = ["Abha","Aju", "Anil", "Anju", "Ashu", "Atul", "Devansh", "Divya", "Dolly", "Khusboo", "Neeraj", "Nirvi", "Sonu", "Suksham", "Sweety"];
     const DEPOSIT_GOAL = 1480;
     const TOTAL_POOL = DEPOSIT_GOAL * ALL_PLAYERS.length; 
@@ -214,7 +297,7 @@
         {m:31, d:"Apr 21", f:"SRH vs DC", v:"Hyderabad", t:"7:30 PM"}, {m:32, d:"Apr 22", f:"LSG vs RR", v:"Lucknow", t:"7:30 PM"},
         {m:33, d:"Apr 23", f:"MI vs CSK", v:"Mumbai", t:"7:30 PM"}, {m:34, d:"Apr 24", f:"RCB vs GT", v:"Bengaluru", t:"7:30 PM"},
         {m:35, d:"Apr 25", f:"DC vs PBKS", v:"Delhi", t:"3:30 PM"}, {m:36, d:"Apr 25", f:"RR vs SRH", v:"Jaipur", t:"7:30 PM"},
-        {m:37, d:"Apr 26", f:"GT vs CSK", v:"Ahmedabad", t:"3:30 PM"}, {m:38, d:"Apr 26", f:"LSG vs KKR", v:"Lucknow", t:"7:30 PM"},
+        {m:37, d:"May 3", f:"GT vs CSK", v:"Ahmedabad", t:"3:30 PM"}, {m:38, d:"Apr 26", f:"LSG vs KKR", v:"Lucknow", t:"7:30 PM"},
         {m:39, d:"Apr 27", f:"DC vs RCB", v:"Delhi", t:"7:30 PM"}, {m:40, d:"Apr 28", f:"PBKS vs RR", v:"Mullanpur", t:"7:30 PM"},
         {m:41, d:"Apr 29", f:"MI vs SRH", v:"Mumbai", t:"7:30 PM"}, {m:42, d:"Apr 30", f:"KKR vs GT", v:"Kolkata", t:"7:30 PM"},
         {m:43, d:"May 1", f:"CSK vs RR", v:"Chennai", t:"7:30 PM"}, {m:44, d:"May 2", f:"DC vs LSG", v:"Delhi", t:"3:30 PM"},
@@ -239,6 +322,7 @@
     let paidHistory = [];
     let isAdmin = false;
     let lastMatchData = { num: 0, winners: [], isAbandoned: false };
+    let currentTriviaPools = {};
 
     function openTab(e, n) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -327,6 +411,18 @@
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
+        // Loop to add Trivia Top 5 calculations onto core balance arrays
+        Object.keys(currentTriviaPools).forEach(tid => {
+            const item = currentTriviaPools[tid];
+            if(item.settledWinners && Array.isArray(item.settledWinners)) {
+                item.settledWinners.forEach((winnerName, idx) => {
+                    if(winnerName) {
+                        currentStats[winnerName] = (currentStats[winnerName] || 0) + TRIVIA_SPLITS[idx];
+                    }
+                });
+            }
+        });
+
         const rNames = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
         rankBoard.innerHTML = rNames.map((lbl, idx) => {
             const sorted = Object.entries(rankCounts[idx]).sort((a,b) => b[1] - a[1]);
@@ -400,6 +496,16 @@
                 names.forEach(n => currentWinnings[n] = (currentWinnings[n] || 0) + Math.round(prize/names.length));
             });
         });
+        
+        Object.keys(currentTriviaPools).forEach(tid => {
+            const tr = currentTriviaPools[tid];
+            if(tr.settledWinners) {
+                tr.settledWinners.forEach((win, idx) => {
+                    if(win) currentWinnings[win] = (currentWinnings[win] || 0) + TRIVIA_SPLITS[idx];
+                });
+            }
+        });
+
         const sortedEarners = Object.entries(currentWinnings).sort((a,b) => b[1] - a[1]);
         const totalDist = paidHistory.reduce((s, h) => s + h.amount, 0);
         const totalWon = Object.values(currentWinnings).reduce((a,b)=>a+b,0);
@@ -408,7 +514,7 @@
         else { const meds = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"]; lastMatchData.winners.forEach((w, i) => { text += `${meds[i]}: ${w || '-'}\n`; }); }
         text += `\n🏆 *TOP EARNERS PODIUM*\n`;
         sortedEarners.slice(0, 3).forEach((e, i) => { text += `${i+1}. ${e[0]} — ₹${e[1]}\n`; });
-        text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDist}\n⏳ Pending: ₹${Math.round(totalWon - totalDist)}\n\n🌐 *Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/\n━━━━━━━━━━━━━━━━━━\n_Managed by Neeraj Jaggi_`;
+        text += `\n💰 *FINANCIAL SUMMARY*\n✅ Settled: ₹${totalDist}\n⏳ Pending: ₹${Math.round(totalWon - totalDist)}\n\n🌐 *Portal:* https://neerajjaggi02.github.io/ipl-family-league-20226/n━━━━━━━━━━━━━━━━━━n_Managed by Neeraj Jaggi_`;
         navigator.clipboard.writeText(text).then(() => alert("🚀 Smart Report Copied!"));
     }
 
@@ -434,6 +540,15 @@
                     rankCounts[idx][n] = (rankCounts[idx][n] || 0) + 1;
                 });
             });
+        });
+
+        Object.keys(currentTriviaPools).forEach(tid => {
+            const tr = currentTriviaPools[tid];
+            if(tr.settledWinners) {
+                tr.settledWinners.forEach((win, idx) => {
+                    if(win) currentWinnings[win] = (currentWinnings[win] || 0) + TRIVIA_SPLITS[idx];
+                });
+            }
         });
 
         const sortedEarners = Object.entries(currentWinnings).sort((a,b) => b[1] - a[1]);
@@ -490,13 +605,25 @@ _May the best predictions win!_ 🏏`;
         document.getElementById('simWinners').innerText = list.length ? list.join(' | ') : "No winners.";
     }
 
+    // Consolidated Master Realtime Loop With Isolated Standalone Observers
     function fetchAllData() {
-        db.ref('leagueMaster').on('value', snap => {
-            paidHistory = (snap.val() || {}).paidHistory || [];
-            db.ref('leagueRecords').on('value', snap => {
-                winnersList = snap.val() || {};
-                renderTables(); updateMatchDropdown(); renderSchedule();
-            });
+        db.ref('leagueMaster/paidHistory').on('value', snap => {
+            paidHistory = snap.val() || [];
+            renderTables();
+        });
+
+        // Completely isolated observer stream loop for trivia storage trees
+        db.ref('leagueMaster/leagueTrivia').on('value', triviaSnap => {
+            currentTriviaPools = triviaSnap.val() || {};
+            renderTables();
+            renderTriviaUI();
+        });
+
+        db.ref('leagueRecords').on('value', recordSnap => {
+            winnersList = recordSnap.val() || {};
+            renderTables(); 
+            updateMatchDropdown(); 
+            renderSchedule();
         });
     }
 
@@ -505,9 +632,11 @@ _May the best predictions win!_ 🏏`;
             isAdmin = true; 
             document.getElementById('adminText').innerText = "🔓 Volunteer Mode"; 
             document.getElementById('adminEntry').style.display = "block"; 
+            document.getElementById('adminTriviaControl').style.display = "block"; 
             document.getElementById('waBtn').style.display = "block"; 
             document.getElementById('settleBtn').disabled = false; 
-            renderTables(); 
+            renderTables();
+            renderTriviaUI();
         }
     }
 
@@ -523,9 +652,207 @@ _May the best predictions win!_ 🏏`;
     }
 
     function initMultiSelects() {
-        ['p1', 'p2', 'p3', 'p4', 'p5'].forEach(id => {
-            document.getElementById(id).innerHTML = ALL_PLAYERS.map(p => `<option value="${p}">${p}</option>`).join('');
+        const selects = ['p1', 'p2', 'p3', 'p4', 'p5', 'playerIdentitySelect', 'tWin1', 'tWin2', 'tWin3', 'tWin4', 'tWin5'];
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                let optionsHtml = (id === 'playerIdentitySelect') ? '<option value="">-- Choose Your Name --</option>' : '<option value="">- None -</option>';
+                optionsHtml += ALL_PLAYERS.map(p => `<option value="${p}">${p}</option>`).join('');
+                el.innerHTML = optionsHtml;
+            }
         });
+    }
+
+    /* Core Trivia Data Controllers */
+    function createNewTrivia() {
+        const q = document.getElementById('triviaQ').value.trim();
+        const pool = document.getElementById('triviaPoolVal').value.trim();
+        if(!q || !pool) { alert("Provide a valid Question context and Amount."); return; }
+        
+        const newTriviaId = 'trivia_' + Date.now();
+        db.ref('leagueMaster/leagueTrivia/' + newTriviaId).set({
+            id: newTriviaId,
+            question: q,
+            poolVal: pool,
+            isLocked: false,
+            answers: {},
+            settledWinners: ["", "", "", "", ""]
+        }).then(() => {
+            document.getElementById('triviaQ').value = "";
+            // Instant physical prompt added here for admin confirmation sync actions
+            alert("🚀 Success! Trivia question has been published to all users.");
+        }).catch(err => {
+            alert("Error publishing question: " + err.message);
+        });
+    }
+
+    function toggleTriviaLockState() {
+        const tid = document.getElementById('adminSettleTriviaTarget').value;
+        if(!tid) { alert("Select a target pool context to modify lock status."); return; }
+        
+        const targetPool = currentTriviaPools[tid];
+        const currentLockStatus = targetPool.isLocked === true;
+        
+        db.ref('leagueMaster/leagueTrivia/' + tid + '/isLocked').set(!currentLockStatus).then(() => {
+            alert(currentLockStatus ? "🔓 Trivia pool unlocked! Users can submit answers again." : "🔒 Trivia pool locked! Last-minute submissions are now blocked.");
+        });
+    }
+
+    function submitPlayerAnswerLive() {
+        const user = document.getElementById('playerIdentitySelect').value;
+        const tid = document.getElementById('playerActiveTriviaSelect').value;
+        const answer = document.getElementById('playerAnswerInput').value.trim();
+
+        if(!user) { alert("Please select your identity name before playing."); return; }
+        if(!tid) { alert("Please select an active trivia topic round to submit."); return; }
+        if(!answer) { alert("Type a valid response prediction before sending."); return; }
+
+        const targetPool = currentTriviaPools[tid];
+        if(targetPool) {
+            if(targetPool.isLocked === true) { alert("🔒 Entry Blocked! This question has been locked by the admin to prevent late additions."); return; }
+            
+            const isAlreadySettled = targetPool.settledWinners && targetPool.settledWinners.some(w => w !== "");
+            if(isAlreadySettled) { alert("This round has already been finalized and settled."); return; }
+
+            if(targetPool.answers) {
+                const alreadyPlayed = Object.values(targetPool.answers).some(a => a.name === user);
+                if(alreadyPlayed) { alert("You have already recorded a speed response for this trivia round!"); return; }
+            }
+        }
+
+        const submissionId = 'sub_' + Date.now();
+        db.ref('leagueMaster/leagueTrivia/' + tid + '/answers/' + submissionId).set({
+            name: user,
+            ans: answer,
+            time: new Date().toLocaleTimeString(),
+            ms: Date.now()
+        }).then(() => {
+            document.getElementById('playerAnswerInput').value = "";
+            alert("⚡ Speed prediction locked down into cloud engine safely!");
+        });
+    }
+
+    function saveTriviaTopFiveWinners() {
+        const tid = document.getElementById('adminSettleTriviaTarget').value;
+        if(!tid) { alert("Select a target pool context to settle."); return; }
+
+        const w1 = document.getElementById('tWin1').value;
+        const w2 = document.getElementById('tWin2').value;
+        const w3 = document.getElementById('tWin3').value;
+        const w4 = document.getElementById('tWin4').value;
+        const w5 = document.getElementById('tWin5').value;
+
+        if(confirm("Confirm and lock these Top 5 fastest correct answerers?")) {
+            db.ref('leagueMaster/leagueTrivia/' + tid + '/settledWinners').set([w1, w2, w3, w4, w5]).then(() => {
+                alert("Top 5 Trivia winners recorded into unified bank balance sheet arrays!");
+            });
+        }
+    }
+
+    function clearTriviaQuestionEntirely() {
+        const tid = document.getElementById('adminSettleTriviaTarget').value;
+        if(!tid) { alert("Select a target poll to clear."); return; }
+
+        if(confirm("🗑️ Are you sure you want to completely delete this trivia round and wipe out all user submissions?")) {
+            db.ref('leagueMaster/leagueTrivia/' + tid).remove().then(() => {
+                alert("Poll deleted successfully from cloud servers!");
+            });
+        }
+    }
+
+    function renderTriviaUI() {
+        const container = document.getElementById('openTriviaList');
+        const scoreContainer = document.getElementById('triviaLeaderboardContainer');
+        const playerDropdown = document.getElementById('playerActiveTriviaSelect');
+        const adminTargetDropdown = document.getElementById('adminSettleTriviaTarget');
+        
+        if(!container) return;
+        
+        const oldPlayerVal = playerDropdown.value;
+        const oldAdminVal = adminTargetDropdown.value;
+
+        container.innerHTML = "";
+        playerDropdown.innerHTML = '<option value="">-- Choose Active Poll --</option>';
+        adminTargetDropdown.innerHTML = '<option value="">-- Select Target Round --</option>';
+
+        let globalTriviaScores = {};
+        const safePools = currentTriviaPools || {};
+        const entries = Object.entries(safePools);
+
+        if(entries.length === 0) {
+            container.innerHTML = "<p style='color:#888; padding-left:10px;'>No active grand final trivia polls launched yet. Tap edit to start your first one!</p>";
+            scoreContainer.innerHTML = "<small style='color:#777;'>Waiting for session sync...</small>";
+            return;
+        }
+
+        entries.forEach(([id, item]) => {
+            const isSettled = item.settledWinners && item.settledWinners.some(w => w !== "");
+            const isCurrentlyLocked = item.isLocked === true;
+            
+            if(!isSettled && !isCurrentlyLocked) {
+                playerDropdown.innerHTML += `<option value="${id}">${item.question}</option>`;
+            } else if (isCurrentlyLocked && !isSettled) {
+                playerDropdown.innerHTML += `<option value="${id}">🔒 [LOCKED] ${item.question}</option>`;
+            }
+            adminTargetDropdown.innerHTML += `<option value="${id}">${item.question} (${isSettled ? 'Settled' : isCurrentlyLocked ? 'Locked' : 'Open'})</option>`;
+
+            let answersHTML = "";
+            const rawAnswers = item.answers ? Object.values(item.answers) : [];
+            const sortedAnswers = rawAnswers.sort((a,b) => a.ms - b.ms);
+
+            if(sortedAnswers.length > 0) {
+                answersHTML = `<table style='margin-top:10px; font-size:0.8em;'>
+                    <thead><tr><th>Speed</th><th>Member</th><th>Prediction Value</th><th>Timestamp</th></tr></thead>
+                    <tbody>` + sortedAnswers.map((a, idx) => `
+                        <tr>
+                            <td><b>#${idx+1}</b></td>
+                            <td><b>${a.name}</b></td>
+                            <td>"${a.ans}"</td>
+                            <td>⏱️ ${a.time}</td>
+                        </tr>`).join('') + `</tbody></table>`;
+            } else {
+                answersHTML = `<p style='color:#999; font-size:0.8em; padding-left:10px;'>No predictions recorded yet.</p>`;
+            }
+
+            let winnerStatusHTML = "";
+            if(isSettled) {
+                const medals = ["🥇", "🥈", "🥉", "🏅", "🏅"];
+                winnerStatusHTML = `<div style='margin-top:12px; background:#f0fdf4; padding:10px; border-radius:6px; border:1px solid #bbf7d0;'>
+                    <span style='font-size:0.85em; font-weight:bold; color:var(--success); d-block; margin-bottom:5px;'>🏆 Official Speed Winners:</span>
+                    <div style='font-size:0.8em; display:flex; flex-wrap:wrap; gap:10px; margin-top:4px;'>` + 
+                        item.settledWinners.map((w, idx) => w ? `<span>${medals[idx]} ${w} (+₹${TRIVIA_SPLITS[idx]})</span>` : '').join('') + 
+                    `</div></div>`;
+
+                item.settledWinners.forEach((winnerName, idx) => {
+                    if(winnerName) {
+                        globalTriviaScores[winnerName] = (globalTriviaScores[winnerName] || 0) + TRIVIA_SPLITS[idx];
+                    }
+                });
+            } else if (isCurrentlyLocked) {
+                winnerStatusHTML = `<div style='margin-top:12px; background:#fef2f2; color:#b91c1c; font-size:0.85em; font-weight:bold; padding:8px; border-radius:6px; border:1px solid #fca5a5;'>🔒 Question Locked down by Admin. Submissions are no longer accepted. Awaiting Top 5 announcement.</div>`;
+            } else {
+                winnerStatusHTML = `<div style='margin-top:12px; color:#e28743; font-size:0.85em; font-weight:bold;'>⏳ Live Open Round — Accepting answers. Top 5 speeds get pool cuts.</div>`;
+            }
+
+            container.innerHTML += `
+                <div class="trivia-card">
+                    <span class="trivia-pool-badge">🎟️ Finals Trivia Pool: ₹${item.poolVal}</span>
+                    <h3 style='margin:5px 0 12px 0; color:var(--primary); font-size:1.15em;'>${item.question}</h3>
+                    <h4 style='margin:0; font-size:0.85em; color:#555;'>Speed Log Entry Feed:</h4>
+                    ${answersHTML}
+                    ${winnerStatusHTML}
+                </div>`;
+        });
+
+        playerDropdown.value = oldPlayerVal;
+        adminTargetDropdown.value = oldAdminVal;
+
+        const sortedScores = Object.entries(globalTriviaScores).sort((a,b) => b[1] - a[1]);
+        scoreContainer.innerHTML = sortedScores.map(([name, pts]) => `
+            <div style='display:flex; justify-content:between; padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:0.9em;'>
+                <span style='flex:1;'><b>${name}</b></span>
+                <span style='color:var(--success); font-weight:bold;'>₹${pts} Won</span>
+            </div>`).join('') || "<small style='color:#777;'>Waiting for settlement listings...</small>";
     }
 
     window.onload = () => { initMultiSelects(); fetchAllData(); };
