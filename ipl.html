@@ -164,7 +164,6 @@
     </div>
 
     <div id="summary" class="content-section">
-        <!-- Professional Tournament Season Recap Module Card -->
         <div class="season-card">
             <div class="season-header">
                 <div>
@@ -190,8 +189,7 @@
                 </table>
             </div>
 
-            <!-- Position Density Breakdown Array Block -->
-            <h3 style="color: var(--gold); margin-top: 35px; font-size: 1.1rem; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 15px;">📊 Historical Performance & Medal Distribution matrix</h3>
+            <h3 style="color: var(--gold); margin-top: 35px; font-size: 1.1rem; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 15px;">📊 Historical Performance & Medal Distribution Matrix</h3>
             <div style="overflow-x: auto;">
                 <table class="season-table">
                     <thead>
@@ -251,12 +249,10 @@
         </div>
     </div>
 
-    <!-- Trivia Tab Interface Module -->
     <div id="triviaTab" class="content-section">
         <h2 style="text-align:center; color:var(--primary); margin-bottom:5px;">🧠 RCB vs GT Finals Speed Trivia</h2>
         <p style="text-align:center; color:#666; margin-bottom:25px;">Select your name, choose active questions, and answer as fast as possible!</p>
         
-        <!-- Live Family Playground Panel -->
         <div class="player-zone">
             <h3 style="color:var(--success); margin-top:0; margin-bottom:15px;">⚡ Live Prediction Playground</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
@@ -276,7 +272,6 @@
             <button class="btn" style="background:var(--success); width:100%; font-size:1.05em;" onclick="submitPlayerAnswerLive()">🚀 Send Speed Prediction</button>
         </div>
 
-        <!-- Authorized Administrative Control Panel -->
         <div id="adminTriviaControl" style="display:none; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed var(--secondary); margin-bottom:25px;">
             <h3>➕ Create New Finals Trivia Pool</h3>
             <div style="margin-bottom:10px;">
@@ -459,6 +454,7 @@
         let currentStats = {};
         let rankCounts = [{}, {}, {}, {}, {}];
         let abandonedMatchCount = 0;
+        let totalTriviaDistributed = 0;
 
         ALL_PLAYERS.forEach(p => { 
             currentStats[p] = 0; 
@@ -501,6 +497,19 @@
                 });
             }
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
+        });
+
+        // Deduct trivia allocations directly from the abandoned pool to keep the math sequential
+        Object.keys(currentTriviaPools).forEach(tid => {
+            const item = currentTriviaPools[tid];
+            if(item.settledWinners && Array.isArray(item.settledWinners)) {
+                item.settledWinners.forEach((winnerName, idx) => {
+                    if(winnerName) {
+                        currentStats[winnerName] = (currentStats[winnerName] || 0) + TRIVIA_SPLITS[idx];
+                        totalTriviaDistributed += TRIVIA_SPLITS[idx];
+                    }
+                });
+            }
         });
 
         const rNames = ["🥇 1st", "🥈 2nd", "🥉 3rd", "🏅 4th", "🏅 5th"];
@@ -572,7 +581,7 @@
 
         sortedE.forEach(([name, won]) => {
             const paid = paidMap[name] || 0;
-            const due = won - paid;
+            const due = Math.max(won - paid, 0); 
             totalWinningsVal += won;
             totalSettledVal += paid;
             if (hideSettled && due <= 0) return;
@@ -583,12 +592,14 @@
         });
 
         const prizeSumPerMatch = PRIZES.reduce((a, b) => a + b, 0); 
-        const abandonedPool = abandonedMatchCount * prizeSumPerMatch;
+        const rawAbandonedPool = abandonedMatchCount * prizeSumPerMatch;
+        const netRemainingAbandoned = Math.max(rawAbandonedPool - totalTriviaDistributed, 0);
+
         document.getElementById('dashTotalWon').innerText = `₹${TOTAL_POOL}`;
         document.getElementById('dashPaid').innerText = `₹${Math.round(totalSettledVal)}`;
-        document.getElementById('dashPending').innerText = `₹${Math.round(totalWinningsVal - totalSettledVal)}`;
-        document.getElementById('dashAbandoned').innerText = `₹${abandonedPool}`;
-        document.getElementById('dashBalance').innerText = `₹${Math.round(TOTAL_POOL - totalSettledVal)}`;
+        document.getElementById('dashPending').innerText = `₹${Math.max(Math.round(totalWinningsVal - totalSettledVal), 0)}`;
+        document.getElementById('dashAbandoned').innerText = `₹${netRemainingAbandoned}`;
+        document.getElementById('dashBalance').innerText = `₹${Math.max(Math.round(TOTAL_POOL - totalSettledVal), 0)}`;
         document.getElementById('cloudStatus').innerText = "LIVE ✅";
     }
 
@@ -617,6 +628,17 @@
                     rankCounts[idx][p] = (rankCounts[idx][p] || 0) + 1;
                 });
             });
+        });
+
+        Object.keys(currentTriviaPools).forEach(tid => {
+            const item = currentTriviaPools[tid];
+            if(item.settledWinners && Array.isArray(item.settledWinners)) {
+                item.settledWinners.forEach((winnerName, idx) => {
+                    if(winnerName) {
+                        currentStats[winnerName] = (currentStats[winnerName] || 0) + TRIVIA_SPLITS[idx];
+                    }
+                });
+            }
         });
 
         const sortedEarners = Object.entries(currentStats).sort((a,b) => b[1] - a[1]);
@@ -1028,9 +1050,6 @@ _May the best predictions win!_ 🏏`;
                     ${winnerStatusHTML}
                 </div>`;
         });
-
-        playerDropdown.value = oldPlayerVal;
-        adminTargetDropdown.value = oldAdminVal;
 
         const sortedScores = Object.entries(globalTriviaScores).sort((a,b) => b[1] - a[1]);
         scoreContainer.innerHTML = sortedScores.map(([name, pts]) => `
