@@ -91,7 +91,7 @@
                 <div id="tourneyBar" style="background: var(--secondary); height: 100%; width: 0%; transition: width 1s;"></div>
             </div>
         </div>
-        <h3 style="color:var(--primary); font-size:1.1em; border-left: 4px solid var(--gold); padding-left:10px; margin-bottom:15px;">👑 Rank Frequency (Leaderboard)</h3>
+        <h3 style="color:var(--primary); font-size:1.1em; border-left: 4px solid var(--gold); padding-left:10px; margin-bottom:15px;">🏅 Rank Frequency (Leaderboard)</h3>
         <div class="rank-grid" id="rankLeaderboard"></div>
         <div style="background: linear-gradient(135deg, #1a3a5f, #2b6cb0); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
             <h3 style="margin-top:0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">🔮 Hall of Fame Finder</h3>
@@ -137,7 +137,6 @@
     </div>
 
     <div id="summary" class="content-section">
-        <!-- Tournament Season Recap Module Card -->
         <div style="background: linear-gradient(135deg, #111827, #1f2937); color: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #374151; padding-bottom: 15px; margin-bottom: 20px;">
                 <h2 style="margin: 0; color: var(--gold);">🎉 Season Finale Leaderboard & Balance Sheet</h2>
@@ -164,7 +163,6 @@
                 </table>
             </div>
 
-            <!-- New Section: Season Position / Medal Counts Breakdown -->
             <h3 style="color: var(--gold); border-bottom: 1px solid #374151; padding-bottom: 10px; margin-bottom: 15px;">🏅 Season Position & Medal Counts Breakdown</h3>
             <p style="font-size: 0.85em; color: #9ca3af; margin-top: -5px; margin-bottom: 15px;">
                 See exactly how many times each individual achieved 1st, 2nd, 3rd, 4th, and 5th places throughout the 74 matches.
@@ -228,12 +226,10 @@
         </div>
     </div>
 
-    <!-- Trivia Tab Interface Module -->
     <div id="triviaTab" class="content-section">
         <h2 style="text-align:center; color:var(--primary); margin-bottom:5px;">🧠 RCB vs GT Finals Speed Trivia</h2>
         <p style="text-align:center; color:#666; margin-bottom:25px;">Select your name, choose active questions, and answer as fast as possible!</p>
         
-        <!-- Live Family Playground Panel -->
         <div class="player-zone">
             <h3 style="color:var(--success); margin-top:0; margin-bottom:15px;">⚡ Live Prediction Playground</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
@@ -253,7 +249,6 @@
             <button class="btn" style="background:var(--success); width:100%; font-size:1.05em;" onclick="submitPlayerAnswerLive()">🚀 Send Speed Prediction</button>
         </div>
 
-        <!-- Authorized Administrative Control Panel -->
         <div id="adminTriviaControl" style="display:none; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed var(--secondary); margin-bottom:25px;">
             <h3>➕ Create New Finals Trivia Pool</h3>
             <div style="margin-bottom:10px;">
@@ -333,11 +328,45 @@
     const DEPOSIT_GOAL = 1480;
     const TOTAL_POOL = DEPOSIT_GOAL * ALL_PLAYERS.length; 
 
-    let winnersList = {};
-    let paidHistory = [];
-    let isAdmin = false;
-    let lastMatchData = { num: 0, winners: [], isAbandoned: false };
-    let currentTriviaPools = {};
+    const IPL_DATA = [
+        {m:1, d:"Mar 28", f:"RCB vs SRH", v:"Bengaluru", t:"7:30 PM"}, {m:2, d:"Mar 29", f:"MI vs KKR", v:"Mumbai", t:"7:30 PM"},
+        {m:3, d:"Mar 30", f:"RR vs CSK", v:"Guwahati", t:"7:30 PM"}, {m:4, d:"Mar 31", f:"PBKS vs GT", v:"Mullanpur", t:"7:30 PM"},
+        {m:5, d:"Apr 1", f:"LSG vs DC", v:"Lucknow", t:"7:30 PM"}, {m:6, d:"Apr 2", f:"KKR vs SRH", v:"Kolkata", t:"7:30 PM"},
+        {m:7, d:"Apr 3", f:"CSK vs PBKS", v:"Chennai", t:"7:30 PM"}, {m:8, d:"Apr 4", f:"DC vs MI", v:"Delhi", t:"3:30 PM"},
+        {m:9, d:"Apr 4", f:"GT vs RR", v:"Ahmedabad", t:"7:30 PM"}, {m:10, d:"Apr 5", f:"SRH vs LSG", v:"Hyderabad", t:"3:30 PM"},
+        {m:11, d:"Apr 5", f:"RCB vs CSK", v:"Bengaluru", t:"7:30 PM"}, {m:12, d:"Apr 6", f:"KKR vs PBKS", v:"Kolkata", t:"7:30 PM"},
+        {m:13, d:"Apr 7", f:"RR vs MI", v:"Guwahati", t:"7:30 PM"}, {m:14, d:"Apr 8", f:"DC vs GT", v:"Delhi", t:"7:30 PM"},
+        {m:15, d:"Apr 9", f:"KKR vs LSG", v:"Kolkata", t:"7:30 PM"}, {m:16, d:"Apr 10", f:"RR vs RCB", v:"Guwahati", t:"7:30 PM"},
+        {m:17, d:"Apr 11", f:"PBKS vs SRH", v:"Mullanpur", t:"3:30 PM"}, {m:18, d:"Apr 11", f:"CSK vs DC", v:"Chennai", t:"7:30 PM"},
+        {m:19, d:"Apr 12", f:"LSG vs GT", v:"Lucknow", t:"3:30 PM"}, {m:20, d:"Apr 12", f:"MI vs RCB", v:"Mumbai", t:"7:30 PM"},
+        {m:21, d:"Apr 13", f:"SRH vs RR", v:"Hyderabad", t:"7:30 PM"}, {m:22, d:"Apr 14", f:"CSK vs KKR", v:"Chennai", t:"7:30 PM"},
+        {m:23, d:"Apr 15", f:"RCB vs LSG", v:"Bengaluru", t:"7:30 PM"}, {m:24, d:"Apr 16", f:"MI vs PBKS", v:"Mumbai", t:"7:30 PM"},
+        {m:25, d:"Apr 17", f:"GT vs KKR", v:"Ahmedabad", t:"7:30 PM"}, {m:26, d:"Apr 18", f:"RCB vs DC", v:"Bengaluru", t:"3:30 PM"},
+        {m:27, d:"Apr 18", f:"SRH vs CSK", v:"Hyderabad", t:"7:30 PM"}, {m:28, d:"Apr 19", f:"KKR vs RR", v:"Kolkata", t:"3:30 PM"},
+        {m:29, d:"Apr 19", f:"PBKS vs LSG", v:"Mullanpur", t:"7:30 PM"}, {m:30, d:"Apr 20", f:"GT vs MI", v:"Ahmedabad", t:"7:30 PM"},
+        {m:31, d:"Apr 21", f:"SRH vs DC", v:"Hyderabad", t:"7:30 PM"}, {m:32, d:"Apr 22", f:"LSG vs RR", v:"Lucknow", t:"7:30 PM"},
+        {m:33, d:"Apr 23", f:"MI vs CSK", v:"Mumbai", t:"7:30 PM"}, {m:34, d:"Apr 24", f:"RCB vs GT", v:"Bengaluru", t:"7:30 PM"},
+        {m:35, d:"Apr 25", f:"DC vs PBKS", v:"Delhi", t:"3:30 PM"}, {m:36, d:"Apr 25", f:"RR vs SRH", v:"Jaipur", t:"7:30 PM"},
+        {m:37, d:"May 3", f:"GT vs CSK", v:"Ahmedabad", t:"3:30 PM"}, {m:38, d:"Apr 26", f:"LSG vs KKR", v:"Lucknow", t:"7:30 PM"},
+        {m:39, d:"Apr 27", f:"DC vs RCB", v:"Delhi", t:"7:30 PM"}, {m:40, d:"Apr 28", f:"PBKS vs RR", v:"Mullanpur", t:"7:30 PM"},
+        {m:41, d:"Apr 29", f:"MI vs SRH", v:"Mumbai", t:"7:30 PM"}, {m:42, d:"Apr 30", f:"KKR vs GT", v:"Kolkata", t:"7:30 PM"},
+        {m:43, d:"May 1", f:"CSK vs RR", v:"Chennai", t:"7:30 PM"}, {m:44, d:"May 2", f:"DC vs LSG", v:"Delhi", t:"3:30 PM"},
+        {m:45, d:"May 2", f:"RCB vs PBKS", v:"Bengaluru", t:"7:30 PM"}, {m:46, d:"May 3", f:"SRH vs MI", v:"Hyderabad", t:"3:30 PM"},
+        {m:47, d:"May 3", f:"RR vs KKR", v:"Jaipur", t:"7:30 PM"}, {m:48, d:"May 4", f:"GT vs CSK", v:"Ahmedabad", t:"7:30 PM"},
+        {m:49, d:"May 5", f:"LSG vs RCB", v:"Lucknow", t:"7:30 PM"}, {m:50, d:"May 6", f:"PBKS vs DC", v:"Mullanpur", t:"7:30 PM"},
+        {m:51, d:"May 7", f:"KKR vs MI", v:"Kolkata", t:"7:30 PM"}, {m:52, d:"May 8", f:"CSK vs SRH", v:"Chennai", t:"7:30 PM"},
+        {m:53, d:"May 9", f:"RCB vs RR", v:"Bengaluru", t:"3:30 PM"}, {m:54, d:"May 9", f:"GT vs LSG", v:"Ahmedabad", t:"7:30 PM"},
+        {m:55, d:"May 10", f:"MI vs DC", v:"Mumbai", t:"3:30 PM"}, {m:56, d:"May 10", f:"PBKS vs KKR", v:"Mullanpur", t:"7:30 PM"},
+        {m:57, d:"May 11", f:"SRH vs GT", v:"Hyderabad", t:"7:30 PM"}, {m:58, d:"May 12", f:"RR vs LSG", v:"Jaipur", t:"7:30 PM"},
+        {m:59, d:"May 13", f:"DC vs CSK", v:"Delhi", t:"7:30 PM"}, {m:60, d:"May 14", f:"SRH vs RCB", v:"Hyderabad", t:"7:30 PM"},
+        {m:61, d:"May 15", f:"PBKS vs MI", v:"Mullanpur", t:"7:30 PM"}, {m:62, d:"May 16", f:"LSG vs CSK", v:"Lucknow", t:"3:30 PM"},
+        {m:63, d:"May 16", f:"GT vs RCB", v:"Ahmedabad", t:"7:30 PM"}, {m:64, d:"May 17", f:"RR vs PBKS", v:"Jaipur", t:"3:30 PM"},
+        {m:65, d:"May 17", f:"DC vs SRH", v:"Delhi", t:"7:30 PM"}, {m:66, d:"May 18", f:"MI vs GT", v:"Mumbai", t:"7:30 PM"},
+        {m:67, d:"May 19", f:"KKR vs LSG", v:"Kolkata", t:"7:30 PM"}, {m:68, d:"May 20", f:"RR vs DC", v:"Jaipur", t:"7:30 PM"},
+        {m:69, d:"May 21", f:"SRH vs PBKS", v:"Hyderabad", t:"7:30 PM"}, {m:70, d:"May 22", f:"CSK vs MI", v:"Chennai", t:"7:30 PM"},
+        {m:71, d:"May 24", f:"Qualifier 1", v:"TBD", t:"7:30 PM"}, {m:72, d:"May 25", f:"Eliminator", v:"TBD", t:"7:30 PM"},
+        {m:73, d:"May 27", f:"Qualifier 2", v:"TBD", t:"7:30 PM"}, {m:74, d:"May 31", f:"GRAND FINAL", v:"TBD", t:"7:30 PM"}
+    ];
 
     function openTab(e, n) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -396,7 +425,14 @@
         let rankCounts = [{}, {}, {}, {}, {}];
         let abandonedMatchCount = 0;
 
-        ALL_PLAYERS.forEach(p => { currentStats[p] = 0; });
+        ALL_PLAYERS.forEach(p => { 
+            currentStats[p] = 0; 
+            rankCounts[0][p] = 0;
+            rankCounts[1][p] = 0;
+            rankCounts[2][p] = 0;
+            rankCounts[3][p] = 0;
+            rankCounts[4][p] = 0;
+        });
 
         const sortedKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
         document.getElementById('tourneyCount').innerText = sortedKeys.length;
@@ -443,7 +479,6 @@
             document.getElementById('topPodium').innerHTML = `<div class="podium-place place-2"><span>${sortedE[1]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[1]?.[1] || 0}</div><h2>2</h2></div><div class="podium-place place-1"><span>${sortedE[0][0]}</span><div class="podium-amt">₹${sortedE[0][1]}</div><h2>1</h2></div><div class="podium-place place-3"><span>${sortedE[2]?.[0] || '-'}</span><div class="podium-amt">₹${sortedE[2]?.[1] || 0}</div><h2>3</h2></div>`;
         }
 
-        // Render the Season Finale Recap Table (Highlighting Top 5)
         if(finalRecapBody) {
             sortedE.forEach(([name, won], index) => {
                 const netProfitLoss = won - DEPOSIT_GOAL;
@@ -472,7 +507,6 @@
             });
         }
 
-        // Render the Medal / Position Breakdown Table for All Players
         if(medalCountsBody) {
             sortedE.forEach(([name, won], index) => {
                 const rankDisplay = index + 1;
@@ -526,7 +560,14 @@
     function shareFinalRecapWhatsApp() {
         let currentStats = {};
         let rankCounts = [{}, {}, {}, {}, {}];
-        ALL_PLAYERS.forEach(p => { currentStats[p] = 0; });
+        ALL_PLAYERS.forEach(p => { 
+            currentStats[p] = 0; 
+            rankCounts[0][p] = 0;
+            rankCounts[1][p] = 0;
+            rankCounts[2][p] = 0;
+            rankCounts[3][p] = 0;
+            rankCounts[4][p] = 0;
+        });
 
         Object.keys(winnersList).forEach(key => {
             if (winnersList[key].isAbandoned || !winnersList[key].winners) return;
@@ -716,7 +757,6 @@ _May the best predictions win!_ 🏏`;
         document.getElementById('simWinners').innerText = list.length ? list.join(' | ') : "No winners.";
     }
 
-    // Consolidated Master Realtime Loop With Isolated Standalone Observers
     function fetchAllData() {
         db.ref('leagueMaster/paidHistory').on('value', snap => {
             paidHistory = snap.val() || [];
