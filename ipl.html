@@ -524,7 +524,7 @@
         document.getElementById('tourneyCount').innerText = totalCoreMatchesCounted;
         document.getElementById('tourneyBar').style.width = (totalCoreMatchesCounted/74*100)+'%';
 
-        // Tally dynamic points from active trivia trees
+        // Tally trivia winnings dynamically
         Object.keys(currentTriviaPools).forEach(tid => {
             const item = currentTriviaPools[tid];
             if(item.settledWinners && Array.isArray(item.settledWinners)) {
@@ -537,7 +537,7 @@
             }
         });
 
-        // Compute aggregate values explicitly
+        // Compute natural aggregate values absolute logic
         ALL_PLAYERS.forEach(p => {
             totalWinnings[p] = matchWinnings[p] + triviaWinnings[p];
         });
@@ -609,13 +609,11 @@
         const paidMap = {};
         paidHistory.forEach(h => paidMap[h.name] = (paidMap[h.name] || 0) + h.amount);
         
-        let aggregateCalculatedWonSum = 0;
         let cumulativeSettledPaidSum = 0;
 
         sortedE.forEach(([name, totalWon]) => {
             const paid = paidMap[name] || 0;
             const due = Math.max(totalWon - paid, 0); 
-            aggregateCalculatedWonSum += totalWon;
             cumulativeSettledPaidSum += paid;
             
             const rem = Math.max(DEPOSIT_GOAL - totalWon, 0);
@@ -638,7 +636,7 @@
         const rawAbandonedPool = abandonedMatchCount * prizeSumPerMatch;
         const netRemainingAbandoned = Math.max(rawAbandonedPool - totalTriviaDistributed, 0);
 
-        // Standard accounting dashboard metrics tracking
+        // Core Accounting Metrics Dashboard Synchronizer
         document.getElementById('dashTotalWon').innerText = `₹${TOTAL_POOL}`;
         document.getElementById('dashPaid').innerText = `₹${Math.round(cumulativeSettledPaidSum)}`;
         document.getElementById('dashPending').innerText = `₹${Math.max(Math.round(TOTAL_POOL - cumulativeSettledPaidSum), 0)}`;
