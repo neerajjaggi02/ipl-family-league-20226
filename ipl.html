@@ -164,6 +164,7 @@
     </div>
 
     <div id="summary" class="content-section">
+        <!-- Professional Tournament Season Recap Module Card -->
         <div class="season-card">
             <div class="season-header">
                 <div>
@@ -189,6 +190,7 @@
                 </table>
             </div>
 
+            <!-- Position Density Breakdown Array Block -->
             <h3 style="color: var(--gold); margin-top: 35px; font-size: 1.1rem; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 15px;">📊 Historical Performance & Medal Distribution Matrix</h3>
             <div style="overflow-x: auto;">
                 <table class="season-table">
@@ -249,10 +251,12 @@
         </div>
     </div>
 
+    <!-- Trivia Tab Interface Module -->
     <div id="triviaTab" class="content-section">
         <h2 style="text-align:center; color:var(--primary); margin-bottom:5px;">🧠 RCB vs GT Finals Speed Trivia</h2>
         <p style="text-align:center; color:#666; margin-bottom:25px;">Select your name, choose active questions, and answer as fast as possible!</p>
         
+        <!-- Live Family Playground Panel -->
         <div class="player-zone">
             <h3 style="color:var(--success); margin-top:0; margin-bottom:15px;">⚡ Live Prediction Playground</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
@@ -272,6 +276,7 @@
             <button class="btn" style="background:var(--success); width:100%; font-size:1.05em;" onclick="submitPlayerAnswerLive()">🚀 Send Speed Prediction</button>
         </div>
 
+        <!-- Authorized Administrative Control Panel -->
         <div id="adminTriviaControl" style="display:none; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed var(--secondary); margin-bottom:25px;">
             <h3>➕ Create New Finals Trivia Pool</h3>
             <div style="margin-bottom:10px;">
@@ -455,6 +460,7 @@
         let rankCounts = [{}, {}, {}, {}, {}];
         let abandonedMatchCount = 0;
         let totalTriviaDistributed = 0;
+        let totalCoreMatchesCounted = 0;
 
         ALL_PLAYERS.forEach(p => { 
             currentStats[p] = 0; 
@@ -465,12 +471,16 @@
             rankCounts[4][p] = 0;
         });
 
-        const sortedKeys = Object.keys(winnersList).sort((a,b) => a.split('_')[1] - b.split('_')[1]);
-        document.getElementById('tourneyCount').innerText = sortedKeys.length;
-        document.getElementById('tourneyBar').style.width = (sortedKeys.length/74*100)+'%';
+        // Loop sorting logic constrained to strict match indexing keys up to maximum official scale
+        const sortedKeys = Object.keys(winnersList)
+            .filter(k => k.startsWith('match_') && !isNaN(k.split('_')[1]))
+            .sort((a,b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]));
 
         sortedKeys.forEach(key => {
-            const matchNum = key.split('_')[1];
+            const matchNum = parseInt(key.split('_')[1]);
+            if (matchNum > 74) return; // Strict boundary layout safety 
+
+            totalCoreMatchesCounted++;
             const matchData = winnersList[key];
             const winners = matchData.winners || [];
             const isAbandoned = matchData.isAbandoned === true;
@@ -499,12 +509,15 @@
             hBody.innerHTML += `<tr>${rowHTML}</tr>`;
         });
 
-        // Deduct trivia allocations directly from the abandoned pool to keep the math sequential
+        document.getElementById('tourneyCount').innerText = totalCoreMatchesCounted;
+        document.getElementById('tourneyBar').style.width = (totalCoreMatchesCounted/74*100)+'%';
+
+        // Calculate and add trivia prize allocations onto player balances
         Object.keys(currentTriviaPools).forEach(tid => {
             const item = currentTriviaPools[tid];
             if(item.settledWinners && Array.isArray(item.settledWinners)) {
                 item.settledWinners.forEach((winnerName, idx) => {
-                    if(winnerName) {
+                    if(winnerName && ALL_PLAYERS.includes(winnerName)) {
                         currentStats[winnerName] = (currentStats[winnerName] || 0) + TRIVIA_SPLITS[idx];
                         totalTriviaDistributed += TRIVIA_SPLITS[idx];
                     }
@@ -595,9 +608,10 @@
         const rawAbandonedPool = abandonedMatchCount * prizeSumPerMatch;
         const netRemainingAbandoned = Math.max(rawAbandonedPool - totalTriviaDistributed, 0);
 
+        // Standardized card layout parameters
         document.getElementById('dashTotalWon').innerText = `₹${TOTAL_POOL}`;
         document.getElementById('dashPaid').innerText = `₹${Math.round(totalSettledVal)}`;
-        document.getElementById('dashPending').innerText = `₹${Math.max(Math.round(totalWinningsVal - totalSettledVal), 0)}`;
+        document.getElementById('dashPending').innerText = `₹${Math.max(Math.round(TOTAL_POOL - totalSettledVal), 0)}`;
         document.getElementById('dashAbandoned').innerText = `₹${netRemainingAbandoned}`;
         document.getElementById('dashBalance').innerText = `₹${Math.max(Math.round(TOTAL_POOL - totalSettledVal), 0)}`;
         document.getElementById('cloudStatus').innerText = "LIVE ✅";
@@ -616,7 +630,10 @@
         });
 
         Object.keys(winnersList).forEach(key => {
-            if (winnersList[key].isAbandoned || !winnersList[key].winners) return;
+            if (!key.startsWith('match_') || winnersList[key].isAbandoned || !winnersList[key].winners) return;
+            const matchNum = parseInt(key.split('_')[1]);
+            if(matchNum > 74) return;
+
             winnersList[key].winners.forEach((box, idx) => {
                 if(!box) return;
                 const names = box.split(', ').filter(n => n);
@@ -634,7 +651,7 @@
             const item = currentTriviaPools[tid];
             if(item.settledWinners && Array.isArray(item.settledWinners)) {
                 item.settledWinners.forEach((winnerName, idx) => {
-                    if(winnerName) {
+                    if(winnerName && ALL_PLAYERS.includes(winnerName)) {
                         currentStats[winnerName] = (currentStats[winnerName] || 0) + TRIVIA_SPLITS[idx];
                     }
                 });
@@ -714,12 +731,15 @@
     function generateWhatsAppReport() {
         let currentWinnings = {};
         Object.keys(winnersList).forEach(k => {
-            if(winnersList[k].isAbandoned) return;
+            if(!k.startsWith('match_') || winnersList[k].isAbandoned) return;
+            const matchNum = parseInt(k.split('_')[1]);
+            if(matchNum > 74) return;
+
             winnersList[k].winners.forEach((box, idx) => {
                 if(!box) return;
                 const names = box.split(', ').filter(n => n);
                 let prize = 0;
-                for(let i=0; i<names.length; i++) if(PRIZES[idx+i]) prize += PRIZES[idx+i];
+                for(let i=0; i<names.length; i++) if(PRIZES[idx+i]) pool += PRIZES[idx+i];
                 names.forEach(n => currentWinnings[n] = (currentWinnings[n] || 0) + Math.round(prize/names.length));
             });
         });
@@ -746,7 +766,10 @@
         let rankCounts = [{}, {}, {}, {}, {}];
 
         Object.keys(winnersList).forEach(k => {
-            if (winnersList[k].isAbandoned || !winnersList[k].winners) return;
+            if (!k.startsWith('match_') || winnersList[k].isAbandoned || !winnersList[k].winners) return;
+            const matchNum = parseInt(k.split('_')[1]);
+            if(matchNum > 74) return;
+
             winnersList[k].winners.forEach((box, idx) => {
                 if(!box) return;
                 const names = box.split(', ').filter(n => n);
@@ -811,7 +834,11 @@ _May the best predictions win!_ 🏏`;
         resBox.style.display = 'block';
         document.getElementById('simPrize').innerText = `Rank ${rankIndex+1}: ₹${PRIZES[rankIndex]}`;
         let list = [];
-        Object.keys(winnersList).forEach(k => { if(winnersList[k].winners?.[rankIndex]) list.push(`M${k.split('_')[1]}: ${winnersList[k].winners[rankIndex]}`); });
+        Object.keys(winnersList).forEach(k => { 
+            if(!k.startsWith('match_')) return;
+            const mNum = parseInt(k.split('_')[1]);
+            if(mNum <= 74 && winnersList[k].winners?.[rankIndex]) list.push(`M${mNum}: ${winnersList[k].winners[rankIndex]}`); 
+        });
         document.getElementById('simWinners').innerText = list.length ? list.join(' | ') : "No winners.";
     }
 
@@ -1031,7 +1058,7 @@ _May the best predictions win!_ 🏏`;
                     `</div></div>`;
 
                 item.settledWinners.forEach((winnerName, idx) => {
-                    if(winnerName) {
+                    if(winnerName && ALL_PLAYERS.includes(winnerName)) {
                         globalTriviaScores[winnerName] = (globalTriviaScores[winnerName] || 0) + TRIVIA_SPLITS[idx];
                     }
                 });
