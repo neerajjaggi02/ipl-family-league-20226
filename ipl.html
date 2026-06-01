@@ -9,7 +9,17 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <style>
-        :root { --primary: #1a3a5f; --secondary: #2b6cb0; --success: #28a745; --danger: #dc3545; --bg: #f4f7f9; --gold: #fbbf24; --silver: #94a3b8; --bronze: #b45309; }
+        :root { 
+            --primary: #1a3a5f; 
+            --secondary: #2b6cb0; 
+            --success: #28a745; 
+            --danger: #dc3545; 
+            --bg: #f4f7f9; 
+            --gold: #fbbf24; 
+            --silver: #94a3b8; 
+            --bronze: #b45309; 
+            --dark-card: #0f172a;
+        }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; margin: 0; padding: 10px; }
         .container { max-width: 1100px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; border-top: 8px solid var(--primary); }
         .setup-bar { background: #1a3a5f; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
@@ -54,8 +64,25 @@
         .input-field { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 5px; box-sizing: border-box; }
         .player-zone { background: linear-gradient(135deg, #ffffff, #f0fdf4); border: 2px solid var(--success); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
 
-        /* Highlight classes for Top 5 Summary */
-        .top5-highlight { background: #fffbeb !important; font-weight: bold; border-left: 5px solid var(--gold); }
+        /* Premium Dashboard Summary Redesign */
+        .season-card { background: var(--dark-card); color: white; padding: 25px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(15,23,42,0.15); }
+        .season-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 20px; }
+        .season-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem; }
+        .season-table th { background: #1e293b; color: #cbd5e1; padding: 14px; font-weight: 600; border-bottom: 2px solid #334155; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+        .season-table td { padding: 14px; border-bottom: 1px solid #1e293b; color: #f1f5f9; }
+        .season-table tr:hover { background: rgba(255,255,255,0.02); }
+        
+        /* High-End Status Badges */
+        .badge-profit { background: rgba(40,167,69,0.15); color: #4ade80; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-block; }
+        .badge-loss { background: rgba(220,53,69,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-block; }
+        .badge-invested { color: #94a3b8; font-size: 0.9rem; font-weight: 500; }
+        .badge-earned { font-weight: 600; color: #f1f5f9; font-size: 0.95rem; }
+        
+        .row-top5 { background: rgba(251,191,36,0.04) !important; border-left: 4px solid var(--gold); }
+        .row-top5 td { font-weight: 500; }
+
+        .medal-pill { display: inline-block; padding: 2px 6px; border-radius: 6px; background: #1e293b; font-size: 0.8rem; font-weight: 600; margin: 1px; color: #cbd5e1; border: 1px solid #334155; }
+        .medal-pill-active { background: rgba(251,191,36,0.1); color: var(--gold); border-color: rgba(251,191,36,0.2); }
     </style>
 </head>
 <body>
@@ -137,49 +164,47 @@
     </div>
 
     <div id="summary" class="content-section">
-        <div style="background: linear-gradient(135deg, #111827, #1f2937); color: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #374151; padding-bottom: 15px; margin-bottom: 20px;">
-                <h2 style="margin: 0; color: var(--gold);">🎉 Season Finale Leaderboard & Balance Sheet</h2>
-                <button class="btn" style="background: #25D366; display: flex; align-items: center; gap: 8px;" onclick="shareFinalRecapWhatsApp()">
-                    📱 Share Final Summary on WhatsApp
+        <!-- Professional Tournament Season Recap Module Card -->
+        <div class="season-card">
+            <div class="season-header">
+                <div>
+                    <h2 style="margin: 0; color: var(--gold); font-size: 1.4rem; letter-spacing: 0.3px;">👑 Final Standings & Account Summary</h2>
+                    <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #94a3b8;">Official ledger based on uniform entry deposit parameters</p>
+                </div>
+                <button class="btn" style="background: #25D366; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,211,102,0.2); font-size: 0.9rem;" onclick="shareFinalRecapWhatsApp()">
+                    📱 Share Wrap-up Text via WhatsApp
                 </button>
             </div>
             
-            <p style="font-size: 0.9em; color: #9ca3af; margin-top: -10px; margin-bottom: 15px;">
-                Calculated explicitly based on the entry deposit of <b>₹1,480</b> per member. Top 5 overall finishers are uniquely highlighted!
-            </p>
-            
-            <div style="overflow-x: auto; margin-bottom: 30px;">
-                <table style="margin:0; width:100%; color: white;">
+            <div style="overflow-x: auto;">
+                <table class="season-table">
                     <thead>
-                        <tr style="background: #374151;">
-                            <th style="text-align:left; color: #f3f4f6;">Rank & Member</th>
-                            <th style="color: #f3f4f6;">Invested</th>
-                            <th style="color: #f3f4f6;">Total Earned</th>
-                            <th style="color: #f3f4f6;">Net Status (P/L)</th>
+                        <tr>
+                            <th style="text-align:left; padding-left:15px; width: 30%;">Rank & Member</th>
+                            <th style="width: 20%;">Invested Amount</th>
+                            <th style="width: 20%;">Total Winnings</th>
+                            <th style="text-align:right; padding-right:15px; width: 30%;">Net Financial Balance</th>
                         </tr>
                     </thead>
-                    <tbody id="finalRecapBody" style="color: #111827;"></tbody>
+                    <tbody id="finalRecapBody"></tbody>
                 </table>
             </div>
 
-            <h3 style="color: var(--gold); border-bottom: 1px solid #374151; padding-bottom: 10px; margin-bottom: 15px;">🏅 Season Position & Medal Counts Breakdown</h3>
-            <p style="font-size: 0.85em; color: #9ca3af; margin-top: -5px; margin-bottom: 15px;">
-                See exactly how many times each individual achieved 1st, 2nd, 3rd, 4th, and 5th places throughout the 74 matches.
-            </p>
+            <!-- Position Density Breakdown Array Block -->
+            <h3 style="color: var(--gold); margin-top: 35px; font-size: 1.1rem; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 15px;">📊 Historical Performance & Medal Distribution matrix</h3>
             <div style="overflow-x: auto;">
-                <table style="margin:0; width:100%; color: white;">
+                <table class="season-table">
                     <thead>
-                        <tr style="background: #374151;">
-                            <th style="text-align:left; color: #f3f4f6;">Member</th>
-                            <th style="color: #fbbf24;">🥇 1st</th>
-                            <th style="color: #94a3b8;">🥈 2nd</th>
-                            <th style="color: #b45309;">🥉 3rd</th>
-                            <th style="color: #4a5568;">🏅 4th</th>
-                            <th style="color: #718096;">🏅 5th</th>
+                        <tr>
+                            <th style="text-align:left; padding-left:15px; width: 30%;">Member Name</th>
+                            <th style="color: var(--gold);">🥇 1st</th>
+                            <th style="color: var(--silver);">🥈 2nd</th>
+                            <th style="color: #c084fc;">🥉 3rd</th>
+                            <th style="color: #a7f3d0;">🏅 4th</th>
+                            <th style="color: #cbd5e1;">🏅 5th</th>
                         </tr>
                     </thead>
-                    <tbody id="medalCountsBody" style="color: #111827;"></tbody>
+                    <tbody id="medalCountsBody"></tbody>
                 </table>
             </div>
         </div>
@@ -199,7 +224,7 @@
         </div>
         <div style="background:white; border-radius:15px; border:1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow:hidden;">
             <div style="padding:15px; background:#f8f9fa; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; font-size:1em; color:var(--primary);">💳 Recovery & Payments</h3>
+                <h3 style="margin:0; font-size:1em; color:var(--primary);">💳 Recovery & Payments Ledger</h3>
                 <div style="display:flex; gap:10px;">
                     <button id="waBtn" class="btn" style="background:#25D366; display:none; padding:8px 15px; font-size:0.85em;" onclick="generateWhatsAppReport()">📱 Report</button>
                     <label style="font-size:0.8em;"><input type="checkbox" id="hideSettled" onchange="renderTables()"> Hide Paid</label>
@@ -226,10 +251,12 @@
         </div>
     </div>
 
+    <!-- Trivia Tab Interface Module -->
     <div id="triviaTab" class="content-section">
         <h2 style="text-align:center; color:var(--primary); margin-bottom:5px;">🧠 RCB vs GT Finals Speed Trivia</h2>
         <p style="text-align:center; color:#666; margin-bottom:25px;">Select your name, choose active questions, and answer as fast as possible!</p>
         
+        <!-- Live Family Playground Panel -->
         <div class="player-zone">
             <h3 style="color:var(--success); margin-top:0; margin-bottom:15px;">⚡ Live Prediction Playground</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
@@ -249,6 +276,7 @@
             <button class="btn" style="background:var(--success); width:100%; font-size:1.05em;" onclick="submitPlayerAnswerLive()">🚀 Send Speed Prediction</button>
         </div>
 
+        <!-- Authorized Administrative Control Panel -->
         <div id="adminTriviaControl" style="display:none; background:#f8f9fa; padding:20px; border-radius:10px; border:2px dashed var(--secondary); margin-bottom:25px;">
             <h3>➕ Create New Finals Trivia Pool</h3>
             <div style="margin-bottom:10px;">
@@ -492,24 +520,24 @@
                 const isProfit = netProfitLoss >= 0;
                 const rankDisplay = index + 1;
                 
-                let rankBadge = `<b>#${rankDisplay}</b>`;
+                let rankBadge = `<span style="color:#94a3b8; font-weight:bold;">#${rankDisplay}</span>`;
                 let rowHighlightClass = "";
                 
-                if(rankDisplay === 1) { rankBadge = "🥇 <b>1st</b>"; rowHighlightClass = "top5-highlight"; }
-                else if(rankDisplay === 2) { rankBadge = "🥈 <b>2nd</b>"; rowHighlightClass = "top5-highlight"; }
-                else if(rankDisplay === 3) { rankBadge = "🥉 <b>3rd</b>"; rowHighlightClass = "top5-highlight"; }
-                else if(rankDisplay === 4) { rankBadge = "🏅 <b>4th</b>"; rowHighlightClass = "top5-highlight"; }
-                else if(rankDisplay === 5) { rankBadge = "🏅 <b>5th</b>"; rowHighlightClass = "top5-highlight"; }
+                if(rankDisplay === 1) { rankBadge = "🥇 <span style='color:var(--gold); font-weight:bold;'>1st</span>"; rowHighlightClass = "row-top5"; }
+                else if(rankDisplay === 2) { rankBadge = "🥈 <span style='color:var(--silver); font-weight:bold;'>2nd</span>"; rowHighlightClass = "row-top5"; }
+                else if(rankDisplay === 3) { rankBadge = "🥉 <span style='color:#e9d5ff; font-weight:bold;'>3rd</span>"; rowHighlightClass = "row-top5"; }
+                else if(rankDisplay === 4) { rankBadge = "🏅 <span style='color:#a7f3d0; font-weight:bold;'>4th</span>"; rowHighlightClass = "row-top5"; }
+                else if(rankDisplay === 5) { rankBadge = "🏅 <span style='color:#f1f5f9; font-weight:bold;'>5th</span>"; rowHighlightClass = "row-top5"; }
 
-                const netClass = isProfit ? "color: var(--success); font-weight:bold;" : "color: var(--danger); font-weight:bold;";
+                const netStyleClass = isProfit ? "badge-profit" : "badge-loss";
                 const netPrefix = isProfit ? "+₹" : "-₹";
 
                 finalRecapBody.innerHTML += `
                     <tr class="${rowHighlightClass}">
-                        <td style="text-align:left; padding:10px;">${rankBadge} ${name}</td>
-                        <td>₹${DEPOSIT_GOAL}</td>
-                        <td><b>₹${won}</b></td>
-                        <td style="${netClass}">${netPrefix}${Math.abs(netProfitLoss)}</td>
+                        <td style="text-align:left; padding-left:15px; color:#f1f5f9;">${rankBadge} <span style="margin-left:8px;">${name}</span></td>
+                        <td class="badge-invested">₹${DEPOSIT_GOAL}</td>
+                        <td class="badge-earned">₹${won}</td>
+                        <td style="text-align:right; padding-right:15px;"><span class="${netStyleClass}">${netPrefix}${Math.abs(netProfitLoss)}</span></td>
                     </tr>`;
             });
         }
@@ -517,7 +545,7 @@
         if(medalCountsBody) {
             sortedE.forEach(([name, won], index) => {
                 const rankDisplay = index + 1;
-                let rowHighlightClass = rankDisplay <= 5 ? "top5-highlight" : "";
+                let rowHighlightClass = rankDisplay <= 5 ? "row-top5" : "";
 
                 const c1 = rankCounts[0][name] || 0;
                 const c2 = rankCounts[1][name] || 0;
@@ -527,12 +555,12 @@
 
                 medalCountsBody.innerHTML += `
                     <tr class="${rowHighlightClass}">
-                        <td style="text-align:left; padding:10px;"><b>${name}</b> <small style="color:#666;">(#${rankDisplay})</small></td>
-                        <td style="font-weight:bold; color: #b45309;">${c1}x</td>
-                        <td>${c2}x</td>
-                        <td>${c3}x</td>
-                        <td>${c4}x</td>
-                        <td>${c5}x</td>
+                        <td style="text-align:left; padding-left:15px; color:#f1f5f9;"><b>${name}</b> <small style="color:#64748b; margin-left:4px;">(#${rankDisplay})</small></td>
+                        <td><span class="medal-pill ${c1 > 0 ? 'medal-pill-active' : ''}">${c1}x</span></td>
+                        <td><span class="medal-pill">${c2}x</span></td>
+                        <td><span class="medal-pill">${c3}x</span></td>
+                        <td><span class="medal-pill">${c4}x</span></td>
+                        <td><span class="medal-pill">${c5}x</span></td>
                     </tr>`;
             });
         }
