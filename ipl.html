@@ -368,6 +368,12 @@
         {m:73, d:"May 27", f:"Qualifier 2", v:"TBD", t:"7:30 PM"}, {m:74, d:"May 31", f:"GRAND FINAL", v:"TBD", t:"7:30 PM"}
     ];
 
+    let winnersList = {};
+    let paidHistory = [];
+    let isAdmin = false;
+    let lastMatchData = { num: 0, winners: [], isAbandoned: false };
+    let currentTriviaPools = {};
+
     function openTab(e, n) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -417,6 +423,7 @@
         const medalCountsBody = document.getElementById('medalCountsBody');
         const rankBoard = document.getElementById('rankLeaderboard');
         const hideSettled = document.getElementById('hideSettled').checked;
+        
         hBody.innerHTML = ''; sBody.innerHTML = ''; 
         if(finalRecapBody) finalRecapBody.innerHTML = '';
         if(medalCountsBody) medalCountsBody.innerHTML = '';
@@ -698,6 +705,7 @@
                 const split = Math.round(prize/names.length);
                 names.forEach(n => {
                     currentWinnings[n] = (currentWinnings[n] || 0) + split;
+                    if(!rankCounts[idx]) rankCounts[idx] = {};
                     rankCounts[idx][n] = (rankCounts[idx][n] || 0) + 1;
                 });
             });
@@ -939,7 +947,7 @@ _May the best predictions win!_ 🏏`;
             const isCurrentlyLocked = item.isLocked === true;
             
             if(!isSettled && !isCurrentlyLocked) {
-                playerDropdown.innerHTML += `<option value="${id}">${item.question}</option>';
+                playerDropdown.innerHTML += `<option value="${id}">${item.question}</option>`;
             } else if (isCurrentlyLocked && !isSettled) {
                 playerDropdown.innerHTML += `<option value="${id}">🔒 [LOCKED] ${item.question}</option>`;
             }
